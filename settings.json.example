@@ -1,0 +1,20 @@
+{
+  "model": "opus[1m]",
+  "enabledPlugins": {
+    "linear-cli@linear-cli": true
+  },
+  "extraKnownMarketplaces": {
+    "linear-cli": {
+      "source": {
+        "source": "github",
+        "repo": "schpet/linear-cli"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
+  "permissions": {
+    "defaultMode": "auto"
+  }
+}

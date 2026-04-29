@@ -1,0 +1,42 @@
+# Credentials & local overrides
+.credentials.json
+*.credentials.json
+.claude/settings.local.json
+settings.local.json
+settings.json
+
+# Caches
+cache/
+paste-cache/
+shell-snapshots/
+*-cache.json
+mcp-needs-auth-cache.json
+
+# Per-conversation / per-session state
+sessions/
+session-env/
+todos/
+tasks/
+plans/
+debug/
+history.jsonl
+
+# History & backups
+backups/
+file-history/
+
+# Telemetry & analytics
+telemetry/
+statsig/
+stats-cache.json
+policy-limits.json
+
+# Conversation transcripts (large, sensitive)
+# Un-ignore individual subpaths below if you want them tracked,
+# e.g. !projects/-Users-kamil--claude/memory/
+projects/
+
+# Misc runtime
+downloads/
+plugins/
+.claude
