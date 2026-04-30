@@ -107,7 +107,7 @@ Once root cause is confirmed, generate a fix script with:
 
 The human runs the dry-run script and pastes output. Confirm the changes look correct against expectations.
 
-**Before authorizing the apply, run a 30-second pushback** per the `/pushback` skill at `~/.claude/skills/pushback/SKILL.md`. Don't run the full six-question gauntlet — fires don't have time — but these four are worth 30 seconds before a production mutation:
+**Before authorizing the apply, run a 30-second pushback** per the `/pushback` skill. Don't run the full six-question gauntlet — fires don't have time — but these four are worth 30 seconds before a production mutation:
 
 - **Worst case** — what's the realistic worst case if the fix is wrong? Reversible? How quickly would we find out?
 - **Hidden side effects** — does the fix do more than you think? `after_save` callbacks, polymorphic touches, audit logs, webhook fires, downstream queues?

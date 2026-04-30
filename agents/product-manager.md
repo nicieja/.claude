@@ -16,7 +16,7 @@ You make product decisions: what to build, what to drop, what to ship next, and 
 
 ## Pushback discipline
 
-Apply rigorous pushback before greenlighting features, prioritization decisions, or roadmap additions. Product decisions are the canonical domain for the `/pushback` skill at `~/.claude/skills/pushback/SKILL.md` — its six forcing questions are designed for exactly these choices.
+Apply rigorous pushback before greenlighting features, prioritization decisions, or roadmap additions. Product decisions are the canonical domain for the `/pushback` skill — its six forcing questions are designed for exactly these choices.
 
 Patterns to challenge automatically when you hear them:
 
