@@ -43,6 +43,22 @@ Estimation rots when you wave the hand. These are non-negotiable:
 
 ---
 
+## Assume AI-enhanced collaboration
+
+The user works with Claude Code in the loop. Estimates **must** reflect that, not solo-human duration. The split is:
+
+- **AI compresses heavily:** scaffolding, boilerplate, drafting tests, generating new files that follow an existing pattern, search/exploration, syntax-level edits, regex/migrations across many files.
+- **AI barely compresses:** architecture decisions (e.g. approach A vs B), human review of generated code, validation against real systems, debugging when the AI is wrong, stakeholder/design wait time, deploy and rollout.
+
+Rules of thumb when sizing:
+- A task that is 80% typing → roughly 0.3–0.5x solo duration.
+- A task that is 50/50 typing and decision/review → roughly 0.5–0.7x solo duration.
+- A task that is mostly judgment, integration, or waiting on others → 0.8–1.0x solo duration. AI doesn't help much.
+
+State the assumed split when it materially shifts the number. If the task is decision-heavy, say so — don't pretend AI makes decisions cheap.
+
+---
+
 ## Workflow
 
 ### Step 0: Restate the task
@@ -70,13 +86,15 @@ Don't read the whole repo. Aim for **enough exploration to spot the obvious trap
 
 Produce an initial range in hours or days for the whole task.
 
-**Sizing anchors:**
-- **< 2h** — typo, copy change, single-file constant tweak
-- **2–4h** — small change in an existing pattern, no migration, no new test setup
-- **0.5–1d** — feature touching 2–3 files with tests, simple migration
-- **1–2d** — multi-file feature, new pattern, new tests, careful integration
-- **2–3d** — cross-cutting change, schema + service + UI, edge cases
-- **> 3d** — too big to estimate as one unit. **Break it down (Step 3).**
+**Sizing anchors (AI-enhanced — already adjusted for Claude Code in the loop):**
+- **< 1h** — typo, copy change, single-file constant tweak
+- **1–2h** — small change in an existing pattern, no migration, no new test setup
+- **2–4h** — feature touching 2–3 files with tests, simple migration
+- **0.5–1d** — multi-file feature, new pattern, new tests, careful integration
+- **1–2d** — cross-cutting change, schema + service + UI, edge cases
+- **> 2d** — too big to estimate as one unit. **Break it down (Step 3).**
+
+If the task is mostly decision/review/integration (AI doesn't help), shift one anchor up.
 
 **Range rules:**
 - Lower bound = optimistic case (everything as you expect, no surprises).
@@ -121,70 +139,80 @@ If an unknown is **load-bearing** (would shift the estimate by > 50%), use AskUs
 
 ## Output formats
 
+**All estimates are formatted as tables.** Tables make the structure scannable and force concision per cell. Use prose only when a value can't be summarized in one cell.
+
 ### Format A — Single estimate (no break-down)
 
+Lead with a header table, then an unknowns table. Optional risks table only if there are real risks.
+
 ```
-**Task:** [1–2 sentence restatement]
+| Field          | Value                                              |
+|----------------|----------------------------------------------------|
+| Task           | [1–2 sentence restatement]                         |
+| Estimate       | [range, e.g. "2–4h" or "0.5–1d"]                   |
+| Confidence     | [High / Medium / Low]                              |
+| Why this size  | [one-line justification]                           |
+| Touch points   | [files / packs, comma-separated]                   |
+| AI-enhanced?   | [Yes — typing-heavy / Partial / No — judgment-heavy] |
 
-**Estimate:** [range, e.g. "4–8h" or "1–2 days"]
-**Confidence:** [High / Medium / Low]
+| Unknown | Impact |
+|---------|--------|
+| ...     | shifts estimate by [amount/direction] |
 
-**Why this range:**
-- [1–3 bullets — what's known, what's straightforward, why this size]
-
-**Unknowns:**
-- [unknown] — impact: [how much it could shift the estimate]
-
-**Touch points:**
-- [files / packs / surfaces]
-
-**Risks to flag:**
-- [edge cases, hidden complexity, sequencing concerns — if any]
+| Risk | Why it matters |
+|------|----------------|
+| ...  | ... |
 ```
 
 ### Format B — Break-down
 
+Lead with a header table, then a per-chunk table, then unknowns/sequencing/risks tables.
+
 ```
-**Task:** [1–2 sentence restatement]
+| Field          | Value                                  |
+|----------------|----------------------------------------|
+| Task           | [1–2 sentence restatement]             |
+| Total estimate | [summed range]                         |
+| Confidence     | [High / Medium / Low]                  |
+| AI-enhanced?   | [Yes / Partial / No, with one-line why] |
 
-**Total estimate:** [summed range]
-**Confidence:** [High / Medium / Low]
+| # | Chunk | Range | Done when | Touch points | Key unknowns |
+|---|-------|-------|-----------|--------------|--------------|
+| 1 | ...   | 2–4h  | ...       | ...          | ...          |
+| 2 | ...   | ...   | ...       | ...          | ...          |
 
-This is too big to estimate as one unit. Breakdown:
+| Cross-cutting unknown | Impact on total |
+|-----------------------|-----------------|
+| ...                   | ...             |
 
-### 1. [Chunk name] — [range]
-- **Done when:** [criterion]
-- **Touch points:** [files/packs]
-- **Unknowns:** [list with impact]
+| Sequencing | What blocks what |
+|------------|------------------|
+| ...        | ...              |
 
-### 2. [Chunk name] — [range]
-...
-
-**Cross-cutting unknowns** (shift the total beyond per-chunk sums):
-- [unknown] — impact: [how much it shifts total]
-
-**Sequencing:**
-- [chunk dependencies — what blocks what]
-
-**Risks to flag:**
-- [edge cases, hidden complexity, integration concerns]
+| Risk | Why it matters |
+|------|----------------|
+| ...  | ...            |
 ```
+
+If a chunk row gets too dense for one line per cell, use line breaks within the cell (`<br>`) — but keep cells under ~3 lines. If you need more, the chunk is probably its own break-down.
 
 ### Format C — Not ready to estimate
 
 When break-down hits the 3-level cap or scope is too unbounded:
 
 ```
-**Task:** [restatement]
+| Field   | Value                       |
+|---------|-----------------------------|
+| Task    | [restatement]               |
+| Verdict | Not ready to estimate.      |
 
-**Verdict:** Not ready to estimate.
+| Why not ready | Detail |
+|---------------|--------|
+| ...           | ...    |
 
-**Why:**
-- [specific reasons — e.g. "spans 4 packs with no clear boundary," "depends on design decision X that hasn't been made"]
-
-**What would unblock estimation:**
-- [specific scoping question or decision]
-- [specific clarification needed]
+| What would unblock | Detail |
+|--------------------|--------|
+| ...                | ...    |
 ```
 
 ---
@@ -193,10 +221,12 @@ When break-down hits the 3-level cap or scope is too unbounded:
 
 1. **Always explore the code before estimating.** No estimate from text alone.
 2. **Always give a range.** No point estimates.
-3. **Break down when the estimate is too big or too wide** (upper > 3d, or upper/lower > 3, or >3 load-bearing unknowns, or spans multiple surfaces).
-4. **Recurse the break-down up to 3 levels.** Beyond that, output Format C — the task isn't ready to estimate.
-5. **Surface unknowns explicitly.** Don't pad the estimate to absorb them.
-6. **Ask via AskUserQuestion when an unknown is load-bearing** (would shift estimate > 50%). One at a time.
-7. **No code edits.** This is an analysis skill. Produce the estimate; don't write the code, don't propose patches.
-8. **Independently shippable chunks.** When breaking down, each chunk should be a real PR you could merge alone.
-9. **Don't over-decompose.** Chunks below ~2h get bundled, not split further.
+3. **Always assume AI-enhanced collaboration** unless the user says otherwise. Adjust the estimate down for typing-heavy work; do not for decision/review-heavy work.
+4. **Always format as a table.** Tables are the default; prose only fills cells that can't be condensed.
+5. **Break down when the estimate is too big or too wide** (upper > 2d, or upper/lower > 3, or >3 load-bearing unknowns, or spans multiple surfaces).
+6. **Recurse the break-down up to 3 levels.** Beyond that, output Format C — the task isn't ready to estimate.
+7. **Surface unknowns explicitly.** Don't pad the estimate to absorb them.
+8. **Ask via AskUserQuestion when an unknown is load-bearing** (would shift estimate > 50%). One at a time.
+9. **No code edits.** This is an analysis skill. Produce the estimate; don't write the code, don't propose patches.
+10. **Independently shippable chunks.** When breaking down, each chunk should be a real PR you could merge alone.
+11. **Don't over-decompose.** Chunks below ~1h get bundled, not split further.
