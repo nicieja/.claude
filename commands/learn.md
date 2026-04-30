@@ -1,5 +1,5 @@
 ---
-description: Self-learn and update AGENTS.md
+description: Self-learn
 ---
 
-Document what you've learnt from this session and update AGENTS.md
+Document what you've learnt from this session and update my Claude skills
