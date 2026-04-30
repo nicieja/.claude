@@ -37,6 +37,7 @@ This is the most important part. The summary should read like a real person type
 - It's fine to be a little casual ("so basically", "the culprit was", "long story short")
 - Contractions are good. Sentence fragments are fine when they land.
 - If something was surprising or non-obvious, say so ("we initially thought X but it turned out to be Y")
+- **Use normal sentence case.** Capitalize the first word of every sentence and proper nouns. Casual tone comes from word choice, contractions, and rhythm — never from dropping capitalization. All-lowercase output reads as twee/affected, not casual.
 
 **Don't do this:**
 - Don't use rigid headers like "*What happened:*", "*Root cause:*", "*Steps taken:*" — that's the AI-report smell
