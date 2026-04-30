@@ -101,6 +101,20 @@ Before writing the script, re-read the model files AND the `db/schema.rb` table 
 - How models are associated — don't assume standard names like `.user` or `.name`; check the actual `belongs_to`/`has_many`/`has_one` declarations
 - How records are looked up — identifiers in the issue (slugs, names, URLs) may not correspond to database columns. Read the schema to find the actual lookup column (e.g., the table may use `key` or `id` instead of `slug`)
 
+**Common Rails / Ruby gotchas in console scripts:**
+- **Rails 8 strict pluck/order/select**: Raw SQL fragments that aren't plain column names (e.g., `"locations.address->>'state'"`, `"COUNT(*)"`) raise `ActiveRecord::UnknownAttributeReference` in `pluck`, `order`, and `select`. Wrap them in `Arel.sql(...)` first:
+  ```ruby
+  state_expr = Arel.sql("locations.address->>'state'")
+  scope.pluck(:id, state_expr)
+  ```
+  In `where`, parameterized SQL strings (`scope.where("col = ?", v)`) are still fine — the rule is specifically about pluck/order/select arguments.
+- **Ruby string interpolation can't contain escaped double-quotes**: `"#{Foo.where(\"col = ?\", x).count}"` is a parse error — Ruby treats the inner `\"` as terminating the outer string. Extract complex queries to a local variable first:
+  ```ruby
+  q = Foo.where("col = ?", x)
+  puts "count: #{q.count}"
+  ```
+  This is the single most common parse error when generating one-shot scripts. If your interpolated expression contains a double-quoted SQL fragment, hoist it.
+
 **Script rules — diagnostic scripts are STRICTLY READ-ONLY:**
 - NO `update`, `save`, `destroy`, `delete`, `create`, `touch`, or any mutation method
 - NO assignment to model attributes
