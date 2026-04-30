@@ -104,10 +104,20 @@ Once root cause is confirmed, generate a fix script with:
 - Copy-paste ready, no placeholders
 
 ### Step 7: Human Reviews Dry Run
-The human runs the dry-run script and pastes output. Confirm the changes look correct.
+
+The human runs the dry-run script and pastes output. Confirm the changes look correct against expectations.
+
+**Before authorizing the apply, run a 30-second pushback** per the `/pushback` skill at `~/.claude/skills/pushback/SKILL.md`. Don't run the full six-question gauntlet — fires don't have time — but these four are worth 30 seconds before a production mutation:
+
+- **Worst case** — what's the realistic worst case if the fix is wrong? Reversible? How quickly would we find out?
+- **Hidden side effects** — does the fix do more than you think? `after_save` callbacks, polymorphic touches, audit logs, webhook fires, downstream queues?
+- **Dry-run match** — did the output match expectations exactly? Any surprise records modified, any counts off by even one?
+- **Rollback** — if this turns out wrong in 5 minutes, what do we do? Is the path clear?
+
+If any answer is "I don't know," generate another diagnostic before authorizing the apply. Reads are always safer than premature mutations.
 
 ### Step 8: Apply Fix
-Only after dry-run confirmation, tell the human to change `dry_run = false` and run again to apply.
+Only after dry-run confirmation and the pre-mutation pushback, tell the human to change `dry_run = false` and run again to apply.
 
 ### Safety Rules
 - MANDATORY: Explore codebase before generating any script
@@ -147,6 +157,7 @@ After resolving each issue:
 Leverage other tools and agents as needed:
 
 - **`/investigate` skill** — Primary workflow for deep production issue diagnosis
+- **`/pushback` skill** — Pre-mutation challenge before authorizing `dry_run = false` (see Step 7)
 - **`/summary` skill** — Generate Slack updates after resolution
 - **code-reviewer agent** — Dispatch to review fix scripts or code changes before applying
 - **code-simplifier agent** — Dispatch for refactoring-type quality issues
