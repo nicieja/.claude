@@ -1,0 +1,202 @@
+---
+name: estimate
+version: 1.0.0
+description: |
+  Produce an honest engineering estimate in hours/days for a task by exploring
+  the codebase, surfacing unknowns, and recursively breaking the work into
+  smaller chunks when the estimate gets too big or too wide to be reliable.
+  Bias toward ranges and named unknowns over single numbers.
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - AskUserQuestion
+---
+
+# /estimate — Honest Engineering Estimate
+
+Estimate a task in hours/days from pasted context (issue description, discussion, comments). Explore the affected code, surface unknowns, give a range, and recursively break the task into smaller chunks if the estimate is too coarse to be reliable.
+
+## User-invocable
+When the user types `/estimate`, run this skill.
+
+## Arguments
+- `/estimate <pasted context>` — task description, ticket dump, discussion thread, or comments
+- `/estimate` — with no args, ask the user to paste context
+
+## When this is the wrong skill
+- Scope is fuzzy and you want it sharpened first → run `/pushback` to harden the scope, then come back
+- They want to *implement* it → use a different skill
+- They want a step-by-step plan, not a duration estimate → use plan mode
+
+---
+
+## Anti-sycophancy rules
+
+Estimation rots when you wave the hand. These are non-negotiable:
+
+- **No single number.** Always a range. A point estimate hides what you don't know.
+- **No padding for safety.** If you'd inflate "just in case," that "case" is an unknown — surface it instead.
+- **No silent assumptions.** If the estimate depends on "we'll skip tests" or "no migration needed," say so.
+- **No estimating from the title alone.** The title is a label. The body, comments, and code are the work.
+- **No estimate from text alone.** Code exploration is mandatory before any number leaves your mouth.
+
+---
+
+## Workflow
+
+### Step 0: Restate the task
+
+In 1–2 sentences, restate the task. Include:
+- The user-visible change (or system change if it's pure infra)
+- The surfaces touched (UI, API, jobs, schema, etc.)
+- What "done" looks like
+
+If you can't restate it clearly, the context is too thin. Ask the user **one** focused question to fill the gap before exploring code.
+
+### Step 1: Explore the code (MANDATORY)
+
+Use Read, Glob, Grep to ground the estimate. Map:
+
+- **Affected files / packs / modules** — which models, services, components, jobs change
+- **Existing patterns to follow** — does similar code already exist? An existing pattern usually halves the work
+- **Integration points** — callers, callees, public APIs, database tables, queues
+- **Test surface** — what test files exist, what coverage looks like, whether you'll need new fixtures
+- **Hidden complexity** — state machines, feature flags, multi-tenancy, async jobs, callbacks, polymorphism
+
+Don't read the whole repo. Aim for **enough exploration to spot the obvious traps**, not a complete map. If exploration reveals the task touches surfaces the description didn't mention, flag it.
+
+### Step 2: First-pass estimate
+
+Produce an initial range in hours or days for the whole task.
+
+**Sizing anchors:**
+- **< 2h** — typo, copy change, single-file constant tweak
+- **2–4h** — small change in an existing pattern, no migration, no new test setup
+- **0.5–1d** — feature touching 2–3 files with tests, simple migration
+- **1–2d** — multi-file feature, new pattern, new tests, careful integration
+- **2–3d** — cross-cutting change, schema + service + UI, edge cases
+- **> 3d** — too big to estimate as one unit. **Break it down (Step 3).**
+
+**Range rules:**
+- Lower bound = optimistic case (everything as you expect, no surprises).
+- Upper bound = the named unknowns realized. If you can't justify the upper bound by pointing to specific unknowns, the upper bound is wrong.
+- If `upper / lower > 3`, the range is too wide — break it down.
+
+### Step 3: Break-down loop
+
+Trigger break-down when **any** of these is true:
+- Upper bound > 3 days
+- `upper / lower > 3` (range too wide to be useful)
+- More than ~3 unknowns that each meaningfully shift the estimate
+- The task spans multiple independent surfaces (e.g., "API + UI + migration + new job")
+
+**How to break down:**
+
+1. Split the task into **independently-shippable chunks**. Each chunk should:
+   - Have a clear "done" state
+   - Touch a coherent surface (one pack, one feature area)
+   - Be estimable in < 3 days as a single unit
+2. For each chunk, re-run Step 1 (explore) and Step 2 (estimate).
+3. **Recurse**: if a chunk's estimate triggers break-down again, split it further.
+4. **Cap at 3 levels of nesting.** If you're still triggering break-down at level 3, the task isn't ready to estimate — say so explicitly. The output is "this needs scoping work, not estimation," not a fake number.
+5. Sum the chunk ranges for a total. Note any **cross-cutting unknowns** that affect the total beyond the per-chunk sum (shared migration risk, integration testing across chunks, sequencing penalties).
+
+**Don't over-decompose.** Chunks below ~2h aren't worth splitting — bundle them. The break-down is for taming bigness, not for theatrics.
+
+### Step 4: Surface unknowns
+
+For every estimate (whole task or per chunk), name unknowns explicitly. Examples that matter:
+
+- **Scope unknowns** — "is this behind a flag?", "does it need backfill?", "is X out of scope?"
+- **Code unknowns** — "the existing serializer mixes two concerns; untangling could go either way"
+- **Test unknowns** — "no integration tests exist for this flow yet — first-time setup adds time"
+- **Stakeholder unknowns** — "design hasn't signed off on the empty state"
+- **Data unknowns** — "we don't know how many records hit this path in prod"
+- **Dependency unknowns** — "blocked on the X migration that another team owns"
+
+If an unknown is **load-bearing** (would shift the estimate by > 50%), use AskUserQuestion to ask the user about it before finalizing. One question at a time. If they answer, fold it in. If they say "not sure," surface it as an unknown and widen the upper bound.
+
+---
+
+## Output formats
+
+### Format A — Single estimate (no break-down)
+
+```
+**Task:** [1–2 sentence restatement]
+
+**Estimate:** [range, e.g. "4–8h" or "1–2 days"]
+**Confidence:** [High / Medium / Low]
+
+**Why this range:**
+- [1–3 bullets — what's known, what's straightforward, why this size]
+
+**Unknowns:**
+- [unknown] — impact: [how much it could shift the estimate]
+
+**Touch points:**
+- [files / packs / surfaces]
+
+**Risks to flag:**
+- [edge cases, hidden complexity, sequencing concerns — if any]
+```
+
+### Format B — Break-down
+
+```
+**Task:** [1–2 sentence restatement]
+
+**Total estimate:** [summed range]
+**Confidence:** [High / Medium / Low]
+
+This is too big to estimate as one unit. Breakdown:
+
+### 1. [Chunk name] — [range]
+- **Done when:** [criterion]
+- **Touch points:** [files/packs]
+- **Unknowns:** [list with impact]
+
+### 2. [Chunk name] — [range]
+...
+
+**Cross-cutting unknowns** (shift the total beyond per-chunk sums):
+- [unknown] — impact: [how much it shifts total]
+
+**Sequencing:**
+- [chunk dependencies — what blocks what]
+
+**Risks to flag:**
+- [edge cases, hidden complexity, integration concerns]
+```
+
+### Format C — Not ready to estimate
+
+When break-down hits the 3-level cap or scope is too unbounded:
+
+```
+**Task:** [restatement]
+
+**Verdict:** Not ready to estimate.
+
+**Why:**
+- [specific reasons — e.g. "spans 4 packs with no clear boundary," "depends on design decision X that hasn't been made"]
+
+**What would unblock estimation:**
+- [specific scoping question or decision]
+- [specific clarification needed]
+```
+
+---
+
+## Key rules
+
+1. **Always explore the code before estimating.** No estimate from text alone.
+2. **Always give a range.** No point estimates.
+3. **Break down when the estimate is too big or too wide** (upper > 3d, or upper/lower > 3, or >3 load-bearing unknowns, or spans multiple surfaces).
+4. **Recurse the break-down up to 3 levels.** Beyond that, output Format C — the task isn't ready to estimate.
+5. **Surface unknowns explicitly.** Don't pad the estimate to absorb them.
+6. **Ask via AskUserQuestion when an unknown is load-bearing** (would shift estimate > 50%). One at a time.
+7. **No code edits.** This is an analysis skill. Produce the estimate; don't write the code, don't propose patches.
+8. **Independently shippable chunks.** When breaking down, each chunk should be a real PR you could merge alone.
+9. **Don't over-decompose.** Chunks below ~2h get bundled, not split further.
