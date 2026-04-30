@@ -11,6 +11,7 @@ paste-cache/
 shell-snapshots/
 *-cache.json
 mcp-needs-auth-cache.json
+image-cache/
 
 # Per-conversation / per-session state
 sessions/
