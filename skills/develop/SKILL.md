@@ -23,9 +23,6 @@ allowed-tools:
 
 Turn a half-formed idea into a refined plan. The skill researches the codebase, reads any URLs in the seed, asks scope questions, scans the open web for prior art, runs the proposal through the CEO subagent for adversarial product review, then runs the implementation plan through technical specialists in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code — it ends with an explicit "implement now / defer" choice.
 
-## User-invocable
-When the user types `/develop`, run this skill.
-
 ## Arguments
 - `/develop <seed>` — develop the proposal in the seed (a sentence, a paragraph, a Slack pitch with URLs)
 - `/develop` — with no args, ask once: "What's the idea you want to develop?"
@@ -50,12 +47,12 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
    ```bash
    git rev-parse --show-toplevel 2>/dev/null
    ```
-   - On success: plan dir = `<root>/plans/`. Run `mkdir -p <root>/plans` to ensure it exists.
+   - On success: plan dir = `<root>/plans/`.
    - On failure (not a git repo): plan dir = `~/.claude/plans/`. Tell the user explicitly: "Not in a git repo — falling back to `~/.claude/plans/`."
 
 3. **Extract URLs** from the seed using a simple regex (`https?://[^\s)]+`). Queue them for Step 2's URL reading.
 
-4. **Generate the slug.** Lowercase, hyphen-separated, ≤60 chars, derived from the seed's first meaningful noun phrase (e.g., "model-routing-via-openrouter"). If `<plan-dir>/<slug>.md` already exists, append a 4-char hash to the slug.
+4. **Generate the slug.** Lowercase, hyphen-separated, ≤60 chars, derived from the seed's first meaningful noun phrase (e.g., "model-routing-via-openrouter"). If `<plan-dir>/<slug>.md` already exists, append a 4-char hash to the slug. If `<plan-dir>` has subfolders, decide if to use them.
 
 ---
 
@@ -65,8 +62,6 @@ Use Write to create the skeleton at `<plan-dir>/<slug>.md`:
 
 ```markdown
 # <title pulled from the seed>
-
-> Status: drafting — created <YYYY-MM-DD> by /develop.
 
 ## Context
 
@@ -148,7 +143,7 @@ Edit `## Research` with:
 - Each useful source as a bullet: `- [title](url) — 1-2 lines on what's worth borrowing`
 - A short paragraph: "What we'd borrow / what we wouldn't."
 
-**Skip this step entirely** when the work is obviously internal-only (a config tweak, a known-pattern refactor, a one-file change). Note the skip in the section: `_External research skipped — internal scope._`
+**Skip this step entirely** when the work is obviously internal-only (a config tweak, a known-pattern refactor, a one-file change). Do not note the skip, just remove the section.
 
 ---
 
@@ -175,10 +170,7 @@ When the CEO returns:
 
 The point is for someone reading the plan a month later to see the **thought process** — not just the conclusion.
 
-**If the CEO greenlights with no real concerns:**
-Write that explicitly in `## Considerations`:
-> CEO review: approved with no major concerns. Notes: <one line on anything the CEO did flag, even minor>.
-
+**If the CEO greenlights with no real concerns:** move on.
 ---
 
 ### Step 6: Implementation plan → write Implementation
@@ -189,7 +181,7 @@ Edit `## Implementation` with:
 - **Hard tradeoffs** — for each, name the tradeoff and the chosen side ("Use Solid Queue over Sidekiq because we're already on Rails 8 and want one fewer infra dep")
 - **Effort sense** — only if asked. Otherwise skip; that's `/estimate`'s job.
 
-Keep it scannable: bullets and short paragraphs, not prose walls. A reader should know what to build in 2 minutes.
+Be detailed but not overly verbose.
 
 ---
 
