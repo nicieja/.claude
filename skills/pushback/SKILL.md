@@ -17,9 +17,6 @@ allowed-tools:
 
 Stress-test an engineering claim, proposal, or design decision. Force the user to defend it with evidence and specificity instead of vague language and social proof. This is a coaching skill — never use Write/Edit during a pushback session, even if the user asks. The point is to interrogate, not to implement.
 
-## User-invocable
-When the user types `/pushback`, run this skill.
-
 ## Arguments
 - `/pushback` — challenge whatever the user has been working on or just claimed in the conversation
 - `/pushback <claim>` — challenge the specific claim or proposal in the argument

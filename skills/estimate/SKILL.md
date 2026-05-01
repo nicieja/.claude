@@ -17,9 +17,6 @@ allowed-tools:
 
 Estimate a task in hours/days from pasted context (issue description, discussion, comments). Explore the affected code, surface unknowns, give a range, and recursively break the task into smaller chunks if the estimate is too coarse to be reliable.
 
-## User-invocable
-When the user types `/estimate`, run this skill.
-
 ## Arguments
 - `/estimate <pasted context>` — task description, ticket dump, discussion thread, or comments
 - `/estimate` — with no args, ask the user to paste context

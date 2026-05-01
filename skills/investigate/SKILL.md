@@ -16,9 +16,6 @@ allowed-tools:
 
 Generate Rails console scripts to diagnose and fix production issues. You explore the codebase, generate read-only diagnostic scripts for the user to run, analyze the output, and iterate until the root cause is found and fixed.
 
-## User-invocable
-When the user types `/investigate`, run this skill.
-
 ## Arguments
 - `/investigate <description>` — issue description, ticket URL, or bug report
 - `/investigate` — with no args, ask the user to describe the issue

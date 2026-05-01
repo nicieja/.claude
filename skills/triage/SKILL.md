@@ -20,9 +20,6 @@ allowed-tools:
 
 Fetch issues assigned to you in Linear that have no PR attached, dispatch specialized subagents to work on each in parallel, and push draft PRs when done.
 
-## User-invocable
-When the user types `/triage`, run this skill.
-
 ## Arguments
 - `/triage` — fetch and work on all eligible issues
 - `/triage ENG-123` — work on a single specific issue

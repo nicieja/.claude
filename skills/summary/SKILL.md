@@ -10,9 +10,6 @@ allowed-tools: []
 
 Write a quick, natural summary of what happened during the investigation so the user can drop it into Slack and people get it immediately.
 
-## User-invocable
-When the user types `/summary`, run this skill.
-
 ## Arguments
 - `/summary` — no args; pull everything from the conversation
 - `/summary <extra context>` — weave in extra details (ticket links, user counts, timelines, etc.)
