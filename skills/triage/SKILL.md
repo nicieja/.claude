@@ -16,7 +16,7 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# /triage — Linear Issue Orchestrator
+# Triage
 
 Fetch issues assigned to you in Linear that have no PR attached, dispatch specialized subagents to work on each in parallel, and push draft PRs when done.
 

@@ -6,7 +6,7 @@ description: |
 allowed-tools: []
 ---
 
-# /summary — Slack-Ready Investigation Summary
+# Investigation Summary
 
 Write a quick, natural summary of what happened during the investigation so the user can drop it into Slack and people get it immediately.
 

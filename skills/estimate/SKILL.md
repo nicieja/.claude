@@ -13,7 +13,7 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# /estimate — Honest Engineering Estimate
+# Engineering Estimate
 
 Estimate a task in hours/days from pasted context (issue description, discussion, comments). Explore the affected code, surface unknowns, give a range, and recursively break the task into smaller chunks if the estimate is too coarse to be reliable.
 

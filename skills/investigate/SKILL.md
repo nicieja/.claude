@@ -12,7 +12,7 @@ allowed-tools:
   - Grep
 ---
 
-# /investigate — Production Issue Investigation
+# Production Issue Investigation
 
 Generate Rails console scripts to diagnose and fix production issues. You explore the codebase, generate read-only diagnostic scripts for the user to run, analyze the output, and iterate until the root cause is found and fixed.
 

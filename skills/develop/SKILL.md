@@ -19,7 +19,7 @@ allowed-tools:
   - WebSearch
 ---
 
-# /develop — Upfront Task Planning Loop
+# Task Planning Loop
 
 Turn a half-formed idea into a refined plan. The skill researches the codebase, reads any URLs in the seed, asks scope questions, scans the open web for prior art, runs the proposal through the CEO subagent for adversarial product review, then runs the implementation plan through technical specialists in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code — it ends with an explicit "implement now / defer" choice.
 
