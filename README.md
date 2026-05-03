@@ -39,7 +39,7 @@ Subagents Claude Code dispatches via the Agent tool.
 
 User-invocable slash commands with multi-step workflows.
 
-- `/develop` — turn a half-formed idea into a refined plan via codebase + web research, CEO challenge, and specialist pushback
+- `/shape` — turn a half-formed idea into a refined plan via codebase + web research, CEO challenge, and specialist pushback
 - `/estimate` — honest hours/days estimate with codebase exploration and recursive break-down
 - `/investigate` — diagnose production issues via Rails console scripts (read-only diagnostic, then dry-run fix)
 - `/pushback` — anti-sycophantic challenge framework; six forcing questions

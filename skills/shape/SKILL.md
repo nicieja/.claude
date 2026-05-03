@@ -1,5 +1,5 @@
 ---
-name: develop
+name: shape
 version: 1.0.0
 description: |
   Take a half-formed task idea, research the codebase and the open web,
@@ -19,13 +19,13 @@ allowed-tools:
   - WebSearch
 ---
 
-# Task Planning Loop
+# Shape
 
 Turn a half-formed idea into a refined plan. The skill researches the codebase, reads any URLs in the seed, asks scope questions, scans the open web for prior art, runs the proposal through the CEO subagent for adversarial product review, then runs the implementation plan through technical specialists in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code — it ends with an explicit "implement now / defer" choice.
 
 ## Arguments
-- `/develop <seed>` — develop the proposal in the seed (a sentence, a paragraph, a Slack pitch with URLs)
-- `/develop` — with no args, ask once: "What's the idea you want to develop?"
+- `/shape <seed>` — shape the proposal in the seed (a sentence, a paragraph, a Slack pitch with URLs)
+- `/shape` — with no args, ask once: "What's the idea you want to shape?"
 
 ## When this is the wrong skill
 - They want to challenge a single claim, not plan work → use `/pushback` instead
@@ -41,7 +41,7 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 
 ### Step 0: Preflight
 
-1. **Capture the seed.** If invoked as `/develop <text>`, that's the seed. If bare, ask once: "What's the idea you want to develop?" Do not proceed without a seed.
+1. **Capture the seed.** If invoked as `/shape <text>`, that's the seed. If bare, ask once: "What's the idea you want to shape?" Do not proceed without a seed.
 
 2. **Find the plan directory.** Run:
    ```bash
