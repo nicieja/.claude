@@ -11,6 +11,7 @@
       }
     }
   },
+  "autoMemoryEnabled": false,
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true,
