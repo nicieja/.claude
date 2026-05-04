@@ -38,6 +38,38 @@ Be able to answer in one breath: who is this for, what problem does it solve bet
 
 Avoid the "platform" trap — a platform is what you build *after* a wedge wins, not before.
 
+## Goals and outcomes
+
+A goal that can't be translated to money — saved, earned, or protected — isn't sharp enough. The translation conversation alone kills doomed projects before they start: if no path to dollars survives serious examination, don't fund the work.
+
+Specify each goal with five elements:
+
+- **Scale** — what we'll measure
+- **Meter** — how we'll measure it
+- **Benchmark** — the current value
+- **Constraint** — the minimum acceptable / break-even for the investment
+- **Target** — the desired value
+
+If the math says there's enough budget to try, spend a small slice of it first to test the riskiest assumptions. If they fail, kill the project before the rest is gone. Cheap assumption probes are the highest-leverage prioritization tool you have.
+
+## Story design and slicing
+
+The unit of delivery is the story. Bad stories produce features that can't be evaluated, can't be sliced, and can't be killed. The most common iteration failure is shipping pieces that only deliver value when they all come together at the end — Frankenstein iteration, not real iteration.
+
+- **Slice by value, not technique.** Divide work by value first, then look for useful technical chunks — never the reverse. Each slice should be demonstrably valuable on its own.
+- **Name the behavior change.** Every story states what user behavior shifts when it ships. The behavior change is what makes the story measurable from a business perspective. If you can't name it, the story isn't ready.
+- **Name the system change.** Delineate scope explicitly so engineers and stakeholders share one picture of what's in.
+- **Pick a specific role, not "the user."** Generic roles produce generic stories. The role should be narrow enough that you can imagine one real person in it.
+- **Stay in your zone of control; aim at your sphere of influence.** Deliverables belong in your zone of control. User needs and outcomes belong in your sphere of influence. Don't commit to outputs you can't ship, or hide behind outcomes you can't measure.
+- **Start with the outputs.** The value of a system is in its outputs, not its inputs. Define what comes out before you design what goes in.
+- **Narrow the segment ruthlessly.** Give 2% of users 100% of what they need before you give 100% of users 2% of what they need.
+- **Map the journey, not just the screen.** The customer experience starts and ends outside the software. Story maps catch the steps you'd otherwise optimize around.
+- **Imagine the demo before you build.** Write down how you'll show the requirement was met. If you can't picture the demo, the story isn't ready.
+- **Divide responsibility for definition.** Stakeholders express the need; people who can design the software express the solution. Collapsing the two produces tech-led features users don't want, or stakeholder-led specs engineers can't build.
+- **Simplify outputs.** Investigate whether outputs can be reduced or postponed to de-risk the short-term plan.
+- **Time-box major risks.** Manage risk-driven and deadline-driven stories separately so they don't turn into emergencies. Strike the balance between short-term wins and long-term sustainability.
+- **Never say "no" — say "not now."** Negotiate the sequence of delivery instead of refusing the request.
+
 ## Prioritization
 
 Don't ship a list. Ship a sequence with reasons.
@@ -46,6 +78,9 @@ Don't ship a list. Ship a sequence with reasons.
 - Use RICE / weighted scoring when the field is wide; use a "do this first because X is bleeding" argument when it isn't.
 - Watch for "we already started it" — sunk cost is not priority. Fresh-eyes the list every quarter.
 - The lowest-energy items often dominate when you're honest about effort. Don't pad estimates to make a vanity item win.
+- **Use purpose alignment.** Split work by what the business needs from it — *excel* (must outperform), *good enough* (clear the bar, no further), *partner* (outsource where someone else can do it for you), *basics* (do the minimum without dropping the ball). Don't pour excellence into a "good enough" item.
+- **Name milestones meaningfully.** "Q3 release" is not a name; "first power-user can complete the workflow without support" is. Stakeholders prioritize what they can describe.
+- **Limit each milestone to a few user segments.** A milestone that serves everyone serves no one — it produces generic stories and creeping scope.
 
 ## User research
 
@@ -55,6 +90,7 @@ Behavior beats opinion. Surveys lie, churn doesn't.
 - Watch what they do. Funnel data, session recordings, support tickets. The story they tell is the story you need to listen to first.
 - Triangulate qualitative and quantitative. A theme you hear in interviews and see in the data is real; a theme that exists in only one is suspect.
 - Define "the user" before you research — power user, new user, churned user, the segment you're trying to win all have different stories.
+- **Play devil's advocate.** Challenge expressed needs and roles before believing them. Users misreport reasons, internal proxies fabricate, asking-for is free. Fake stories caught in research are cheap; caught after build, expensive.
 
 ## Launch and measurement
 
