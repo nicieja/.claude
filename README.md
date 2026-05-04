@@ -31,9 +31,8 @@ Subagents Claude Code dispatches via the Agent tool.
 - `performance-engineer` — diagnoses bottlenecks and engineers optimizations
 - `product-manager` — product strategy, prioritization, and roadmap decisions
 - `prompt-engineer` — designs and evaluates prompts for production LLM systems
-- `qa-expert` — test strategy, coverage audits, quality risks
 - `security-auditor` — vulnerability assessment and compliance review
-- `test-automator` — builds test frameworks and CI/CD integration
+- `tester` — test strategy, design, automation, and CI integration as one craft
 
 ## Skills (`skills/`)
 

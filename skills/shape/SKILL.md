@@ -194,8 +194,7 @@ Be detailed but not overly verbose.
 | Touches auth, crypto, secrets, input validation, dependency surfaces | `security-auditor` |
 | Introduces new abstractions, cross-service boundaries, schema migrations, public APIs | `architect-reviewer` |
 | Hot paths, new queries (especially in loops), cache changes, async/sync swaps | `performance-engineer` |
-| Adds critical paths that need testing, changes test strategy | `qa-expert` |
-| Changes test infrastructure or CI | `test-automator` |
+| Adds critical paths that need testing, changes test strategy, test infrastructure, or CI | `tester` |
 | Touches LLM prompts, model selection, evals | `prompt-engineer` |
 
 A change can match more than one — pick all that fit. A change that matches none probably doesn't need review at this gate; say so.
