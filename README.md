@@ -41,6 +41,7 @@ User-invocable slash commands with multi-step workflows.
 - `/shape` — turn a half-formed idea into a refined plan via codebase + web research, CEO challenge, and specialist pushback
 - `/estimate` — honest estimate with codebase exploration and recursive break-down
 - `/investigate` — diagnose production issues via console scripts (read-only diagnostic, then dry-run fix)
+- `/prototype` — smallest working build to answer one question, throwaway by design
 - `/pushback` — anti-sycophantic challenge framework; six forcing questions
 - `/retro` — extract learning fro a piece of work
 - `/summary` — write an investigation summary
