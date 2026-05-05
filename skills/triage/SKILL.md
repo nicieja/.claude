@@ -63,11 +63,11 @@ Follow these steps in order. Do NOT skip steps.
 
 ### Step 1: Filter to Eligible Issues
 
-1. From the issue list, get JSON details for each to check for existing PRs/branches:
+1. From the issue list, get JSON details for each:
    ```bash
    linear issue view <ID> --json --no-pager
    ```
-   Parse the JSON. Skip issues that already have a branch name or PR URL in their metadata.
+   Parse the JSON. Skip issues that already have a branch name or PR URL in their metadata. Retain the full payload for eligible issues — you'll use the description, `updatedAt`, and `comments` array in step 1.4.
 
 2. Filter down to issues with no PR attached.
 
@@ -78,27 +78,51 @@ Follow these steps in order. Do NOT skip steps.
    - **Performance** — "slow", "optimize", "latency", "performance"
    - **Chore** — "update", "bump", "docs", "config", small tasks
 
-4. Present a table with suggested pipelines:
+4. **Read comments and description for prior analysis.** Comments often contain ground truth that supersedes the description. For each eligible issue, scan the `comments` array (newest first) and the description together, then decide:
+
+   - **Confirmed root cause in comments?** A teammate has named specific files, lines, or methods and stated the cause without hedging ("the bug is in X because Y", "root cause is Z at file:line"). → Diagnose can be skipped or compressed.
+   - **Specific files/lines named?** → Understand can be narrowed to those paths instead of broad codebase exploration.
+   - **Solution proposed?** → Design becomes validation of the proposal, not invention from scratch.
+   - **Scope-narrowing notes?** ("no prod fix needed", "no broken state", "transcript-only", "system prompt change only") → Do NOT silently trim the pipeline. Surface to the user via AskUserQuestion (see step 1.7 below) before dispatching.
+   - **Description edited after the latest comment?** If `issue.updatedAt` is newer than the newest non-bot `comments[].createdAt`, treat the description as already incorporating the thread — read it as fresh ground truth.
+
+   **Trust rules:**
+   - Treat newer comments as superseding older comments and possibly the description.
+   - Filter out bot/automation comments (Linear's auto-posts for branch/PR creation).
+   - **Confirmed language** ("the cause is", "fixed by", "needs to") vs **hedged language** ("maybe", "I think", "could be", "might"): only confirmed-language findings count as ground truth. Hedged findings are hypotheses — they may narrow Understand, but they do NOT justify skipping Diagnose.
+   - If two comments contradict each other and you can't tell which supersedes, do NOT skip stages — surface the conflict to the user.
+
+   Produce a short **prior-analysis synthesis** for each eligible issue with two lists:
+   - **Pre-established (confirmed):** what comments have already nailed down (specific files, root cause, proposed fix).
+   - **Still to verify:** what remains uncertain, hedged, or unaddressed.
+
+   Use this synthesis to shape the pipeline (next step) and to brief every subagent (Step 3).
+
+5. Present a table with suggested pipelines. When the prior-analysis synthesis (step 1.4) justifies a compressed pipeline, mark skipped/compressed phases inline with a brief reason in parentheses:
    ```
-   | # | ID      | Title                    | Priority | Pipeline                                  |
-   |---|---------|--------------------------|----------|-------------------------------------------|
-   | 1 | ENG-123 | Add user export feature  | Urgent   | Understand → Design → Build → Verify      |
-   | 2 | ENG-456 | Fix billing calculation  | High     | Understand → Build → Verify → Review      |
-   | 3 | ENG-789 | Update API docs          | Medium   | Build → Review                            |
+   | # | ID      | Title                    | Priority | Pipeline                                                       |
+   |---|---------|--------------------------|----------|----------------------------------------------------------------|
+   | 1 | ENG-123 | Add user export feature  | Urgent   | Understand → Design → Build → Verify                           |
+   | 2 | ENG-456 | Fix billing calculation  | High     | Understand → Build → Verify → Review (Diagnose skipped: root cause confirmed in comments) |
+   | 3 | ENG-789 | Update API docs          | Medium   | Build → Review                                                 |
    ```
 
-   Default pipeline per type (but use your judgment — add/skip/reorder phases as the issue demands):
+   The parenthetical reason is mandatory whenever the pipeline deviates from the type default. If multiple phases are affected (e.g., Understand narrowed AND Diagnose skipped), list the most consequential change.
+
+   Default pipeline per type (but use your judgment — add/skip/reorder phases as the issue demands, and apply compressions justified by step 1.4):
    - **Feature**: Understand → Design → Build → Verify → Review
    - **Bug**: Understand → Diagnose → Build → Verify → Review
    - **Refactor**: Understand → Design → Build → Review
    - **Performance**: Understand → Design → Build → Verify
    - **Chore**: Build → Review
 
-5. If zero eligible issues remain, say so and stop.
+6. If zero eligible issues remain, say so and stop.
 
-6. Use AskUserQuestion: "Ready to start working on N issues in parallel?" — **Start all** / **Pick issues** / **Done**
+7. Use AskUserQuestion: "Ready to start working on N issues in parallel?" — **Start all** / **Pick issues** / **Done**
 
    If **Pick issues**: ask which issue numbers to include.
+
+   **Before dispatching**, if any issue's prior-analysis synthesis surfaced scope-narrowing notes ("no prod fix needed", "transcript-only", "system prompt change only", or similar), confirm scope explicitly with the user for that issue. Do NOT auto-trim the pipeline based on these notes.
 
 ---
 
@@ -120,8 +144,12 @@ For each selected issue:
 
 Always pass these into every agent prompt:
 - The full issue description from Linear
+- All Linear comments on the issue (excluding bot/automation comments), newest first
+- The prior-analysis synthesis from step 1.4 — what is **pre-established (confirmed)** vs **still to verify**
 - Results from ALL prior stages for this issue
 - Any user feedback from the previous stage
+
+Subagents must treat the synthesis as authoritative for what's pre-established: don't re-derive root causes that comments have already confirmed, don't re-explore files when comments name specific paths. But they MUST verify anything in the "still to verify" list.
 
 The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 
@@ -137,6 +165,7 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **When to use:** For any bug or customer-reported issue. Skip for features, refactors, and chores where there's no production state to diagnose.
 - **IMPORTANT — do NOT skip Diagnose for bugs.** Even when the root cause seems obvious from code review, production data often reveals that the actual behavior differs from what the code suggests. If the Linear issue includes identifiers (workspace, worker IDs, thread links, environment), use them to write targeted diagnostic scripts that verify the exact scenario described. The Understand phase tells you *what the code does*; Diagnose tells you *what actually happened*.
 - **When Diagnose is impractical:** If the issue is purely a system prompt gap (no production state to query), or if no identifiers are provided in the ticket, fold diagnostic script generation into the Build phase instead — the Build agent must include a `diagnostic_script.rb` file alongside the fix that the user can run post-deploy to verify the fix works.
+- **When prior analysis in comments confirms the root cause:** If the prior-analysis synthesis (step 1.4) marks the root cause as pre-established — a teammate has named the specific files, lines, or methods in confirmed (non-hedged) language and the issue notes no broken production state needing repair — Diagnose may be skipped. The Build phase still produces a `tmp/diagnostic_<issue_id>.rb` script (per the existing Build-phase rule when Diagnose is skipped) that re-validates the documented root cause against production data, so the comment-stated cause is verified by the run, not assumed. If comments are hedged, contradictory, or describe a hypothesis rather than a confirmed cause, do NOT skip Diagnose.
 
 #### Phase: Design
 - **Goal:** Create an implementation plan
@@ -300,6 +329,7 @@ When all issues are processed or the user says Done, show a final table:
 6. **User feedback between phases.** Always ask unless auto-advance is active (3+ consecutive approvals).
 7. **Draft PRs only.** Never create ready-for-review PRs. Always use `--draft`.
 8. **Pass context forward.** Each phase receives all prior phase outputs. Don't make agents re-discover what earlier agents already found.
-9. **Handle failures gracefully.** If an agent fails or produces bad results, show the error and ask: Retry / Skip / Done.
-10. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
-11. **Handle team context gracefully.** If `linear issue list` fails with a team error, prompt for the team and retry.
+9. **Comments are evidence, not authority.** Linear comments often pre-establish root causes, files, and fixes — read them before suggesting a pipeline (step 1.4). But only confirmed-language findings justify skipping or compressing phases. Hedged claims, contradictory comments, and outdated descriptions are hypotheses to verify, not facts to skip past.
+10. **Handle failures gracefully.** If an agent fails or produces bad results, show the error and ask: Retry / Skip / Done.
+11. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
+12. **Handle team context gracefully.** If `linear issue list` fails with a team error, prompt for the team and retry.
