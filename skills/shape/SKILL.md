@@ -282,7 +282,19 @@ Wait for **all** specialists to return before writing.
 
 5. **Verification section.** Edit `## Verification` with how to test the work end-to-end once it's built — what command, what to look for, what would prove it broken. **This is where specific identifiers from the seed (charge IDs, invoice numbers, exact amounts, dates) are allowed and useful** — they help reproduce or sanity-check the fix in production.
 
-6. **Final ask.** Show the plan path and use AskUserQuestion:
+6. **Self-audit.** Re-read the plan end-to-end as if you'd never seen it before. The plan has been built section by section under different lenses (CEO, specialists, user clarifications) — drift between sections is the default, not the exception. Catch it before the user does.
+
+   Run these checks against the file you just wrote, and **edit in place** to fix any gaps you find. Do not surface "audit notes" in the plan — the integration is silent, same as Step 5 and 8.1. The reader sees a coherent plan, not a list of caught inconsistencies.
+
+   - **Coverage.** For every in-scope item in Context, find the corresponding entry in Implementation. If a scope item has no implementation step, either add the step or move the item to Out of scope. Coverage gaps are the most common drift — Context grew during clarifications, Implementation didn't.
+   - **Considerations are addressed, not just listed.** For every concern in Considerations, the plan must show how it's answered — either by a specific change in Implementation, by a constraint in Context, or by an explicit "we accept this risk because…" clause inside the Considerations paragraph itself. A Consideration that's only described, never resolved, is a tradeoff the writer didn't actually make.
+   - **Verification matches success criteria.** Whatever Context implies about what "shipped" looks like must be testable from Verification. If Context says "the customer's accountant sees a single line item per deposit," Verification needs a step that proves exactly that — not a generic "check the invoice renders."
+   - **No contradictions.** Out of scope must not name something Context says is in scope. Implementation must not depend on something Out of scope rules out. Open questions must not duplicate something Considerations already settled.
+   - **No orphan bullets.** Every bullet in Implementation should connect to either a scope item, a Consideration, or a constraint. Bullets that exist for their own sake are over-engineering that survived integration.
+
+   Tell the user: *"Self-audit found N gaps, addressed them in the plan."* or *"Self-audit clean."* — one short line, no list. The user can read the diff if they want details.
+
+7. **Final ask.** Show the plan path and use AskUserQuestion:
    - **Implement now** — confirm the path; the user is expected to invoke implementation separately (e.g., `/triage` for ticket-driven work, or just "implement this plan"). The skill exits cleanly.
    - **Edit plan** — user wants to revise. Loop back to Step 6 (re-plan) or Step 7 (re-review).
    - **Defer** — leave the plan in the repo. The skill exits.
@@ -307,3 +319,4 @@ Wait for **all** specialists to return before writing.
 12. **No code is written by this skill.** The artifact is the plan file. Implementation is a separate invocation.
 13. **External research is best-effort.** If WebSearch and WebFetch return nothing useful, say so in the Research section. Don't pad with weak sources.
 14. **The plan should read as a thought process, not a conclusion.** Considerations captures what was challenged and how it changed the proposal — synthesized in one voice, not transcribed as a back-and-forth. That's what makes the plan reviewable later.
+15. **Self-audit before final ask.** A plan built section by section under different lenses drifts. The audit (Step 8.6) re-reads the whole plan and catches Context/Implementation coverage gaps, unanswered Considerations, Verification that doesn't match success criteria, and contradictions between sections. Edit in place — never expose the audit as scaffolding in the plan file.

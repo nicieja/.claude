@@ -188,6 +188,7 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Goal:** Catch issues before PR
 - **Work:** Review all changes for code quality, security, correctness, adherence to codebase patterns, and missing edge cases.
 - **Agent selection:** Pick the agent best suited for code review. If the issue touches security-sensitive areas, also consider a security-focused agent.
+- **Output requirement:** Review must group findings by severity (`Blocking` / `Should fix` / `Suggestion`) and end with a verdict (`approve` / `approve with non-blocking comments` / `request changes` / `rework`). The auto-fix loop in Step 4.5 keys off these labels — instruct the agent to use them explicitly.
 
 ---
 
@@ -224,6 +225,24 @@ This is the core loop. Repeat until all issues are complete or the user says Don
    Ask what to change, then re-dispatch the same stage with the adjustment.
 
 4. **Auto-advance:** After the user has approved "Continue" for 3+ consecutive stages (across any issues), tell the user: "Auto-advancing remaining stages. Say 'pause' to review again." Then dispatch next stages without asking, but still show status updates after each completion. If the user says "pause", resume asking for feedback.
+
+5. **Auto-fix loop on Review blockers.** When the Review phase returns with **blocking findings** (severity `Blocking`, or a verdict of `request changes` / `rework`), close the loop without asking the user — the same way a developer would re-run the test suite after a fix. Specifically:
+
+   a. **Cap: 2 auto-fix iterations per issue**, total across the pipeline. Track this per issue in the task metadata. After the cap, surface to the user with: *"Auto-fix attempted N times for ENG-XXX. Remaining blockers: [list]."* and ask Continue / Redo / Skip / Done.
+
+   b. **Construct a feedback message** from the Review's blocking findings — verbatim quotes of each blocker, with file:line references. Don't paraphrase; the Build agent needs the specifics.
+
+   c. **Re-dispatch Build** in the worktree (background) with: the original issue context, all prior stage results, the Review's blocking findings as the feedback payload, and an explicit instruction to address each blocker. Keep `isolation: "worktree"` on the same worktree path so the iteration builds on the existing state, not a fresh tree.
+
+   d. **Re-dispatch Verify** when Build completes (background). Pass the blockers and the new Build output so Verify knows what to re-test.
+
+   e. **Re-dispatch Review** when Verify completes (background). Pass the blockers and the new diff so Review can confirm they were addressed (or surface that they weren't).
+
+   f. **Exit the auto-fix loop** when Review returns clean — no `Blocking` findings, verdict is `approve` or `approve with non-blocking comments`. Then ask the user normally per the standard loop in 1.d.
+
+   g. **Pause respects the user.** If the user has explicitly said "pause" (turning off auto-advance), do NOT auto-fix either — ask normally, even on blockers. The auto-fix loop is part of forward motion; pause means hold all forward motion.
+
+   h. **Show the auto-fix in the status table.** Add a column or annotation when an iteration is in flight so the user sees it: e.g., `Build (auto-fix 1/2)`, `Review (auto-fix 1/2)`. Don't silently spin.
 
 ---
 
@@ -331,5 +350,6 @@ When all issues are processed or the user says Done, show a final table:
 8. **Pass context forward.** Each phase receives all prior phase outputs. Don't make agents re-discover what earlier agents already found.
 9. **Comments are evidence, not authority.** Linear comments often pre-establish root causes, files, and fixes — read them before suggesting a pipeline (step 1.4). But only confirmed-language findings justify skipping or compressing phases. Hedged claims, contradictory comments, and outdated descriptions are hypotheses to verify, not facts to skip past.
 10. **Handle failures gracefully.** If an agent fails or produces bad results, show the error and ask: Retry / Skip / Done.
-11. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
-12. **Handle team context gracefully.** If `linear issue list` fails with a team error, prompt for the team and retry.
+11. **Auto-fix Review blockers, capped at 2 iterations.** Forward motion shouldn't pause for the user to copy-paste a Review's blockers back into Build's prompt — that's a loop the orchestrator can close. After 2 attempts without convergence, escalate to the user; never spin indefinitely. Pause overrides auto-fix.
+12. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
+13. **Handle team context gracefully.** If `linear issue list` fails with a team error, prompt for the team and retry.

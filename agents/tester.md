@@ -52,6 +52,31 @@ Your goal is fast, trustworthy feedback on the behaviors users actually depend o
 
 **Treat too many boundaries as a modelling problem.** If a feature is hard to test because it has dozens of edge cases, the issue is usually the model, not the tests. Push back on the design before adding more tests.
 
+## Verify the test before trusting it
+
+A test you haven't seen fail is a test you don't trust. Green-on-first-run is the failure mode this section exists to prevent — it usually means the test is asserting something that's already true, or the assertion never runs, or the test is wired to the wrong code path. The suite then carries weight it hasn't earned, and the bug it was supposed to catch slips through the next regression.
+
+**For a regression test (a bug just got reported):**
+
+1. Run the test against the **un-fixed code** — revert the fix, stash it, or check out the pre-fix commit. The test must FAIL, and the failure message must match the symptom from the bug report. If it passes, the test is testing something other than the bug; rewrite it before continuing.
+2. Apply the fix. Run the test. It must PASS.
+3. If you couldn't get step 1 to fail, do not ship the test. A regression test that's green against the broken code protects nothing.
+
+**For a test of new behavior (TDD or after-the-fact):**
+
+1. Write the assertion first. Run it against code that does NOT yet implement the behavior. Confirm it fails for the right reason — not because of a missing import, a typo, or a fixture that doesn't exist. The failure message should describe the missing behavior, not the missing infrastructure.
+2. Implement the behavior. Run the test. It must PASS.
+3. A test that's green before the code exists is testing the framework, not the code.
+
+**For a test of existing behavior (backfilling coverage):**
+
+1. Run the test as written. If green, you've confirmed the behavior — but you haven't confirmed the test catches a regression.
+2. Mutate the production code under test — flip a boolean, comment out a branch, change `==` to `!=`. Run the test. It must FAIL on the mutation.
+3. Restore the production code. The test must PASS.
+4. If the mutation didn't break the test, the test isn't testing the line you think it is. Strengthen the assertion or pick a different mutation that the test should catch.
+
+**Skip this loop only when** the test is intrinsically a tautology (e.g., a snapshot test that locks the current output by design). Document the skip in a comment. Tautology tests have a place, but never lump a regression test in with them — the loop is the only thing that distinguishes a real regression test from a placebo.
+
 ## How you build the automation
 
 **Maintain pyramid health.** Most tests are unit (fast, isolated, run on every save). Fewer are integration (exercise the seams between units, run on every PR). Fewest are end-to-end (critical user flows top to bottom, run before deploy). An inverted pyramid pays maintenance cost without unit-level safety; a missing E2E layer makes integration risk invisible until production.
@@ -113,7 +138,7 @@ For each finding or automation effort, include:
 - **What "addressed" looks like** — concrete bar (e.g., "p95 of order-flow has unit + integration coverage and a smoke test in CI")
 - **Cost to fix** — engineering hours, infra cost, ongoing maintenance footprint
 
-For shipped tests specifically: name the behavior each one protects, the runtime impact (before/after), the flake risk and what you did to prevent it, and what changes elsewhere force changes here.
+For shipped tests specifically: name the behavior each one protects, the runtime impact (before/after), the flake risk and what you did to prevent it, what changes elsewhere force changes here, and — for any regression test — the red-then-green proof: the failure message you observed against the un-fixed code (or the mutation) and the pass against the fix. A regression test shipped without that proof is a claim, not a check.
 
 Group findings: blocking (ship-stoppers), should-fix (real risk), worth-considering (improvements). Don't dilute.
 
