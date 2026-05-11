@@ -83,61 +83,28 @@ These are **hypotheses, not conclusions**. Code reading tells you what *could* h
 
 ---
 
-### Step 2: Generate Diagnostic Script
+### Step 2: Generate Diagnostic Script via `/query`
 
-Generate a Rails console script that gathers information to confirm or refute your hypothesis.
+Pick the claim to verify in this round and invoke `/query` with it as the argument. `/query` handles schema verification, script generation, the user handoff, and verdict parsing — its single artifact is one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence.
 
 **First script priority: verify the reported symptoms.**
-A bug report is a claim, not a fact. Before investigating *why* something is broken, confirm *that* it is broken and *how*. The first diagnostic script should query the actual records mentioned in the report and check whether the data matches what was described. If the reported symptoms don't match reality, the investigation changes direction entirely.
+A bug report is a claim, not a fact. Before investigating *why* something is broken, confirm *that* it is broken and *how*. The first invocation of `/query` should target the reported symptoms against the actual records mentioned in the report. If the reported symptoms don't match reality, the investigation changes direction entirely.
 
-**Pre-check — verify every column name against `db/schema.rb` before writing any script:**
-Before writing the script, re-read the model files AND the `db/schema.rb` table definition for every model you plan to query. For each column name you use in `find_by`, `where`, `pluck`, `order`, or `select`, confirm it exists in the schema. This is non-negotiable — a single wrong column name will crash the script in production. Pay attention to:
-- Actual column names in the schema — never guess (e.g., `key` vs `slug`, `type` vs `kind`)
-- Whether a field is a direct column vs. stored inside a JSONB store
-- Whether state is managed by a state machine (with methods like `in_state?`, `current_state`) vs. a plain column accessor
-- How models are associated — don't assume standard names like `.user` or `.name`; check the actual `belongs_to`/`has_many`/`has_one` declarations
-- How records are looked up — identifiers in the issue (slugs, names, URLs) may not correspond to database columns. Read the schema to find the actual lookup column (e.g., the table may use `key` or `id` instead of `slug`)
+**On each iteration, pick one claim** — the narrowest assertion that, if confirmed or refuted, moves the investigation forward. Examples:
 
-**Common Rails / Ruby gotchas in console scripts:**
-- **Rails 8 strict pluck/order/select**: Raw SQL fragments that aren't plain column names (e.g., `"locations.address->>'state'"`, `"COUNT(*)"`) raise `ActiveRecord::UnknownAttributeReference` in `pluck`, `order`, and `select`. Wrap them in `Arel.sql(...)` first:
-  ```ruby
-  state_expr = Arel.sql("locations.address->>'state'")
-  scope.pluck(:id, state_expr)
-  ```
-  In `where`, parameterized SQL strings (`scope.where("col = ?", v)`) are still fine — the rule is specifically about pluck/order/select arguments.
-- **Ruby string interpolation can't contain escaped double-quotes**: `"#{Foo.where(\"col = ?\", x).count}"` is a parse error — Ruby treats the inner `\"` as terminating the outer string. Extract complex queries to a local variable first:
-  ```ruby
-  q = Foo.where("col = ?", x)
-  puts "count: #{q.count}"
-  ```
-  This is the single most common parse error when generating one-shot scripts. If your interpolated expression contains a double-quoted SQL fragment, hoist it.
+- `/query "account 'acme' has status 'suspended' and updated_at < 2026-01-01"`
+- `/query "Subscription has rows where account_id is NULL"`
+- `/query "the index `index_payments_on_account_id_and_status` is being used by the new query"`
 
-**Script rules — diagnostic scripts are STRICTLY READ-ONLY:**
-- NO `update`, `save`, `destroy`, `delete`, `create`, `touch`, or any mutation method
-- NO assignment to model attributes
-- Queries only: `find`, `find_by`, `where`, `pluck`, `count`, `exists?`, etc.
-- Wrapped in `begin/rescue => e` with `puts e.full_message`
-- For early exits, use `raise "descriptive message"` (caught by rescue) — never `next`, `break`, or `return`, which are syntax errors in a `begin/rescue` block in Rails console
-- Uses `puts` with clear section labels (e.g., `puts "=== Account Details ==="`)
-- Under 80 lines
-- Each variable and query has a brief inline comment explaining why it's needed
-- Independently runnable — no dependencies on previous scripts
+Subsequent iterations refine the hypothesis based on Step 3 analysis. Do not invoke `/query` with the same claim twice — refine first.
 
-**Output format:**
+**What `/query` returns:**
 
-````
-Here's a diagnostic script to run in Rails console:
+- **`Confirmed`** — the hypothesis under test is now a fact. Carry it into Step 3 and decide the next hypothesis.
+- **`Refuted`** — the hypothesis was wrong. Carry that into Step 3 and re-orient.
+- **`Inconclusive — <reason>`** — Step 3 decides whether to invoke `/query` again with a refined claim, expand to multi-claim exploration outside `/query`'s one-shot remit, or escalate.
 
-```ruby
-begin
-  # [script content]
-rescue => e
-  puts "ERROR: #{e.full_message}"
-end
-```
-
-Please run this in your Rails console and paste the output back here.
-````
+`/query` enforces the script-craft rules (read-only, schema-checked, copy-paste-ready) so this step stays focused on hypothesis selection. The full script-writing rules live in `/Users/kamil/.claude/skills/query/SKILL.md`.
 
 ---
 
