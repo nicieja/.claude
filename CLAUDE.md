@@ -9,6 +9,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 - **At most one suggestion per turn.** If two fit, pick the better one. Stacking suggestions is noise.
 - **Skip when I'm clearly mid-task in a different direction**, when a skill is already running, or when the suggestion would just restate what I asked for.
 - **Don't suggest the same skill twice in a row** if I declined or ignored it the first time.
+- **Prefer the closest fit, and break ties toward the agent.** When an agent and a skill both seem to match, prefer the agent — it's the smaller commitment, and I can escalate to the skill if I want the workflow around it. Only suggest a skill over a matching agent when the skill's surrounding work (orchestration, bucketing, multi-step state) is the point, not just the wrapper.
 - **For subagents, frame it as pulling in a specialist.** *"Want me to pull in `code-reviewer` for a second pass?"* or *"This looks like `security-auditor` territory."*
 
 ### Trigger map
@@ -18,7 +19,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | If the conversation involves… | Suggest |
 |---|---|
 | A half-formed task idea, "how should we approach X", refining scope before coding | `/shape` |
-| A claim, RFC, refactor pitch, or design decision that smells smart-but-unverified | `/pushback` or the `ceo` subagent |
+| An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling | `/pushback` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/10x` |
 | Sizing work in hours/days, "how long will this take" | `/estimate` |
 | Building the smallest thing that answers one question, throwaway exploration | `/prototype` |
@@ -41,7 +42,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Test strategy, missing coverage, flaky tests, framework choice | `tester` |
 | Prompt design, LLM evals, model choice, prompt regressions | `prompt-engineer` |
 | Product strategy, prioritization tradeoffs, roadmap, opportunity cost | `product-manager` |
-| Wanting my thinking grilled — claim, RFC, refactor pitch | `ceo` (paired with `/pushback`) |
+| A strategic bet, roadmap call, or cross-cutting proposal that needs executive grilling on top of engineering pushback | `ceo` |
 
 ### Anti-patterns
 
