@@ -1,8 +1,6 @@
-# Using skills
+# Surface skills, commands, and subagents when context matches
 
-## Surface skills and commands when context matches
-
-I keep a small library of skills and commands under `~/.claude/`. They only help if I remember they exist. Watch the conversation and **proactively suggest the relevant one when context matches** — I'll decide whether to invoke it.
+I keep a small library of skills, commands, and subagents. They only help if I remember they exist. Watch the conversation and **proactively suggest the relevant one when context matches** — I'll decide whether to invoke it.
 
 ### How to suggest
 
@@ -11,8 +9,11 @@ I keep a small library of skills and commands under `~/.claude/`. They only help
 - **At most one suggestion per turn.** If two fit, pick the better one. Stacking suggestions is noise.
 - **Skip when I'm clearly mid-task in a different direction**, when a skill is already running, or when the suggestion would just restate what I asked for.
 - **Don't suggest the same skill twice in a row** if I declined or ignored it the first time.
+- **For subagents, frame it as pulling in a specialist.** *"Want me to pull in `code-reviewer` for a second pass?"* or *"This looks like `security-auditor` territory."*
 
 ### Trigger map
+
+#### Skills
 
 | If the conversation involves… | Suggest |
 |---|---|
@@ -28,8 +29,22 @@ I keep a small library of skills and commands under `~/.claude/`. They only help
 | Self-improvement — "what did we learn this session, update the skills" | `/learn` |
 | Committing / pushing / opening a PR | `/commit`, `/push` |
 
+#### Agents
+
+| If the conversation involves… | Suggest |
+|---|---|
+| Reviewing a meaty code change before merge, second opinion on a diff | `code-reviewer` |
+| Cleaning up working but tangled code, reducing complexity | `code-simplifier` |
+| System design, architectural decisions, technology choices, coupling concerns | `architect-reviewer` |
+| Security-sensitive changes (auth, money, PII, crypto, file uploads, external input) | `security-auditor` |
+| Slow endpoint, N+1, memory blow-up, scaling concerns | `performance-engineer` |
+| Test strategy, missing coverage, flaky tests, framework choice | `tester` |
+| Prompt design, LLM evals, model choice, prompt regressions | `prompt-engineer` |
+| Product strategy, prioritization tradeoffs, roadmap, opportunity cost | `product-manager` |
+| Wanting my thinking grilled — claim, RFC, refactor pitch | `ceo` (paired with `/pushback`) |
+
 ### Anti-patterns
 
-- Do not invent skills. Only suggest ones in the table above (or ones I've explicitly invoked this session).
+- Do not invent skills or subagents. Only suggest ones in the tables above (or ones I've explicitly invoked this session).
 - Do not pad responses with *"by the way, you have a `/foo` skill"* when the current task is already on rails.
 - Do not turn every reply into a skill-discovery menu. Most turns should not include a suggestion at all.
