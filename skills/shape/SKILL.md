@@ -59,13 +59,20 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 
    If none exist, create `<root>/plans/`.
 
-   When you use a discovered directory, **read** any `README.md`, `AGENTS.md`, `CLAUDE.md`, or `TEMPLATE.md` inside it before writing the skeleton. These define the project's plan conventions — sections, ordering, frontmatter, naming, subdirectory routing (e.g. `active/` vs `completed/`). The project's conventions win over this skill's defaults.
+   When you use a discovered directory, **read** any `README.md`, `AGENTS.md`, `CLAUDE.md`, or `TEMPLATE.md` inside it before writing the skeleton. These define the project's plan conventions — sections, ordering, frontmatter, naming, subdirectory routing (e.g. `active/` vs `completed/`).
 
-   If a `TEMPLATE.md` exists, treat it as **binding** for sections, ordering, and any required frontmatter — it overrides the default skeleton in Step 1. The only rule from this skill that still applies regardless is "Out-of-scope is a single section near the end" (see Step 1). If the template has sections that don't get filled during shaping (e.g. "Surprises & Discoveries", "Idempotence and Recovery"), leave them as `_To be filled as work progresses._` placeholders rather than inventing content.
+   **If a `TEMPLATE.md` exists, ask the user via AskUserQuestion which format to follow** before writing the skeleton:
+
+   - **Repo template (Recommended)** — copy `<path>/TEMPLATE.md`'s structure verbatim. Keeps the new plan consistent with the existing ones in the directory; matters more when the repo has a populated `active/` folder and a routine of moving plans to `completed/`.
+   - **Shape skill default** — use the seven-section skeleton (Context / Research / Considerations / Implementation / Open questions / Out of scope / Verification). Pick this when the repo template is heavy-process and gets in the way of a shaping artifact, or when the user just wants the skill's normal shape.
+
+   Recommend the repo template by default — repos that bother to write a TEMPLATE.md usually want consistency — but let the user override in one click. Whichever they pick, the one rule that applies regardless: "Out-of-scope is a single section near the end" (see Step 1).
+
+   If the user picked the repo template and the template has sections that won't be filled during shaping (e.g. "Surprises & Discoveries", "Idempotence and Recovery"), leave them as `_To be filled as work progresses._` placeholders rather than inventing content.
 
    If subdirectories exist (e.g. `active/` and `completed/`), pick the one for in-flight work (usually `active/`).
 
-   Tell the user the chosen path. Distinguish discovered ("using existing `<path>`") from created ("creating `<path>`"). If a TEMPLATE.md was found, mention "following `<path>/TEMPLATE.md`" so they know the structure isn't being invented.
+   Tell the user the chosen path. Distinguish discovered ("using existing `<path>`") from created ("creating `<path>`"). If the user picked the repo template, mention "following `<path>/TEMPLATE.md`" so they know the structure isn't being invented.
 
 3. **Extract URLs** from the seed using a simple regex (`https?://[^\s)]+`). Queue them for Step 2's URL reading.
 
@@ -84,9 +91,9 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 
 Use Write to create the skeleton at `<plan-dir>/<slug>.md`.
 
-**If Step 0.2 found a project `TEMPLATE.md`:** copy that template's structure verbatim. Title goes at the top. Sections that won't be filled by shaping (status logs, rollback notes, etc.) get `_To be filled as work progresses._` placeholders. **Out-of-scope still goes near the end as its own section** even if the template doesn't show one — that's the one structural rule this skill imposes regardless of template.
+**If the user picked the repo template in Step 0.2:** copy that template's structure verbatim. Title goes at the top. Sections that won't be filled by shaping (status logs, rollback notes, etc.) get `_To be filled as work progresses._` placeholders. **Out-of-scope still goes near the end as its own section** even if the template doesn't show one — that's the one structural rule this skill imposes regardless of template.
 
-**Otherwise, use this default skeleton:**
+**Otherwise (no TEMPLATE.md, or user picked the shape skill default), use this default skeleton:**
 
 ```markdown
 # <short, action-oriented title>
@@ -308,7 +315,7 @@ Wait for **all** specialists to return before writing.
 1. **The spec is the artifact, the process isn't.** Nothing in the plan file should reveal how it was produced — no subagent names ("CEO", "architect-reviewer", "tester"), no procedural subheadings ("CEO challenge", "User response", "Specialist pushback", "Verdict"), no "the user said" framing. A reader six months from now should see one coherent voice, not a transcript of the shaping session.
 2. **Roles, not names.** Refer to people by role ("the customer's accountant", "Finance", "the team", "we"). Never name individuals — engineers, customers, teammates — even when the seed uses names verbatim. Repos can be public; team members rotate; specific names rot.
 3. **Abstract narrative; specific verification.** Context narrates the *class of problem* in role-based, identifier-free prose. Specific charge IDs, invoice numbers, exact amounts, and exact dates only appear in `## Verification`, where they help reproduce or sanity-check.
-4. **Plan directory: discover first, default last.** Step 0.2 checks `docs/plans/`, `plans/`, `rfcs/`, `designs/`, `.agents/plans/`. Project conventions (README, AGENTS, TEMPLATE) win over this skill's defaults. Fall back to `~/.claude/plans/` only when not in a git repo, and tell the user.
+4. **Plan directory: discover first, default last.** Step 0.2 checks `docs/plans/`, `plans/`, `rfcs/`, `designs/`, `.agents/plans/`. When a `TEMPLATE.md` is detected, the user picks (repo template vs. skill default) — the skill recommends the repo template but doesn't override silently. Fall back to `~/.claude/plans/` only when not in a git repo, and tell the user.
 5. **Out-of-scope lives in exactly one section, near the end** (before Verification). Context contains in-scope only; Implementation has no out-of-scope subsection.
 6. **Slugs are tight.** 2–4 words, ≤32 chars, the core noun phrase. The plan title matches the slug's intent.
 7. **One question per AskUserQuestion call.** Never batch.
