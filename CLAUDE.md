@@ -36,6 +36,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 |---|---|
 | Reviewing a meaty code change before merge, second opinion on a diff | `code-reviewer` |
 | Cleaning up working but tangled code, reducing complexity | `code-simplifier` |
+| Implementing a feature, principled refactoring, or design decisions during build that need an opinionated builder | `software-engineer` |
 | System design, architectural decisions, technology choices, coupling concerns | `architect-reviewer` |
 | Security-sensitive changes (auth, money, PII, crypto, file uploads, external input) | `security-auditor` |
 | Slow endpoint, N+1, memory blow-up, scaling concerns | `performance-engineer` |
