@@ -50,3 +50,12 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 - Do not invent skills or subagents. Only suggest ones in the tables above (or ones I've explicitly invoked this session).
 - Do not pad responses with *"by the way, you have a `/foo` skill"* when the current task is already on rails.
 - Do not turn every reply into a skill-discovery menu. Most turns should not include a suggestion at all.
+
+# Hand plans off to software-engineer, then code-simplifier
+
+When you're writing a plan in native Plan mode and the plan involves writing or changing production code, name the handoff: the implementation pass goes through the `software-engineer` agent, and the cleanup pass goes through the `code-simplifier` agent — in that order.
+
+- **Shape is your call.** No mandated section name, no template. A dedicated section, a line at the end of Verification, an inline note in Implementation — pick what reads best for that plan.
+- **Skip when there's nothing to build.** Pure research, investigation, retro, or doc-only plans don't need the handoff at all.
+- **Stage 2 is optional on thin surface area.** If there's not enough code to clean up, drop the simplifier. Judgment call, not a rule.
+- **Native Plan mode only.** `/shape` runs its own workflow and is unaffected.
