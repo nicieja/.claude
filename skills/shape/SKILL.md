@@ -229,6 +229,28 @@ The point is for someone reading the plan a month later to see the **thought pro
 **If the CEO greenlights with no real concerns:** move on.
 ---
 
+### Step 5.5: Verify riskiest assumptions against production data
+
+Some surviving concerns from Step 5 — and sometimes claims already baked into Context from Step 3 — rest on what production data currently *is*, not on what the code or schema suggests. Schema reality, row distributions, query plans, lock behavior, whether the bad combination of states already exists in the wild. Code reading tells you what *could* happen; production data tells you what *did*. Ratify those claims before they're baked into Implementation.
+
+For each surviving claim that fits this shape, invoke `/query` with the narrowest assertion that, if confirmed or refuted, moves the plan forward. Examples:
+
+- `/query "no Account record has a NULL primary_subscription_id"`
+- `/query "the existing index_accounts_on_user_id is used by the proposed query plan"`
+- `/query "rows where status='active' AND archived_at IS NOT NULL exist"`
+
+`/query` writes the script, the user runs it, and returns one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence. Use the verdicts to:
+
+- **`Confirmed`** — the assumption holds. Carry it into Step 6.
+- **`Refuted`** — the design rested on a wrong premise. Loop back to Step 5 (re-brainstorm with the new information) or Step 3 (revise Context). Do not write Implementation on a refuted assumption.
+- **`Inconclusive`** — surface it in Step 8's `## Open questions` with the specific query, count, or plan that would resolve it. Implementation can proceed; the gap is named so the next reader sees it.
+
+**When to skip.** When no surviving claim concerns current data state — pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those stay with `/pushback` and the CEO interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
+
+**Hide the machinery.** Like Step 5, the verification itself doesn't show up in the plan file as scaffolding. Confirmed findings fold into Considerations or Implementation as if the writer just knew them; refuted claims become dropped (or reshaped) plan items, not "we asked `/query` and it said no" call-outs. One voice, no transcript — same rule as Step 5 and Step 8.1.
+
+---
+
 ### Step 6: Implementation plan → write Implementation
 
 Edit `## Implementation` with:
@@ -327,3 +349,4 @@ Wait for **all** specialists to return before writing.
 13. **External research is best-effort.** If WebSearch and WebFetch return nothing useful, say so in the Research section. Don't pad with weak sources.
 14. **The plan should read as a thought process, not a conclusion.** Considerations captures what was challenged and how it changed the proposal — synthesized in one voice, not transcribed as a back-and-forth. That's what makes the plan reviewable later.
 15. **Self-audit before final ask.** A plan built section by section under different lenses drifts. The audit (Step 8.6) re-reads the whole plan and catches Context/Implementation coverage gaps, unanswered Considerations, Verification that doesn't match success criteria, and contradictions between sections. Edit in place — never expose the audit as scaffolding in the plan file.
+16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/query` for any surviving claim about current data state — schema reality, row distributions, query plans, lock behavior, status combinations. Refuted claims rewrite the plan; inconclusive ones surface in Open questions. `/query` is for what production currently *is*, not for what it will be — demand and behavior stay with `/pushback` and the CEO.
