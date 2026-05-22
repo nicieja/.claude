@@ -53,9 +53,10 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 
 # Hand plans off to software-engineer, then code-simplifier
 
-When you're writing a plan in native Plan mode and the plan involves writing or changing production code, name the handoff: the implementation pass goes through the `software-engineer` agent, and the cleanup pass goes through the `code-simplifier` agent — in that order.
+When you're writing a plan in native Plan mode **and the plan involves writing or changing code**, name the handoff: the implementation pass goes through the `software-engineer` agent, and the cleanup pass goes through the `code-simplifier` agent — in that order.
 
+- **Code only.** Ruby, TypeScript, Go, SQL, etc. It does **not** include prose, prompts, skills (`skills/**/SKILL.md`), slash commands (`commands/*.md`), agent definitions (`agents/*.md`), `CLAUDE.md`, plan files, READMEs, or other prose/config artifacts. For prose work, just do the edits yourself — the software-engineer agent's value (naming, abstraction discipline, method length) doesn't apply to markdown.
 - **Shape is your call.** No mandated section name, no template. A dedicated section, a line at the end of Verification, an inline note in Implementation — pick what reads best for that plan.
-- **Skip when there's nothing to build.** Pure research, investigation, retro, or doc-only plans don't need the handoff at all.
+- **Skip when there's nothing to build.** Pure research, investigation, retro, doc-only, or prompt-engineering plans don't need the handoff at all.
 - **Stage 2 is optional on thin surface area.** If there's not enough code to clean up, drop the simplifier. Judgment call, not a rule.
 - **Native Plan mode only.** `/shape` runs its own workflow and is unaffected.

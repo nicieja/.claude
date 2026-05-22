@@ -1,14 +1,22 @@
 ---
-allowed-tools: Bash(gh:*), Bash(git:*), Bash(linear issue:*), Bash(which:*), Read, Glob, Grep, Agent, AskUserQuestion
-description: Explain a large PR by reading it, its Linear ticket, and historical commits, then dispatch code-reviewer + code-simplifier and synthesize feedback
-argument-hint: <PR-number | branch | URL>
+name: explain-pr
+version: 1.0.0
+description: |
+  Explain a large PR by reading it, its Linear ticket, and historical commits,
+  then dispatch code-reviewer + code-simplifier and synthesize feedback into a
+  single-voice review.
+allowed-tools:
+  - Bash
+  - Read
+  - Glob
+  - Grep
+  - Agent
+  - AskUserQuestion
 ---
 
-## Context
+## Arguments
 
-- Current branch: !`git branch --show-current`
-- Default base branch: !`git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p'`
-- Argument: $ARGUMENTS
+The skill may be invoked as `/explain-pr <PR-number | branch | URL>` or bare `/explain-pr`. Treat the argument (if any) the same way Step 0 below describes. If empty, fall back to the current branch (`git branch --show-current`).
 
 ## Your task
 
@@ -20,11 +28,11 @@ Follow the steps below in order. Do not critique the code yourself — that's wh
 
 ### Step 0: Preflight
 
-1. Resolve `$ARGUMENTS` to `{pr_number, head_branch, base_branch, pr_url}`:
+1. Resolve the argument to `{pr_number, head_branch, base_branch, pr_url}`:
    - **Numeric** (`1234`) → PR number. `gh pr view <num> --json baseRefName,headRefName,url`.
    - **URL** (`https://github.com/.../pull/1234`) → extract trailing number, then same as above.
    - **Branch name** → `gh pr list --head <branch> --state all --json number,baseRefName,headRefName,url`. If multiple, pick the most recent open one; fall back to the most recent overall.
-   - **Empty** → use the current branch from Context; resolve as a branch arg.
+   - **Empty** → use the current branch (`git branch --show-current`); resolve as a branch arg.
 2. Verify `gh` is installed: `which gh`. If missing, tell the user and stop.
 3. Best-effort fetch refs so diffs work locally: `git fetch origin <base_branch>` and `git fetch origin <head_branch>`. Ignore failures (the user may be reviewing a fork).
 4. If no PR could be resolved but a branch exists, tell the user: *"No PR found for `<branch>` — explaining branch diff against `<base>` instead."* Set `pr_url=null` and skip PR-only fields in later steps.
@@ -150,7 +158,7 @@ Print. Stop. No follow-up menu, no "want me to post this as a comment?" — by d
 
 ## Key rules
 
-1. **Don't read the whole diff top-to-bottom.** The point of this command is to avoid that. Bucket first, identify the critical path, then go deep only there.
+1. **Don't read the whole diff top-to-bottom.** The point of this skill is to avoid that. Bucket first, identify the critical path, then go deep only there.
 2. **Don't critique the code yourself.** Your job is orchestration and synthesis. Code judgment comes from the subagents.
 3. **Hide the machinery in Step 7.** No subagent names, no "the reviewer said" framing. One voice.
 4. **Don't let `code-reviewer` bail on size.** The Step 6 brief must include the explicit scoping language — without it, the subagent will request the author split the PR.
