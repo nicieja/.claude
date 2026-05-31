@@ -3,10 +3,10 @@ name: rewrite
 version: 1.0.0
 description: |
   Rewrite an English working draft so it reads like a native speaker wrote it,
-  in the author's own literary voice (distilled from their short stories into
-  voice-guide.md). Polishes and re-voices prose — fixing first-language
-  interference and sharpening rhythm, register, and imagery — without changing
-  what the draft means. Use to finish drafts faster. Outputs the rewrite.
+  in the author's own literary voice (distilled into voice-guide.md). Polishes 
+  and re-voices prose — fixing first-language interference and sharpening rhythm, 
+  register, and imagery — without changing what the draft means. Use to finish 
+  drafts faster. Outputs the rewrite.
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,6 @@
-# The Voice — a style guide distilled from seven short stories
+# My Voice
 
-This is a portable, language-agnostic distillation of one author's prose voice, extracted from seven of their short stories (*Rzeź niewiniątka*, *Kula Borgesa*, *Cesarz*, *Czołem, przyjacielu*, *Hipotermia*, *Król żyraf*, *Pomyłka* — originally written in Polish). The rules below are stated for **English** prose. The `rewrite` skill loads this file and applies it.
+This is a portable, language-agnostic distillation of one author's prose voice extracted from their short stories. The rules below are stated for **English** prose. The `rewrite` skill loads this file and applies it.
 
 Read **"How to apply this"** before anything else. The fastest way to wreck this voice is to apply all of it at once.
 
@@ -15,7 +15,7 @@ Erudite and ironic, but never warm-blooded for long. A mind that thinks in parad
 ## How to apply this (read this first)
 
 1. **Restraint over flourish.** Every effect in these stories is *earned* and *rationed*. Fragments work because long sentences surround them. Images hit because there are few of them. If you crank every move to maximum, you get parody. When in doubt, do less.
-2. **The voice is a range, not a costume.** It spans clinical detachment (*Czołem, przyjacielu*) to breathless panic (*Hipotermia*) to scholarly calm (*Kula Borgesa*). Find the register the draft is *already* reaching for, then sharpen that — don't impose a single mode on everything.
+2. **The voice is a range, not a costume.** It spans clinical detachment to breathless panic to scholarly calm. Find the register the draft is *already* reaching for, then sharpen that — don't impose a single mode on everything.
 3. **Meaning is sacred.** You are re-voicing, not co-authoring. Do not invent plot, facts, characters, dialogue content, or events. Do not change the POV or tense unless they're broken or inconsistent. Preserve what the draft means and what the writer is trying to do.
 4. **Match the source's reach.** A plain functional passage gets fluency + light rhythm, not metaphysics. A lyrical passage can take the full voice. Don't gild a grocery list.
 5. **Tighten, don't pad.** Re-voicing usually *shortens*. If your rewrite is longer than the draft, you're probably adding instead of sharpening.
@@ -163,7 +163,7 @@ Lean on triads (three short nouns or imperatives), balanced antithetical pairs (
 
 ## Sounding native: the English-fluency pass
 
-The drafts come from a Polish-native writer. Alongside the voice work, fix first-language interference so the prose reads as a native wrote it. Common targets:
+The text comes from a Polish-native writer. Alongside the voice work, fix first-language interference so the prose reads as a native wrote it. Common targets:
 
 - **Articles (a/an/the).** Polish has none, so drafts drop or misplace them, or over-use "the" for abstractions. Set them by English convention; use a bare/definite form deliberately to keep a monumental abstraction stark ("the Absolute").
 - **Prepositions and collocations.** Fix calqued prepositions and verb+preposition pairs that don't match English usage.
@@ -190,17 +190,3 @@ Make these fixes invisibly: the goal is prose that never signals it was translat
 - **Explain the ending.** The last line reframes; it does not summarize or moralize.
 - **Import Polish dialogue dashes** or other L1 conventions into the English.
 - **Balloon the length.** Re-voicing tightens more often than it expands.
-
----
-
-## Provenance — where these rules came from
-
-Each story contributed; the fingerprint is what they share.
-
-- **Rzeź niewiniątka** — scholarly mock-essay (footnotes, citations) wrapped around a fairy-tale parable; reveal-by-relabeling; under-tell the worst, then twist; planted symbolic objects (mirror-stone, two-faced coin).
-- **Kula Borgesa** — Borgesian metaphysical essay-fiction; paradox stated as proof; one master image (sphere/mirror) re-angled; parenthetical self-doubt; coined-epithet ending ("the last blind-god").
-- **Cesarz** — deadpan mock-biography; absurd-as-bureaucratic-fact; em-dash narrator asides; extended metaphor (empire over destitution); speculative tech as flat background; diminished final image.
-- **Czołem, przyjacielu** — clinical field-note character sketch; habitual/iterative mode; register collision (bureaucratic + manipulative scripted card); a single ironic intrusion as the closing verdict; mood carried by worn objects.
-- **Hipotermia** — dying-spacecraft monologue; fragments and single-word sentences; mimetic typographic degradation at the climax; technical-vs-childlike register clash; bathos; ring composition.
-- **Król żyraf** — metaphysical noir thriller; the rhythm dial at full stretch (erudition ↔ detonation); the metafictional refrain "convention demanded it"; seeded image-families (coin, mirror, lion/giraffe) fused in the closing image; understatement at the peak.
-- **Pomyłka** — theological flash fiction on one controlling metaphor (God-as-author); register clash (archaic ↔ modern); sentence-length as pacing; deflate-after-inflate; isolated italic closing thought.
