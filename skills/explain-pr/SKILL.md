@@ -111,9 +111,32 @@ This is what the user came for. Print it before dispatching subagents — it set
 
 ---
 
+### Step 5.5: Decide which specialists `code-reviewer` must consult
+
+`code-reviewer` already owns specialist dispatch — it triages each PR and spawns `architect-reviewer`, `security-auditor`, and friends as needed, then integrates their findings. The only gap is that its triage is gated on its *own* confidence, which can stay quietly high on a re-architecture whose risk lives outside the diff. So we don't dispatch specialists ourselves and fight that machinery — we **remove the discretion** for the cases that matter, by naming the required consults in `code-reviewer`'s brief.
+
+Decide which specialists this PR warrants — deterministically, by trait, not by gut feel. You already have the signals: the diff buckets (Step 2), the title/branch/commits (Step 1), and the sensitive-area read from the Step 5 critical path. The list you produce here becomes a **mandatory-consult directive** in the Step 6 brief.
+
+**Trait → specialist:**
+
+- **`architect-reviewer`** — any of: a migration in the diff (`db/migrate/*`, `db/schema.rb` churn); a removed model association; a column dropped, relaxed to nullable, or added to `ignored_columns`; a polymorphic / enum / scope change; **or** the title or branch matches `re-?architect | migrate | cutover | rename | re-?model`.
+- **`security-auditor`** — auth/authz, crypto, secrets, PII, file upload, or new external-input handling on the critical path.
+- **`performance-engineer`** — new queries (especially inside loops), caching changes, async/sync swaps, hot-path edits.
+- **`tester`** — critical-path logic changed with thin or absent test coverage, or test-infrastructure / framework / CI edits.
+
+**Lean by default.** Most PRs match no trait, so the directive is empty and `code-reviewer` triages on its own exactly as before. Name a required consult only when a trait is genuinely present — don't manufacture a reason to fan out. A PR can match more than one trait; require each.
+
+**The blast-radius instruction (when the `architect-reviewer` trait is present).** `code-reviewer` writes `architect-reviewer`'s brief when it dispatches it, so this instruction has to be **relayed through** `code-reviewer`. Tell it, in Step 6, to pass this to `architect-reviewer` verbatim (paraphrasable, but keep the substance):
+
+> "This PR changes or removes symbols that other code depends on. For every removed or semantically-changed symbol — a dropped column or association, a column relaxed to nullable or added to `ignored_columns`, a changed enum / scope / serializer, a deleted or renamed method — search the **whole repo** (not just the diff) for readers, and verify each was migrated in this PR or has a linked follow-up. **Findings outside the diff are in scope and are usually the most important on a re-architecture or cutover PR.** Also judge: is the target design right, and is the cutover sequenced safely — are producers flipped ahead of their readers? is a backfill deferred without keeping the old readers working in the meantime?"
+
+This instruction is the point of the whole step. Diff-scoped reviewers cannot find a reader that the diff strands; only an explicit whole-repo search can.
+
+---
+
 ### Step 6: Dispatch `code-reviewer` and `code-simplifier` in parallel
 
-Single assistant message, two `Agent` tool calls. Wait for **both** to return before writing Step 7.
+Single assistant message, two `Agent` tool calls. Wait for **both** to return before writing Step 7. Specialists are `code-reviewer`'s job, not yours — Step 5.5's output rides into `code-reviewer`'s brief as a required-consult directive (below), so you never dispatch `architect-reviewer` and friends directly.
 
 **Brief for `code-reviewer`** (`subagent_type: "code-reviewer"`):
 
@@ -127,6 +150,12 @@ Include:
 End the brief with this instruction (literal, paraphrased only as needed):
 
 > "The total diff is ~`<N>` LoC, but ~`<M>` LoC of that is mechanical/generated across these paths: `<list>`. Those don't need line-by-line review. Focus on the critical-path files I've identified above, plus their tests. **Do not refuse to review based on total LoC — I've already scoped the surface for you.** Apply your usual Blocking / Should fix / Suggestion bucketing with `file:line` references. Apply `/pushback` framing — challenge, don't validate."
+
+If Step 5.5 identified any required consults, add this to `code-reviewer`'s brief (literal, paraphrasable):
+
+> "This PR has traits that warrant specialist review: `<trait → specialist list>`. **Dispatch these specialists as part of your triage — do not skip them on confidence grounds; I'm requiring them.** When you dispatch `architect-reviewer`, give it this instruction verbatim: `<blast-radius instruction from Step 5.5>`. Integrate their findings into your report with attribution, as you normally would."
+
+This leans on `code-reviewer`'s existing specialist router instead of competing with it — we override only the one discretionary step (the confidence gate) for traits we've judged non-negotiable, and let `code-reviewer` own the dispatch and integration.
 
 This explicit scoping matters: `code-reviewer`'s contract says it will ask the author to split oversized PRs. Without this brief it will bail on a 3-5k LoC change.
 
@@ -143,14 +172,18 @@ Include:
 
 ### Step 7: Synthesize and present (single voice)
 
-Read both subagent reports. Synthesize into one narrative. **Never write "code-reviewer says", "code-simplifier suggests", "the simplifier flagged", "Agent 1", or any other phrasing that exposes which subagent produced what.** Hide the machinery. The reader sees one reviewer's voice.
+Read all subagent reports. Synthesize into one narrative. **Never write "code-reviewer says", "code-simplifier suggests", "the simplifier flagged", "Agent 1", or any other phrasing that exposes which subagent produced what.** Hide the machinery. The reader sees one reviewer's voice.
 
 Structure:
 
 1. **Verdict** — one short line. Examples: *"Lean toward approve with non-blocking notes."* / *"Request changes — three blocking items below."* Pulled from the reviewer's verdict, restated.
-2. **Top concerns** — 3-5 bullets, ordered by severity, each with a `file:line` citation and one sentence on issue + suggested fix. Blocking items first.
-3. **Simplification opportunities** — short subsection with the highest-value suggestions, each as a before/after sketch with `file:line`. Skip the whole subsection if nothing survived synthesis.
-4. **Lower-priority notes** — collapsed bullet list of nits, optionals, and FYIs. Skip if empty.
+2. **Cutover / architecture risk** — one line, present whenever the architecture lens ran (or its trait was present in Step 5.5). State the risk plainly, or *"none"*. **If outside-the-diff breakage or an unsafe cutover was found, the Verdict cannot be "approve"** — it becomes "request changes," and those findings lead Top concerns.
+3. **Top concerns** — 3-5 bullets, ordered by severity, each with a `file:line` citation and one sentence on issue + suggested fix. Blocking items first.
+4. **Simplification opportunities** — short subsection with the highest-value suggestions, each as a before/after sketch with `file:line`. Skip the whole subsection if nothing survived synthesis.
+5. **Lower-priority notes** — collapsed bullet list of nits, optionals, and FYIs. Skip if empty.
+6. **Lenses run** — one line naming which lenses ran (e.g. *"code-review, simplify, architecture"*), read from `code-reviewer`'s report (it attributes each specialist it consulted) plus the simplifier. If a Step 5.5 trait was present but `code-reviewer` didn't consult the matching specialist, **say so explicitly** — never let the reader assume a lens covered something it didn't.
+
+**Severity rule:** outside-the-diff breakage and unsafe cutover sequencing are **Blocking** regardless of how clean the changed code itself is. A diff can be flawless line-by-line and still strand the readers that depend on it.
 
 Print. Stop. No follow-up menu, no "want me to post this as a comment?" — by design.
 

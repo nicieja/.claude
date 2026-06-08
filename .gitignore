@@ -42,3 +42,4 @@ downloads/
 plugins/
 .claude
 .last-cleanup
+.last-update-result.json

@@ -68,20 +68,22 @@ Single assistant message, one `Agent` tool call per PR. Use `subagent_type: "gen
 
 > You are reviewing PR `<URL>` on behalf of the user. The user is the assigned reviewer and has not yet posted a review.
 >
-> 1. Invoke the `explain-pr` skill via the `Skill` tool with the PR URL as the argument. Let it run end-to-end — it will print its high-level explanation and dispatch its own reviewer/simplifier subagents.
-> 2. Once `/explain-pr` finishes, read its synthesized review (Step 7 of that skill).
+> 1. Invoke the `explain-pr` skill via the `Skill` tool with the PR URL as the argument. Let it run end-to-end — it will print its high-level explanation and dispatch its own reviewer/simplifier (and, by trait, specialist) subagents.
+> 2. Once `/explain-pr` finishes, read its synthesized review (Step 7 of that skill). Carry through its **Cutover / architecture risk** line and its **Lenses run** line — both feed your verdict below.
 > 3. **Return — and only return — a compact verdict in this exact format:**
 >    ```
 >    PR: #<num> <title>
 >    URL: <url>
 >    Author: <author>
 >    Readiness: <0-10>
+>    Cutover/architecture risk: <none | one line naming the risk>
+>    Lenses run: <code-review, simplify, architecture, security, …; flag any trait-warranted lens that did NOT run>
 >    Summary: <one sentence, max ~20 words, on the overall verdict>
 >    Human-attention items:
 >    - <bullet>
 >    - <bullet>
 >    ```
->    Readiness rubric: 0–3 = blocking issues, do not merge; 4–7 = needs author response or non-trivial changes; 8–9 = approve with comments; 10 = ship it. Be honest — the user trusts your number to decide where to spend time.
+>    Readiness rubric: 0–3 = blocking issues, do not merge; 4–7 = needs author response or non-trivial changes; 8–9 = approve with comments; 10 = ship it. **Outside-the-diff breakage or an unsafe cutover is Blocking (0–3), no matter how clean the changed code is** — a diff can read flawlessly and still strand the readers that depend on it. Be honest — the user trusts your number to decide where to spend time.
 >    Human-attention items are the 1–4 things the user must personally eyeball or comment on before approving. Examples: *"the migration in `db/migrate/...` is non-reversible"*, *"auth check in X looks wrong, worth a second pair of eyes"*, *"post a question about the cache invalidation in Y"*. Skip the section if there's nothing.
 > 4. Do not print anything outside that block. No framing, no preamble, no commentary.
 
@@ -101,12 +103,16 @@ Print one consolidated report:
 ### #1234 Add ledger reconciliation job
 <URL>
 Readiness: 9/10 — Lean approve, non-blocking notes.
+Cutover/architecture risk: none.
+Lenses run: code-review, simplify.
 Human-attention items:
 - Confirm the idempotency key strategy in `app/jobs/ledger_reconcile.rb:42` matches what we agreed on Slack.
 
 ### #1235 …
 …
 ```
+
+Always print the **Cutover/architecture risk** and **Lenses run** lines for each PR — they make design/cutover risk and review coverage visible at a glance, and they stop a clean-execution PR with a broken cutover from reading as "basically fine."
 
 **Output rules:**
 
