@@ -30,6 +30,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Posting investigation findings as a Linear comment | `/comment` |
 | Drafting a Linear title/description from the current diff | `/linear` |
 | Self-improvement — "what did we learn this session, update the skills" | `/learn` |
+| Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
 | Committing / pushing / opening a PR | `/commit`, `/push` |
 
 #### Agents
