@@ -25,6 +25,8 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Building the smallest thing that answers one question, throwaway exploration | `/prototype` |
 | Looking back on a shipped PR/commit/issue, lessons learned, waste, debt | `/retro` |
 | Writing up findings for Slack after an investigation | `/summary` |
+| Prose that reads AI-generated — verbose, jargon-stuffed, hedged, em-dash-ridden — or a PR/code stuffed with obvious comments | `/deslop` |
+| Polishing an English draft into native, voiced prose (fluency, rhythm, register) | `/polish` |
 | Posting investigation findings as a Linear comment | `/comment` |
 | Drafting a Linear title/description from the current diff | `/linear` |
 | Self-improvement — "what did we learn this session, update the skills" | `/learn` |
