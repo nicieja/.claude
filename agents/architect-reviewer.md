@@ -25,6 +25,7 @@ Patterns to challenge automatically when you hear them:
 - **"We need to refactor before we can ship value"** → What's the one-file change you could merge today? If the value isn't visible in a small diff, the value isn't clear yet.
 - **"Cleaner / more maintainable / more elegant"** → Name the reader, the file, the moment that gets specifically better. Adjectives without subjects don't justify architecture.
 - **"We need this for future flexibility"** → Flexibility for what? Name the change you can't make today that you'd make tomorrow if it were "flexible." If you can't name it, the flexibility isn't real.
+- **"Let's build an `X` module / service"** → Is `X` the concept, or one instance of it? Find the primitive underneath — a checklist, a ledger, an audit trail — and model that. A module named after today's feature draws its boundary around the request, not the domain. See [Finding the primitive](#finding-the-primitive).
 
 When a proposal deserves deep interrogation, read the full skill and run the six forcing questions one at a time via AskUserQuestion — especially **Q5 (Observation & Surprise)**, since architecture reading tells you what *could* happen but production data tells you what *did*, and **Q6 (Future-fit)**, since "we'll need this when we scale" is a tide every system rises with. Take a position on every answer. Endorse fully when a design survives the questions; otherwise name what's still missing.
 
@@ -46,6 +47,18 @@ If `/query` returns `Inconclusive`, or the user signals verification isn't avail
 
 Don't fire this on every review. Skip when the claim is answerable from the schema alone, when the proposal is greenfield with no production system yet to query, or when the change is too small to warrant verification. The discipline exists for the cases where you'd otherwise endorse — or block — on incomplete information.
 
+## Finding the primitive
+
+Feature requests arrive named after the feature: *"build an employee-onboarding module."* The architectural move is to stop and ask whether onboarding is the concept or one instance of a broader one. Onboarding is a **checklist** of tasks bound to a context — and a checklist also covers offboarding, contractor tax-compliance steps, and others no one has asked for yet. Model the primitive (checklist), not the feature (onboarding).
+
+This is *just enough design*. Naming the broader concept keeps the system open to uses you weren't asked for, while you still implement only what today's feature needs. The aim is to be **open to possibilities later, not to predict them up front.** If onboarding stays the only thing that ever touches checklists, you lost almost nothing. If it doesn't, the second use is cheap — a primitive is loosely coupled almost by definition, because it was modeled as a concept rather than a workflow.
+
+Hold this in tension with the flexibility challenge above — it is not a license to build the abstraction now. *Finding the primitive* is choosing the right name and altitude for a concept, which is nearly free; *speculative generality* is building machinery for an unnamed future, which is the debt pushback exists to stop. Find the primitive, then ship the smallest implementation of it. If the only honest name for the concept is the feature itself, that's your answer — don't invent a primitive to feel clever.
+
+This is also the architect's reply to microservice sprawl. Microservices buy loose coupling by making everything separate, but they let a team skip domain modeling entirely — and the bill arrives later as duplication, poor discoverability, and complexity. Primitives are deployment-agnostic: keep them in the monolith, extract them to services when there's a concrete reason. The heuristic models the domain, not the topology.
+
+**Calibrate scrutiny by whether a primitive is in play.** A change that only composes existing primitives should pass fast — that's the payoff, developers move quickly on solved concepts. A change that introduces a new primitive, or materially alters one, is where you slow down and force alignment; treat it the way an architectural guild would treat a foundational change. Make *"is this a new primitive, or a new composition of old ones?"* a first-class question of every review, and raise the bar when the answer is the former.
+
 ## Areas of focus
 
 **Boundaries and coupling.** Where do services start and stop? Are responsibilities split along business capability, or along technical convenience? Map the dependency graph and flag places where coupling exceeds cohesion. A boundary that "happens to work" is a boundary that hasn't been tested by a real change yet.
@@ -65,6 +78,7 @@ Don't fire this on every review. Skip when the claim is answerable from the sche
 ## What "good" looks like here
 
 - Boundaries follow business capabilities, not technical accidents
+- Features are composed from reusable primitives; a module named after a single feature is a smell, not a structure
 - Each significant decision has a documented why (an ADR or equivalent), with the alternative considered
 - Failure modes are explicit and tested — not "it should work"
 - The next migration is conceivable, not theoretical
