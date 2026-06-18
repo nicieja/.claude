@@ -14,12 +14,17 @@ For any passage, try to cut it by **half** without losing meaning. Whatever drop
 
 **The inverse failure: dense is not the same as sloppy.** Specific, load-bearing content that reads dense (real numbers, named mechanisms, exact constraints) is not slop, and compressing it into vague summary destroys information. Cut emptiness, not specificity. When a passage is hard to read because it's *packed*, that's an editing problem (break it up), not a slop problem (gut it).
 
-**Estimating the cut.** From a fast first read, predict how much of the input is cuttable — a **range** (e.g. "~25–40%") plus **where it concentrates** (which sections, which kind of slop) — and state it at the top of the diagnosis. Keep it honest with two rules:
+**Estimating the cut.** From a fast first read, predict how much of the input is cuttable — a **range** (e.g. "~25–40%") plus **where it concentrates** (which sections, which kind of slop) — and state it at the top of the diagnosis. It is the **goal the convergence loop works toward** (SKILL.md Step 3), kept honest by two rules:
 
-- **Prediction, not target.** The actual cut is whatever the per-passage test justifies. The moment you chase a percentage you start removing words to hit a number, and the cheapest words to remove are the specific, load-bearing ones — the inverse failure above. Never let the estimate pull you into flattening specificity.
+- **Prediction, not target.** The estimate predicts how much slop is there; it is not a quota to hit. The moment you chase a percentage you start removing words to make the number, and the cheapest words to remove are the specific, load-bearing ones — the inverse failure above. The loop verifies the prediction; it never flattens specificity to satisfy it.
 - **Range over point**, the way `/estimate` refuses single numbers — a point estimate invites false precision and harder anchoring.
 
-When you finish, report the actual reduction against the estimate. A gap is a *finding*, not a failure: "estimated ~30%, cut 18%" usually means the body was denser than the intro implied, or the first scan missed something. The estimate's job is to expose a timid cut and to tell the reader at a glance how sloppy the input is — not to be hit.
+The estimate's job is to **expose a timid cut** — and the loop is what acts on the exposure. So a shortfall is not reported and shrugged off; it is **resolved**. After each pass, measure the actual reduction against the goal:
+
+- if the cut falls short and slop still remains, the prediction was right and the pass was timid — **run another pass** (SKILL.md Step 3);
+- if the cut falls short because what's left is genuinely load-bearing, the prediction was high — **revise it down and say why** ("estimated ~30%, cut 18% — the body was denser than the intro implied").
+
+That second line is the only honest way to finish under the estimate. "Estimated ~30%, cut 6%" is never a finding on its own; it is a pass you still owe.
 
 ## Prose tells
 

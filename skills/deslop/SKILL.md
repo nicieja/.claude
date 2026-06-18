@@ -4,9 +4,9 @@ version: 1.0.0
 description: |
   Strip AI-slop from prose and code comments — restoring information density and
   honesty — without changing meaning or code logic. Takes text, a file, or a PR;
-  diagnoses first and waits for your call, then rewrites the file, prints the
-  result, or reports on the PR. Default for comments: none, and each must earn
-  its place. Loads slop-guide.md every run.
+  diagnoses first and waits for your call, then converges through verify-and-repeat
+  passes until it hits the predicted cut or proves the rest is load-bearing. Default
+  for comments: none, and each must earn its place. Loads slop-guide.md every run.
 allowed-tools:
   - Read
   - Edit
@@ -28,7 +28,7 @@ Two surfaces, handled differently:
 - **Prose** — diagnosed in two tiers. *Structural* tells (the real target): low information density, jargon standing in for information, rhetorical postures that promise rigor they don't deliver, redundancy, hedging that never decides. *Surface* tells (cosmetic, low-confidence): generic AI vocabulary, em-dash overuse, the monotone "not X, but Y" cadence. Lead with structure; surface tells are gameable and unmeasured, never proof.
 - **Code comments** — one rule: **the default is no comment, and a comment must earn its place.** It earns it only by explaining *why* (not *what*): a non-obvious decision, a gotcha, an invariant the code doesn't show, an external constraint, or a workaround. AI agents over-comment by narrating the obvious; that narration is the prime target.
 
-The spine of the method is the **compression test**: try to cut a passage by half without losing meaning. What you can cut was slop; what survives is the content.
+Two instruments run the method. The **compression test** measures: try to cut a passage by half without losing meaning — what you can cut was slop, what survives is content. The **convergence loop** drives the work: declare a goal, cut, verify against it, repeat — until you hit the predicted cut or prove what's left is load-bearing. The loop is what stops a timid pass from quitting at 6% on a 30%-sloppy input.
 
 ## Arguments
 
@@ -64,42 +64,56 @@ Resolve per **Arguments** — text, file, PR, or bare.
 
 Read `~/.claude/skills/deslop/slop-guide.md` in full **before diagnosing**. It holds the marker taxonomy, the comment rubric, and the worked before/after examples. Load it every run — it's the thing tuned over time; don't work from memory.
 
-### Step 2: Diagnose — then stop
+### Step 2: Declare the goal, diagnose — then stop
 
 Scan the input and build the diagnosis. **Do not edit yet.**
 
-**Lead with a cut estimate.** From a fast read, predict how much is cuttable — as a **range plus where it concentrates** — framed as an observation about the input, not a goal for the output: prose → "this reads ~25–40% cuttable, mostly the intro and the three hedging paragraphs"; comments → "~6 of 9 added comments look cuttable." It's a guideline, never a quota (see the guide's "Estimating the cut" and Key Rule 10). Skip the formal estimate on trivially short inputs — a sentence or two needs no percentage.
+**Declare the goal: a cut estimate.** From a fast read, predict how much is cuttable — as a **range plus where it concentrates**: prose → "this reads ~25–40% cuttable, mostly the intro and the three hedging paragraphs"; comments → "~6 of 9 added comments look cuttable." This is the goal the loop in Step 3 converges toward — a prediction it verifies against, **never a quota you flatten specificity to hit** (see the guide's "Estimating the cut" and Key Rules 10–11). Skip the formal estimate on trivially short inputs — a sentence or two needs no percentage.
 
-Then build the itemized diagnosis:
+Then build the itemized diagnosis, and **name the passages you're targeting** so each pass has concrete aim:
 
 - **Prose:** find the tells, bucketed Structural (priority) and Surface (cosmetic). Run the compression test on the longest and densest passages; that, not vocabulary, is the headline.
 - **Comments (code file or PR diff):** rank each comment **Keep / Cut / Borderline** against the earn-its-place rubric. Bias to Cut; the default is no comment.
 
-**Reconcile** the estimate against the itemized findings before presenting: if the concrete cuts fall well short of the gut range, either the gut was inflated or the scan missed slop — close the gap. That delta is a thoroughness check on the analysis.
+**Reconcile** the estimate against the itemized findings before presenting: if the named cuts fall well short of the predicted range, either the prediction was inflated or the scan missed slop — resolve it now, not after editing. That delta is the first turn of the loop, done on paper.
 
-Present the diagnosis — estimate first, then the specifics — and **stop for the user's input**:
+Present the diagnosis — goal first, then the specifics — and **stop for the user's input**:
 
 - A few prose findings as **before/after** pairs drawn from their actual text (quote → tightened → one-line why).
 - For comments, a compact table: `comment · verdict · one-line reason`.
 
-Let the user interject, correct a verdict, or veto a change. This checkpoint is the point of the skill — the diagnosis is a proposal, not a fait accompli.
+Let the user interject, correct a verdict, adjust the goal, or veto a change. This checkpoint is the point of the skill — the diagnosis is a proposal, not a fait accompli. It is also the **only** gate: once you have the go-ahead, Step 3 runs to convergence on its own.
 
-### Step 3: Apply
+### Step 3: Converge — pass, verify, repeat
 
-After the user's input:
+With the goal declared and the go-ahead given, work the input in passes until it converges. **Do not stop at the first pass.**
+
+**Pass N — apply.** Cut the slop the diagnosis named:
 
 - **Prose:** structural fixes first, surface polish last and light. Preserve every fact and claim. Where a plain rewrite would require knowing whether a jargon claim is *true*, **flag it for the author — do not fabricate a confident paraphrase.**
 - **Comments:** delete the Cut ones, reword Borderline into a real *why* (or delete), keep the crucial. **Never change code logic** — only comments.
-- **The estimate never forces a cut.** If reaching it would mean flattening specificity, miss it on purpose — guardrail #7 (don't over-compress) wins every time.
+
+Pass 1 hits the passages named in Step 2; later passes hit whatever verification surfaces.
+
+**Verify N — measure against the goal.** Tally the cut so far, then re-run the compression test on what now remains. One of three things is true:
+
+- **Converged** — the cut has reached the goal range and meaning is intact. Exit the loop.
+- **Short, and slop remains** — the gap is a timid or incomplete pass, not a dense input. Name the passages still carrying slop and run **Pass N+1** aimed at them. This is the case the loop exists for: a 6% cut on a 30%-sloppy input does not get to stop here.
+- **Short, but the remainder is load-bearing** — the prediction was high; what's left is specific and real (the inverse failure in the guide). **Revise the goal down, record why** ("the body was denser than the intro implied"), and exit. This is the *justify* exit — the only honest way to finish below the prediction.
+
+**Cap at ~3 passes.** If it still hasn't converged, stop and say so plainly — what's left, and why it resisted — rather than spin or pad the count. (Same honesty as `/estimate` capping its break-down: the answer can be "this is as tight as it gets," never a faked number.)
+
+**Every pass obeys the guardrails.** Meaning and code logic stay untouched (Rule 3), and **don't-over-compress wins every tie** (Rule 7): the loop may never flatten specificity to chase the goal. Its only two exits are *converged* and *justified* — never "I tried, the gap is just a finding."
 
 ### Step 4: Self-check
 
-Before outputting, reread against the original:
+Once the loop has converged, reread the result against the **original** — the whole input, not just the last pass's diff:
 
-- **Meaning intact?** No fact changed, no claim invented, no real distinction lost while "tightening."
+- **Meaning intact?** No fact changed, no claim invented, no real distinction lost across the passes while "tightening."
 - **Logic untouched?** For code, you changed only comments.
-- **Not over-compressed?** Dense-but-real content (specific, load-bearing) is not slop; you didn't flatten it into vagueness.
+- **Not over-compressed?** Dense-but-real content (specific, load-bearing) is not slop; no pass flattened it into vagueness.
 - **No narration kept, no real *why* cut?** The comment ledger is honest.
+- **Did the loop exit honestly?** It ended on *converged* or *justified* — not a timid stop dressed up as a finding.
 
 Fix anything that fails, silently.
 
@@ -110,14 +124,14 @@ Fix anything that fails, silently.
 - **PR, branch checked out:** apply the edits to the working tree (remove cut comments; tighten the description if it lives in a file). Do not commit or push. Summarize what changed.
 - **PR, not checked out:** print a ranked report — the comment table plus suggested removals — that the user can apply. Offer to post it as PR review comments only if they ask.
 
-Report the **actual cut against the estimate** — prose: percent reduced; comments: N of M cut — and explain any real gap as a finding ("estimated ~30%, cut 18%; the middle was denser than the intro suggested"), not a miss. Divergence is information.
+Report **how the loop converged**, not a bare gap — prose: percent reduced over N passes against the goal; comments: N of M cut. State which exit it took: *met the goal* ("converged at ~28% over 2 passes; goal was 25–40%") or *justified the shortfall* ("revised the goal to ~8% after pass 2 — the body was load-bearing, here's why"). A shortfall is reportable only once it's been justified in the loop; it is never a substitute for the pass you didn't run.
 
 Close with **one honest line** separating *cosmetic* from *substantive* changes. If a passage is genuinely empty — form with no substance to recover — say so plainly; deslop can tighten prose but cannot supply judgment that was never there.
 
 ## Key Rules
 
 1. **Diagnose before you touch a word.** Present findings and let the user correct them. The checkpoint is the skill.
-2. **The compression test is the spine.** Lead with structure; treat surface tells as cosmetic.
+2. **The compression test is the measure.** Lead with structure; treat surface tells as cosmetic.
 3. **Never change meaning or code logic.** Preserve every fact and claim. Flag unverifiable jargon; don't fake a plain version.
 4. **Jargon density is not information density.** Specific-sounding nouns are not the same as transferred understanding.
 5. **Comments: default none; each earns its place.** Keep only *why* / gotcha / invariant / external-constraint / workaround. Cut narration of the obvious. AI over-commenting is the prime target.
@@ -125,4 +139,5 @@ Close with **one honest line** separating *cosmetic* from *substantive* changes.
 7. **Don't over-compress.** Real machinery — specific and load-bearing — stays, even when it reads dense.
 8. **Surface tells are weak.** Em dashes, AI vocabulary, and the "not X, but Y" cadence are gameable, false-positive-prone, and unmeasured. Light polish, never proof, never the headline.
 9. **Load `slop-guide.md` every run.** The taxonomy and examples live there, not in memory.
-10. **The cut estimate is a prediction, never a target.** Range over point, location over total. Judgment wins every tie; report actual-vs-estimate as a finding. Treat the skill's own number with the suspicion it aims at em-dash counts — a signal, never the goal.
+10. **The cut estimate is a prediction the loop verifies, never a target you flatten to hit.** Range over point, location over total. An *unexplained* shortfall means another pass; you may finish below the prediction only by proving the remainder is load-bearing and revising it down with that reason. Judgment wins every tie — treat the skill's own number with the suspicion it aims at em-dash counts.
+11. **Converge; don't report-and-shrug.** Loop pass→verify until the goal is met or the remainder is proven load-bearing — cap at ~3 passes, then stop honestly. Two exits only: *met* or *justified*. A timid pass that quits short and calls the gap "a finding" is the failure this skill was rebuilt to prevent.
