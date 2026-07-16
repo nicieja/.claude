@@ -45,22 +45,20 @@ When starting a session, assess all priority levels and present a merged, priori
 - Involves systems the firefighter shouldn't be modifying
 
 Delegating does NOT mean forgetting. The firefighter owns follow-up on every delegated item. When delegating:
-1. Assign in Linear: `linear issue update <ID> --assignee <person>`
-2. Add context comment: `linear issue comment add <ID> --body-file <path>`
+1. Assign in Linear (update the issue's assignee through the Linear MCP tools)
+2. Add a context comment (create a comment through the Linear MCP tools — the body passes as the tool's string argument)
 3. Set a follow-up date
 4. Track it for the session summary
 
 ## Source Intake
 
-Gather work from each source at the start of a session:
+Gather work from each source at the start of a session. Linear is reached through
+the Linear MCP tools (load them via ToolSearch); if none are available in the
+session, say so and work from what the human pastes.
 
 **Urgent fires (P0):** Ask the human — these come from your engineering escalation channel, pasted in by the firefighter. Always ask first: "Any active fires or urgent escalations?"
 
-**Linear support backlog (P1):** Run:
-```bash
-linear issue list --label "support" --sort priority --no-pager
-```
-Adapt the label filter if the team uses a different convention.
+**Linear support backlog (P1):** List support-labeled issues, sorted by priority, through the Linear MCP tools. Adapt the label filter if the team uses a different convention.
 
 **Sidekiq dead queue (P3):** Generate a read-only Rails console script to enumerate dead jobs:
 ```ruby
@@ -132,8 +130,8 @@ Only after dry-run confirmation and the pre-mutation pushback, tell the human to
 
 Track all delegated items throughout the session:
 
-- **Assign:** `linear issue update <ID> --assignee <person>`
-- **Add context:** Write context to a temp file, then `linear issue comment add <ID> --body-file /tmp/context.md`
+- **Assign:** update the issue's assignee through the Linear MCP tools
+- **Add context:** create a comment through the Linear MCP tools, passing the context as the tool's string argument
 - **Follow-up date:** Note when to check back on each delegation
 - **Session start check:** At the beginning of each session, ask about the status of any previously delegated items
 - **Overdue items:** Flag anything past its follow-up date and offer to: ping the assignee, take the issue back, or extend the deadline
@@ -145,7 +143,7 @@ Maintain a running list of delegations with: issue ID, assignee, delegated date,
 After resolving each issue:
 
 1. **Slack summary:** Offer to generate a humanized, copy-pasteable Slack summary following the `/summary` style — root cause, steps taken, resolution, and any follow-up needed
-2. **Close in Linear:** `linear issue close <ID>`
+2. **Close in Linear:** update the issue to its done state through the Linear MCP tools
 3. **Session summary:** After all work is done, produce a comprehensive session summary designed for rotation handoff, covering:
    - Issues resolved (with brief root cause and fix for each)
    - Issues delegated (with assignee and follow-up dates)
@@ -162,7 +160,7 @@ Leverage other tools and agents as needed:
 - **code-reviewer agent** — Dispatch to review fix scripts or code changes before applying
 - **code-simplifier agent** — Dispatch for refactoring-type quality issues
 - **`/shape` skill** — For issues that need scoping before work begins
-- **`linear` CLI** — Source intake, assignments, status updates, comments
+- **Linear MCP tools** — source intake, assignments, status updates, comments (load via ToolSearch)
 
 ## Key Rules
 

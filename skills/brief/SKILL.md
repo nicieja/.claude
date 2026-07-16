@@ -1,6 +1,6 @@
 ---
 name: brief
-version: 1.0.0
+version: 1.1.0
 description: |
   Morning brief and decision inbox. Gather overnight state — PRs and CI, the
   issue queue, fleet telemetry, production errors, today's calendar — from
@@ -46,9 +46,10 @@ skipped.
 
 - **PRs and CI:** `gh pr list --author "@me" --state open`, plus review-requested
   (`gh pr list --search "review-requested:@me"`), plus check states on open PRs.
-- **Issue queue:** the tracker CLI named in stack.md (e.g. `linear issue list --sort
-  priority --no-pager`); diff against what the user likely saw yesterday only if
-  telemetry shows a prior run.
+- **Issue queue:** the tracker named in stack.md — load its MCP tools via
+  ToolSearch and list the user's issues; if the session has no access to that
+  tracker, skip and note it. Diff against what the user likely saw yesterday only
+  if telemetry shows a prior run.
 - **Fleet:** tail `~/.claude/telemetry/fleet.jsonl` for entries since the last brief
   — completed stages, failures, skips with reasons.
 - **Production:** if an error-tracker connector tool is available in this session,

@@ -1,13 +1,11 @@
 ---
 name: comment
-version: 1.0.0
+version: 1.1.0
 description: |
-  Post a markdown comment on a Linear issue using the linear CLI. Pulls material
-  from the current conversation (typically findings from an /investigate run),
-  formats it as engineering-grade markdown, and posts via `linear issue comment add`.
-allowed-tools:
-  - Bash
-  - Write
+  Post a markdown comment on a Linear issue via the Linear MCP tools. Pulls
+  material from the current conversation (typically findings from an
+  /investigate run) and formats it as engineering-grade markdown.
+allowed-tools: []
 ---
 
 # Post Linear Comment
@@ -18,9 +16,14 @@ Post a markdown comment on a Linear issue, drawing the body from the conversatio
 - `/comment <issue-id-or-url>` — required; the Linear identifier (e.g. `ENG-2217`) or full Linear URL
 - `/comment <issue-id-or-url> <extra context>` — fold extra context into the comment alongside what's already in the conversation
 
-## Prerequisites
+## Linear access
 
-The `linear` command must be available on PATH. If `linear --version` fails, stop and tell the user to install it (https://github.com/schpet/linear-cli) — do not try to post via curl.
+Use the Linear MCP tools — they're deferred, so load them via ToolSearch (search
+"linear") before first use, and phrase calls by capability (create a comment on an
+issue) rather than assuming exact tool names. If only authentication stubs are
+available, the server needs its OAuth flow run once — offer to run it. If no Linear
+MCP tools are available in this session, stop and say so — do not try to post via
+curl or any other side channel.
 
 ## Instructions
 
@@ -49,26 +52,22 @@ Write GitHub-flavored markdown (Linear renders it). Headings, lists, code spans,
 
 **Sensitive data:** real user names from production data should be substituted or omitted unless they're load-bearing for the finding. Account names from the original ticket are fine to repeat.
 
-### Step 3: Write to a temp file
+### Step 3: Post the comment
 
-Always use `--body-file`, never `--body`. Inline `--body` mangles newlines and special characters in markdown. Write the composed markdown to a tempfile under `${TMPDIR:-/tmp}`, named after the issue (e.g. `/tmp/eng-2217-comment.md`) so it's easy to find if the post fails and you need to retry.
+Create the comment through the Linear MCP tools, passing the composed markdown as
+the tool's string argument — one call, the whole body.
 
-### Step 4: Post the comment
+The tool result includes the comment (and its URL when the server returns one).
+Surface that back to the user as the final reply, on its own line — that's the
+artifact they want to confirm the post landed.
 
-Run:
-
-```bash
-linear issue comment add <ID> --body-file <path>
-```
-
-The CLI prints a comment URL on success. Surface that URL back to the user as the final reply, on its own line — that's the artifact they want to confirm the post landed.
-
-If the CLI exits non-zero, do not retry blindly. Show the user the error and ask how to proceed (likely an auth issue: `linear auth status` is the first check).
+If the tool call fails, do not retry blindly. Show the user the error and ask how
+to proceed (an expired authentication is the likely cause — offer the OAuth flow).
 
 ## Key rules
 
-1. **Always use `--body-file`.** Never inline markdown via `--body` — escaping breaks formatting.
-2. **Confirm the issue ID** by extracting it explicitly. Don't pass a full URL to the CLI.
+1. **Pass the body as one markdown string through the MCP tool.** Never assemble it through shell interpolation — that's how markdown gets mangled.
+2. **Confirm the issue ID** by extracting it explicitly before calling the tool. Don't pass a full URL as the identifier.
 3. **Match the conversation.** The comment should reflect what was actually said to the user, not a fresh summary written from a template.
 4. **One comment per invocation.** Don't post follow-ups or split into multiple comments unless the user asks.
-5. **Surface the comment URL** as the final reply so the user can verify.
+5. **Surface the comment URL** (or the tool's returned confirmation) as the final reply so the user can verify.

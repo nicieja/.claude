@@ -1,6 +1,6 @@
 # Stack — <project>
 
-- **Tracker:** <Linear team key / GitHub Issues / …>
+- **Tracker:** <name + how sessions reach it: MCP connector / CLI / API>
 - **Code host & PR flow:** <gh, stacked PRs?, merge queue?, draft-first?>
 - **Commit conventions:** <path to .gitmessage or doc, or "none">
 - **Error tracking:** <Sentry project(s) / …>

@@ -1,6 +1,6 @@
 ---
 name: 10x
-version: 1.0.0
+version: 1.1.0
 description: |
   Generate the 10x version of a plan, spec, PR, ticket, UX flow,
   or architecture proposal. Surfaces the gap between where the
@@ -46,8 +46,8 @@ Follow these steps in order. Do not skip.
 Determine the input shape and resolve it:
 
 - **Looks like a path** (starts with `/`, `./`, `~/`, or matches an existing file) → `Read` the file
-- **Matches `[A-Z]+-\d+`** → Linear ticket → `linear issue view <ID> --json --no-pager`
-- **URL** — Linear URL: extract the ticket ID and fetch via `linear`. GitHub PR URL: `gh pr view <num> --json title,body,baseRefName,headRefName`
+- **Matches `[A-Z]+-\d+`** → Linear ticket → fetch it (description, state, comments) through the Linear MCP tools — load them via ToolSearch if deferred. If Linear is unavailable in this session, stop and say so: the ticket is the input.
+- **URL** — Linear URL: extract the ticket ID and fetch it the same way. GitHub PR URL: `gh pr view <num> --json title,body,baseRefName,headRefName`
 - **Otherwise** → treat the argument as freeform text describing the artifact
 
 If no argument was provided, ask once: "What should I stretch?" and wait. Do not proceed without input.

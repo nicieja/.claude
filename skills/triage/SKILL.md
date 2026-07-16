@@ -1,6 +1,6 @@
 ---
 name: triage
-version: 1.1.0
+version: 1.2.0
 description: |
   Fetch Linear issues with no PR attached, orchestrate parallel subagents
   through staged pipelines (explore → plan → implement → test → review),
@@ -28,16 +28,20 @@ Fetch issues assigned to you in Linear that have no PR attached, dispatch specia
 - `/triage ENG-123 ENG-456` — work on specific issues
 - `/triage --unattended` (optionally with issue IDs) — non-interactive run for schedules; see Unattended mode.
 
-## External tool
+## Linear access
 
-Uses the `linear` CLI (https://github.com/schpet/linear-cli). Do NOT use `./linear.toml` — rely on global config or env vars.
+Use the Linear MCP tools — they're deferred, so load them via ToolSearch (search
+"linear") before first use, and phrase calls by capability rather than assuming
+exact tool names. If only authentication stubs are available, the server needs its
+OAuth flow run once — interactively, offer to run it; unattended, treat Linear as
+unavailable.
 
-Key commands:
-- `linear issue list --sort priority --no-pager` — user's unstarted issues
-- `linear issue view <ID> --json --no-pager` — full issue details as JSON
-- `linear issue view <ID> --no-pager` — issue details as text
-- `linear issue start <ID>` — mark as started (also creates branch)
-- `linear issue pr <ID> --draft --head <branch>` — create draft PR linked to issue
+Operations this skill needs:
+- list the user's issues, sorted by priority
+- get an issue with its description, `updatedAt`, and comments
+- update an issue to its started state, then read its branch name field
+- PRs are created with `gh pr create --draft` — Linear links them automatically
+  because the branch name carries the issue ID
 
 ## Instructions
 
@@ -47,20 +51,14 @@ Follow these steps in order. Do NOT skip steps.
 
 ### Step 0: Preflight
 
-1. Verify the `linear` CLI is installed:
-   ```bash
-   which linear
-   ```
-   If not found, tell the user to install it and stop.
-
-2. **Load project context.** Read `~/.claude/context/<project>/stack.md` and
+1. **Load project context.** Read `~/.claude/context/<project>/stack.md` and
    `risk-tiers.md` (`<project>` = repo directory name). Take the WIP cap (default 3
    when absent) and the tier surfaces. If either file is missing: interactively, ask
    once and offer to scaffold from `context.example/`; unattended, proceed with
    conservative defaults (every issue T2 minimum, WIP cap 3) and note it in the run
    report.
 
-3. **Resolve stage deference.** Read `context/<project>/resolutions.md` for entries
+2. **Resolve stage deference.** Read `context/<project>/resolutions.md` for entries
    of the form `triage.<stage>`. Then scan the project's skills (`<root>/skills/`,
    `<root>/.claude/skills/`, `<root>/.agents/skills/`) for ones whose output covers a
    pipeline stage's job — verifying changes end-to-end, opening PRs, walking a PR to
@@ -71,24 +69,23 @@ Follow these steps in order. Do NOT skip steps.
    unresolved overlapping stage means the affected issues are skipped with the
    conflict named in the run report — never guess.
 
+3. **Confirm Linear access.** Load the Linear MCP tools per the Linear access
+   section. If only authentication stubs are available: interactively, offer to run
+   the OAuth flow now; unattended, treat Linear as unavailable. When Linear is
+   unavailable — interactively, stop and say so; unattended, abort with a run
+   report that still carries everything already discovered (missing-context
+   defaults, unresolved stage overlaps).
+
 4. If specific issue IDs were provided as arguments, take them as the eligible set and continue with Step 1 — skip only the list fetch (Step 1.1 fetches each provided ID's details directly) and the no-PR eligibility filter (an explicitly named issue is worked regardless). Type inference, prior-analysis synthesis, and tier assignment run for every issue, argument-provided or not; nothing dispatches without a tier.
 
-5. Otherwise, fetch issues:
-   ```bash
-   linear issue list --sort priority --no-pager
-   ```
-
-6. If the command fails with a team error, run `linear team list` and use AskUserQuestion to ask the user which team. Retry with `--team <key>`.
+5. Otherwise, list the user's issues, sorted by priority, through the Linear MCP
+   tools.
 
 ---
 
 ### Step 1: Filter to Eligible Issues
 
-1. From the issue list (or the IDs provided as arguments), get details for each:
-   ```bash
-   linear issue view <ID> --json --no-pager
-   ```
-   Parse the JSON. Skip issues that already have a branch name or PR URL in their metadata. Retain the full payload for eligible issues — you'll use the description, `updatedAt`, and `comments` array in step 1.4.
+1. From the issue list (or the IDs provided as arguments), get details for each through the Linear MCP tools — description, `updatedAt`, and comments. Skip issues that already have a branch name or PR URL in their metadata. Retain the full payload for eligible issues — you'll use the description, `updatedAt`, and `comments` array in step 1.4.
 
 2. Filter down to issues with no PR attached.
 
@@ -164,7 +161,7 @@ For each selected issue:
 
 2. **Dispatch the first pipeline stage** as a background agent (`run_in_background: true`).
 
-**Dispatch all first-stage agents simultaneously** in a single message with multiple Agent tool calls. Each issue's agents run independently. Dispatch at most the WIP cap (Step 0.2) of issues into active pipelines at once; queue the rest and start the next queued issue whenever one finishes or is skipped.
+**Dispatch all first-stage agents simultaneously** in a single message with multiple Agent tool calls. Each issue's agents run independently. Dispatch at most the WIP cap (Step 0.1) of issues into active pipelines at once; queue the rest and start the next queued issue whenever one finishes or is skipped.
 
 ---
 
@@ -214,7 +211,7 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Goal:** Ensure the implementation works
 - **Work:** Write and run tests for the changes. Ensure adequate coverage. Run the test suite and fix any failures.
 - **Agent selection:** Pick the agent best suited for test automation and quality assurance.
-- **Stage deference:** when Step 0.3 recorded a project skill for this stage, instruct the stage agent to run that skill (via the Skill tool) inside the worktree instead of improvising a test plan; its output feeds the pipeline exactly like the built-in stage's would.
+- **Stage deference:** when Step 0.2 recorded a project skill for this stage, instruct the stage agent to run that skill (via the Skill tool) inside the worktree instead of improvising a test plan; its output feeds the pipeline exactly like the built-in stage's would.
 
 #### Phase: Review
 - **Goal:** Catch issues before PR
@@ -288,11 +285,7 @@ This is the core loop. Repeat until all issues are complete or the user says Don
 
 When all pipeline stages complete for an issue:
 
-1. **Start the issue in Linear** (marks it as "In Progress" and gets the branch name):
-   ```bash
-   linear issue start <ID>
-   ```
-   This outputs the branch name Linear expects. If it creates a new branch that conflicts with the worktree branch, use the Linear-provided branch name.
+1. **Start the issue in Linear** (marks it as "In Progress" and yields the branch name): update the issue to its started state through the Linear MCP tools, then read the issue's branch name field and create that branch in the worktree (`git checkout -b <branch>`). If it conflicts with the worktree's existing branch, the Linear-provided branch name wins.
 
 2. **Commit and push** the worktree changes:
    ```bash
@@ -304,18 +297,13 @@ When all pipeline stages complete for an issue:
 
 3. **Create a draft PR** linked to the Linear issue:
    ```bash
-   linear issue pr <ID> --draft --head <branch_name>
-   ```
-
-   If `linear issue pr` fails, fall back to `gh`:
-   ```bash
    gh pr create --draft \
      --title "<descriptive title — no issue ID prefix>" \
      --body "<PR body — see format below>" \
      --head <branch_name>
    ```
 
-   **PR body format — the PR description must read like an investigation report.** Synthesize outputs from ALL pipeline phases (Understand, Diagnose, Build, Review) into a single standalone document. Someone reading the PR tomorrow should understand the problem, root cause, reasoning, and solution without any other context. **Do NOT include the Linear issue ID anywhere in the PR body** — no "**Issue:** ENG-123 —" prefixes, no "Resolves ENG-123" footers. The `linear issue pr` command handles the linking automatically.
+   **PR body format — the PR description must read like an investigation report.** Synthesize outputs from ALL pipeline phases (Understand, Diagnose, Build, Review) into a single standalone document. Someone reading the PR tomorrow should understand the problem, root cause, reasoning, and solution without any other context. **Do NOT include the Linear issue ID anywhere in the PR body** — no "**Issue:** ENG-123 —" prefixes, no "Resolves ENG-123" footers. Linear links the PR automatically via the issue-ID-bearing branch name.
 
    **IMPORTANT — shell escaping:** Use a single-quoted HEREDOC delimiter (`<<'EOF'`) so that backticks, dollar signs, and special characters pass through literally. Do NOT escape backticks with backslashes — inside `<<'EOF'`, backticks are plain text and render as inline code on GitHub. Never use double-quoted HEREDOC (`<<EOF`) or bare strings for PR bodies.
 
@@ -406,7 +394,7 @@ interactive flow, all non-negotiable:
 10. **Handle failures gracefully.** If an agent fails or produces bad results, show the error and ask: Retry / Skip / Done.
 11. **Auto-fix Review blockers, capped at 2 iterations.** Forward motion shouldn't pause for the user to copy-paste a Review's blockers back into Build's prompt — that's a loop the orchestrator can close. After 2 attempts without convergence, escalate to the user; never spin indefinitely. Pause overrides auto-fix.
 12. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
-13. **Handle team context gracefully.** If `linear issue list` fails with a team error, prompt for the team and retry.
+13. **Handle tracker errors gracefully.** If a Linear MCP call fails or needs disambiguation (team, project, filter), surface it and ask rather than guessing; unattended, skip the affected issues and record the reason in the run report.
 14. **Project skills run the stages they own.** A recorded `triage.<stage>`
     resolution routes that stage through the project's skill; in unattended mode an
     unresolved overlap skips the issue rather than guessing.

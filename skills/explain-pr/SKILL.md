@@ -1,6 +1,6 @@
 ---
 name: explain-pr
-version: 1.0.0
+version: 1.1.0
 description: |
   Explain a large PR by reading it, its Linear ticket, and historical commits,
   then dispatch code-reviewer + code-simplifier and synthesize feedback into a
@@ -72,11 +72,8 @@ If total > 10k LoC, ask via `AskUserQuestion` whether to proceed (slower, may ne
 ### Step 3: Linear context (if a ticket is referenced)
 
 1. Scan for the regex `[A-Z]+-\d+` across: PR title, PR body, head branch name, and each commit message in the `commits` array from Step 1. Deduplicate.
-2. For each ticket ID:
-   ```bash
-   linear issue view <ID> --json --no-pager
-   ```
-3. From each JSON capture `description`, `state`, and the `comments` array. Filter out automation/bot comments (Linear's auto-posts for branch/PR creation). Newer comments supersede older ones; confirmed language ("the cause is", "fixed by") counts as ground truth, hedged language ("maybe", "might") does not.
+2. For each ticket ID: fetch the issue through the Linear MCP tools (load them via ToolSearch if deferred). If Linear is unavailable in this session, note it once and continue without ticket context.
+3. From each ticket capture `description`, `state`, and the `comments` array. Filter out automation/bot comments (Linear's auto-posts for branch/PR creation). Newer comments supersede older ones; confirmed language ("the cause is", "fixed by") counts as ground truth, hedged language ("maybe", "might") does not.
 4. If no ticket reference is found, skip silently — do not pad the explanation with "no Linear ticket found".
 
 ---

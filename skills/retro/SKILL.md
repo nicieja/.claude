@@ -1,6 +1,6 @@
 ---
 name: retro
-version: 1.0.0
+version: 1.1.0
 description: |
   Run a retrospective on a PR, commit, Linear issue, or freeform piece of
   work. Read the data and any cross-referenced material, apply the retro
@@ -71,11 +71,7 @@ git log <sha>~..<sha> --stat
 ```
 Read the diff and the message.
 
-**For a Linear issue:**
-```bash
-linear issue view <ID> --json --no-pager
-```
-Read description, comments, linked PRs.
+**For a Linear issue:** fetch the issue — description, state, comments, linked PRs — through the Linear MCP tools (load them via ToolSearch if deferred). If Linear is unavailable in this session, say so once and work from the other sources.
 
 **Cross-references — follow them.** The principle is plural: *all relevant pull requests, comments, Linear issues and discussions*.
 - PR body mentions `XXX-NNNN` → fetch the Linear issue
