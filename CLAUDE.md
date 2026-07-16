@@ -54,6 +54,19 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 - Do not pad responses with *"by the way, you have a `/foo` skill"* when the current task is already on rails.
 - Do not turn every reply into a skill-discovery menu. Most turns should not include a suggestion at all.
 
+# Project skills take precedence — detect, ask, remember
+
+Repos I work in may carry their own skills (`skills/`, `.claude/skills/`, `.agents/skills/`). Those encode the project's law; my global library is the fallback and the judgment layer.
+
+- **Before running a global skill whose job overlaps a project skill's, surface the conflict and ask me** — use the project's skill (the default), use mine, or compose (my process, their output conventions). Match by what the skills produce, not by their names.
+- **Remember my answer** in `~/.claude/context/<project>/resolutions.md` and follow it silently on later runs. `<project>` is the repo's directory name.
+- **Unattended runs never guess.** No recorded resolution → skip that piece of work, note the conflict in the run report, and leave the decision for an interactive session.
+- **Never edit a project's skills, agent docs, tasks, or automations** — read and invoke only. Improvements to a project's workflow are proposals to its owners, not edits from me.
+
+# The context layer
+
+`~/.claude/context/<project>/` (gitignored) holds everything project-specific: charter and metric definitions, risk tiers, escalation contract, stack notes, partner roster, remembered resolutions, decision log. Tracked `context.example/` documents each file's shape. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully: ask once, offer to scaffold it from its template, and default to the conservative reading (unknown risk tier = high, unknown metric = ask, no roster = ask). Nothing project- or employer-specific ever goes in tracked files — mechanism is public, configuration is private.
+
 # Hand plans off to software-engineer, then code-simplifier
 
 When you're writing a plan in native Plan mode **and the plan involves writing or changing code**, name the handoff: the implementation pass goes through the `software-engineer` agent, and the cleanup pass goes through the `code-simplifier` agent — in that order.
