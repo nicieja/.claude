@@ -1,10 +1,11 @@
 ---
 name: triage
-version: 1.0.0
+version: 1.1.0
 description: |
   Fetch Linear issues with no PR attached, orchestrate parallel subagents
   through staged pipelines (explore → plan → implement → test → review),
-  collect user feedback between stages, and push draft PRs when complete.
+  collect user feedback between stages (or run unattended with tiers and
+  recorded resolutions), and push draft PRs when complete.
 allowed-tools:
   - Bash
   - Read
@@ -13,6 +14,7 @@ allowed-tools:
   - Glob
   - Grep
   - Agent
+  - Skill
   - AskUserQuestion
 ---
 
@@ -24,6 +26,7 @@ Fetch issues assigned to you in Linear that have no PR attached, dispatch specia
 - `/triage` — fetch and work on all eligible issues
 - `/triage ENG-123` — work on a single specific issue
 - `/triage ENG-123 ENG-456` — work on specific issues
+- `/triage --unattended` (optionally with issue IDs) — non-interactive run for schedules; see Unattended mode.
 
 ## External tool
 
@@ -50,14 +53,32 @@ Follow these steps in order. Do NOT skip steps.
    ```
    If not found, tell the user to install it and stop.
 
-2. If specific issue IDs were provided as arguments, skip to Step 2 with those issues.
+2. **Load project context.** Read `~/.claude/context/<project>/stack.md` and
+   `risk-tiers.md` (`<project>` = repo directory name). Take the WIP cap (default 3
+   when absent) and the tier surfaces. If either file is missing: interactively, ask
+   once and offer to scaffold from `context.example/`; unattended, proceed with
+   conservative defaults (every issue T2 minimum, WIP cap 3) and note it in the run
+   report.
 
-3. Otherwise, fetch issues:
+3. **Resolve stage deference.** Read `context/<project>/resolutions.md` for entries
+   of the form `triage.<stage>`. Then scan the project's skills (`<root>/skills/`,
+   `<root>/.claude/skills/`, `<root>/.agents/skills/`) for ones whose output covers a
+   pipeline stage's job — verifying changes end-to-end, opening PRs, walking a PR to
+   merge, reviewing a diff. For each overlapping stage without a recorded
+   resolution: interactively, ask one AskUserQuestion per stage (use the project's
+   skill (Recommended) / use the built-in stage / compose) and append the answer to
+   `resolutions.md` as `- triage.<stage> → <choice> (<date>)`. Unattended, an
+   unresolved overlapping stage means the affected issues are skipped with the
+   conflict named in the run report — never guess.
+
+4. If specific issue IDs were provided as arguments, skip to Step 2 with those issues.
+
+5. Otherwise, fetch issues:
    ```bash
    linear issue list --sort priority --no-pager
    ```
 
-4. If the command fails with a team error, run `linear team list` and use AskUserQuestion to ask the user which team. Retry with `--team <key>`.
+6. If the command fails with a team error, run `linear team list` and use AskUserQuestion to ask the user which team. Retry with `--team <key>`.
 
 ---
 
@@ -100,12 +121,21 @@ Follow these steps in order. Do NOT skip steps.
 
 5. Present a table with suggested pipelines. When the prior-analysis synthesis (step 1.4) justifies a compressed pipeline, mark skipped/compressed phases inline with a brief reason in parentheses:
    ```
-   | # | ID      | Title                    | Priority | Pipeline                                                       |
-   |---|---------|--------------------------|----------|----------------------------------------------------------------|
-   | 1 | ENG-123 | Add user export feature  | Urgent   | Understand → Design → Build → Verify                           |
-   | 2 | ENG-456 | Fix billing calculation  | High     | Understand → Build → Verify → Review (Diagnose skipped: root cause confirmed in comments) |
-   | 3 | ENG-789 | Update API docs          | Medium   | Build → Review                                                 |
+   | # | ID      | Title                    | Priority | Tier | Pipeline                                                       |
+   |---|---------|--------------------------|----------|------|----------------------------------------------------------------|
+   | 1 | ENG-123 | Add user export feature  | Urgent   | T1   | Understand → Design → Build → Verify                           |
+   | 2 | ENG-456 | Fix billing calculation  | High     | T3   | Understand → Build → Verify → Review (Diagnose skipped: root cause confirmed in comments) |
+   | 3 | ENG-789 | Update API docs          | Medium   | T0   | Build → Review                                                 |
    ```
+
+   Assign each issue a **tier** from `context/<project>/risk-tiers.md` by matching
+   the issue's likely surfaces against the tier lists; unlisted or unknown surfaces
+   are T2 minimum, and when surfaces span tiers the highest wins. Tier consequences:
+   T3 issues never run unattended and never auto-advance — every stage gate waits
+   for the user, and the status table marks them `requires you in the loop`. If
+   work-in-flight reveals a T3 surface the ticket didn't (a deny-listed path shows
+   up in the diff), raise the tier mid-run and drop that issue out of auto-advance;
+   tiers only ever go up.
 
    The parenthetical reason is mandatory whenever the pipeline deviates from the type default. If multiple phases are affected (e.g., Understand narrowed AND Diagnose skipped), list the most consequential change.
 
@@ -134,7 +164,7 @@ For each selected issue:
 
 2. **Dispatch the first pipeline stage** as a background agent (`run_in_background: true`).
 
-**Dispatch all first-stage agents simultaneously** in a single message with multiple Agent tool calls. Each issue's agents run independently.
+**Dispatch all first-stage agents simultaneously** in a single message with multiple Agent tool calls. Each issue's agents run independently. Dispatch at most the WIP cap (Step 0.2) of issues into active pipelines at once; queue the rest and start the next queued issue whenever one finishes or is skipped.
 
 ---
 
@@ -160,7 +190,7 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 
 #### Phase: Diagnose (bugs and customer-reported issues)
 - **Goal:** Confirm the root cause with production data before building a fix
-- **Work:** Generate a Rails console diagnostic script for the user to run in production. The script must be read-only (no mutations). **Before writing any script, read the actual model files and schema to verify every method name, attribute, and association path you plan to use.** Never assume a model has a given method — check first. Present the script, wait for the user to paste output, then analyze. Iterate if needed. Only proceed to Build once the root cause is confirmed by production data.
+- **Work:** Generate a read-only diagnostic script for the project's production console (flavor and access mode per `stack.md`; Rails console by default) for the user to run in production. The script must be read-only (no mutations). **Before writing any script, read the actual model files and schema to verify every method name, attribute, and association path you plan to use.** Never assume a model has a given method — check first. Present the script, wait for the user to paste output, then analyze. Iterate if needed. Only proceed to Build once the root cause is confirmed by production data.
 - **Agent selection:** This phase is handled by the orchestrator (you), not a subagent. You generate the script directly.
 - **When to use:** For any bug or customer-reported issue. Skip for features, refactors, and chores where there's no production state to diagnose.
 - **IMPORTANT — do NOT skip Diagnose for bugs.** Even when the root cause seems obvious from code review, production data often reveals that the actual behavior differs from what the code suggests. If the Linear issue includes identifiers (record IDs, account slugs, thread links, environment), use them to write targeted diagnostic scripts that verify the exact scenario described. The Understand phase tells you *what the code does*; Diagnose tells you *what actually happened*.
@@ -178,17 +208,20 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Work:** Implement the plan. Write clean code following existing codebase patterns. Do NOT commit — just write the files.
 - **Agent selection:** Pick the agent best suited for writing production code. If the issue is primarily a refactor, prefer an agent specialized in simplification/refactoring if one exists.
 - **Diagnostic scripts for bugs:** When building a fix for a bug or customer-reported issue, the Build agent MUST also produce a `tmp/diagnostic_<issue_id>.rb` file — a read-only Rails console script the user can run in production to verify the fix addresses the real issue. The script should target the specific records and identifiers named in the Linear issue. If Diagnose was skipped, this script is mandatory.
+- **Evidence bundle:** the Build agent's completion report must end with five short sections — What changed, Why this shape, What you ran, Residual risk, Rollback. Verify and Review receive it, and the PR body's How-to-test section carries its verified commands.
 
 #### Phase: Verify
 - **Goal:** Ensure the implementation works
 - **Work:** Write and run tests for the changes. Ensure adequate coverage. Run the test suite and fix any failures.
 - **Agent selection:** Pick the agent best suited for test automation and quality assurance.
+- **Stage deference:** when Step 0.3 recorded a project skill for this stage, instruct the stage agent to run that skill (via the Skill tool) inside the worktree instead of improvising a test plan; its output feeds the pipeline exactly like the built-in stage's would.
 
 #### Phase: Review
 - **Goal:** Catch issues before PR
 - **Work:** Review all changes for code quality, security, correctness, adherence to codebase patterns, and missing edge cases.
 - **Agent selection:** Pick the agent best suited for code review. If the issue touches security-sensitive areas, also consider a security-focused agent.
 - **Output requirement:** Review must group findings by severity (`Blocking` / `Should fix` / `Suggestion`) and end with a verdict (`approve` / `approve with non-blocking comments` / `request changes` / `rework`). The auto-fix loop in Step 4.5 keys off these labels — instruct the agent to use them explicitly.
+- **Deterministic pre-checks (fail closed):** before the review agent runs, the orchestrator checks: (a) diff size within the project's norm (default: flag above ~500 changed lines or 20 files), (b) no deny-listed T3 surface touched (else raise the tier per Step 1.5 and pause auto-advance for the issue), (c) tests changed alongside behavior, or the Build report justifies why not. Failures become mandatory Review findings. The review agent may tighten these outcomes, never loosen them, and stage deference applies here too when recorded.
 
 ---
 
@@ -243,6 +276,11 @@ This is the core loop. Repeat until all issues are complete or the user says Don
    g. **Pause respects the user.** If the user has explicitly said "pause" (turning off auto-advance), do NOT auto-fix either — ask normally, even on blockers. The auto-fix loop is part of forward motion; pause means hold all forward motion.
 
    h. **Show the auto-fix in the status table.** Add a column or annotation when an iteration is in flight so the user sees it: e.g., `Build (auto-fix 1/2)`, `Review (auto-fix 1/2)`. Don't silently spin.
+
+6. **Telemetry.** After every stage completion, skip, or finalization, append one
+   JSON line to `~/.claude/telemetry/fleet.jsonl` (create the directory if needed):
+   `{"ts":"<iso8601>","project":"<repo dir>","skill":"triage","issue":"<ID>","stage":"<stage>","tier":"<T0-T3>","outcome":"<complete|failed|skipped>","attempt":<n>}`.
+   Logging is best-effort — a write failure never blocks the pipeline.
 
 ---
 
@@ -338,6 +376,22 @@ When all issues are processed or the user says Done, show a final table:
 
 ---
 
+## Unattended mode
+
+`/triage --unattended` is the scheduled/headless form. Differences from the
+interactive flow, all non-negotiable:
+
+- **Never asks.** No AskUserQuestion anywhere. Anything that would have been a
+  question becomes either a skip or a run-report item.
+- **Skips instead of guessing.** An issue is skipped (with the reason recorded)
+  when it: is tier T3; carries scope-narrowing notes or contradictory comments
+  (step 1.4); needs a stage whose project-skill overlap has no recorded resolution;
+  or requires production diagnostics that only a human can run.
+- **Auto-advance from the start**, auto-fix loop unchanged (cap 2).
+- **Ends with a run report:** issues dispatched with stages completed and PR links,
+  issues skipped with reasons, telemetry summary, and any conflicts left for an
+  interactive session.
+
 ## Key Rules
 
 1. **Choose agents dynamically.** Examine available `subagent_type` options for each phase and pick the best fit. Never assume a fixed mapping — new agent types may be added at any time.
@@ -353,3 +407,12 @@ When all issues are processed or the user says Done, show a final table:
 11. **Auto-fix Review blockers, capped at 2 iterations.** Forward motion shouldn't pause for the user to copy-paste a Review's blockers back into Build's prompt — that's a loop the orchestrator can close. After 2 attempts without convergence, escalate to the user; never spin indefinitely. Pause overrides auto-fix.
 12. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
 13. **Handle team context gracefully.** If `linear issue list` fails with a team error, prompt for the team and retry.
+14. **Project skills run the stages they own.** A recorded `triage.<stage>`
+    resolution routes that stage through the project's skill; in unattended mode an
+    unresolved overlap skips the issue rather than guessing.
+15. **Tiers govern autonomy.** T3 never runs unattended and never auto-advances;
+    surfaces discovered mid-run only raise the tier, never lower it.
+16. **Telemetry is best-effort.** Never block or fail a pipeline over a logging
+    error.
+17. **Unattended never asks.** Skip and report instead — a skipped issue is
+    recoverable, a wrong guess in someone's repo is not.
