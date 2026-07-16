@@ -85,7 +85,7 @@ Skip any question whose answer earlier responses already cover. Don't ask redund
 ### Q1: Demand Reality
 **Ask:** "What's the strongest evidence this work needs to exist? Not 'tech debt,' not 'it's nicer' — who is actively *hurting* without it? Whose Linear ticket dies if we don't ship it?"
 
-**Push until you hear:** A specific person, ticket, customer workspace, or production page. Someone whose day is genuinely worse without this work.
+**Push until you hear:** A specific person, ticket, customer account, or production page. Someone whose day is genuinely worse without this work.
 
 **Red flags:** "Tech debt." "We'll need this eventually." "Wouldn't it be nice." "It's cleaner." "Best practice." None of these are demand.
 
@@ -104,9 +104,9 @@ If the framing is imprecise, **reframe constructively** — don't dissolve the q
 **Red flags:** "Nothing — that's why we need to build it." If truly nothing is being done and no one is feeling pain, the problem probably isn't urgent enough to justify the work.
 
 ### Q3: Desperate Specificity
-**Ask:** "Name the actual person who needs this most. The workspace. The customer ticket. The engineer who's blocked. What's the specific consequence they face if it stays broken?"
+**Ask:** "Name the actual person who needs this most. The account. The customer ticket. The engineer who's blocked. What's the specific consequence they face if it stays broken?"
 
-**Push until you hear:** A name. A ticket ID. A workspace identifier. A specific role with a specific blocker. Ideally something the user heard directly from that person.
+**Push until you hear:** A name. A ticket ID. An account identifier. A specific role with a specific blocker. Ideally something the user heard directly from that person.
 
 **Red flags:** Category-level answers. "Customers." "The team." "Users." "Operators." "SREs." These are filters, not people. You can't email a category.
 

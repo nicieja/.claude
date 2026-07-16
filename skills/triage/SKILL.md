@@ -163,7 +163,7 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Work:** Generate a Rails console diagnostic script for the user to run in production. The script must be read-only (no mutations). **Before writing any script, read the actual model files and schema to verify every method name, attribute, and association path you plan to use.** Never assume a model has a given method — check first. Present the script, wait for the user to paste output, then analyze. Iterate if needed. Only proceed to Build once the root cause is confirmed by production data.
 - **Agent selection:** This phase is handled by the orchestrator (you), not a subagent. You generate the script directly.
 - **When to use:** For any bug or customer-reported issue. Skip for features, refactors, and chores where there's no production state to diagnose.
-- **IMPORTANT — do NOT skip Diagnose for bugs.** Even when the root cause seems obvious from code review, production data often reveals that the actual behavior differs from what the code suggests. If the Linear issue includes identifiers (workspace, worker IDs, thread links, environment), use them to write targeted diagnostic scripts that verify the exact scenario described. The Understand phase tells you *what the code does*; Diagnose tells you *what actually happened*.
+- **IMPORTANT — do NOT skip Diagnose for bugs.** Even when the root cause seems obvious from code review, production data often reveals that the actual behavior differs from what the code suggests. If the Linear issue includes identifiers (record IDs, account slugs, thread links, environment), use them to write targeted diagnostic scripts that verify the exact scenario described. The Understand phase tells you *what the code does*; Diagnose tells you *what actually happened*.
 - **When Diagnose is impractical:** If the issue is purely a system prompt gap (no production state to query), or if no identifiers are provided in the ticket, fold diagnostic script generation into the Build phase instead — the Build agent must include a `diagnostic_script.rb` file alongside the fix that the user can run post-deploy to verify the fix works.
 - **When prior analysis in comments confirms the root cause:** If the prior-analysis synthesis (step 1.4) marks the root cause as pre-established — a teammate has named the specific files, lines, or methods in confirmed (non-hedged) language and the issue notes no broken production state needing repair — Diagnose may be skipped. The Build phase still produces a `tmp/diagnostic_<issue_id>.rb` script (per the existing Build-phase rule when Diagnose is skipped) that re-validates the documented root cause against production data, so the comment-stated cause is verified by the run, not assumed. If comments are hedged, contradictory, or describe a hypothesis rather than a confirmed cause, do NOT skip Diagnose.
 
@@ -177,7 +177,7 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Goal:** Write the code
 - **Work:** Implement the plan. Write clean code following existing codebase patterns. Do NOT commit — just write the files.
 - **Agent selection:** Pick the agent best suited for writing production code. If the issue is primarily a refactor, prefer an agent specialized in simplification/refactoring if one exists.
-- **Diagnostic scripts for bugs:** When building a fix for a bug or customer-reported issue, the Build agent MUST also produce a `tmp/diagnostic_<issue_id>.rb` file — a read-only Rails console script the user can run in production to verify the fix addresses the real issue. The script should target the specific workspace/worker/thread mentioned in the Linear issue. If Diagnose was skipped, this script is mandatory.
+- **Diagnostic scripts for bugs:** When building a fix for a bug or customer-reported issue, the Build agent MUST also produce a `tmp/diagnostic_<issue_id>.rb` file — a read-only Rails console script the user can run in production to verify the fix addresses the real issue. The script should target the specific records and identifiers named in the Linear issue. If Diagnose was skipped, this script is mandatory.
 
 #### Phase: Verify
 - **Goal:** Ensure the implementation works
@@ -286,7 +286,7 @@ When all pipeline stages complete for an issue:
    ## Context
 
    <Problem statement from the Linear issue: what was observed vs expected.
-   Include workspace, environment, and reproduction steps if available from the ticket.>
+   Include the affected records, environment, and reproduction steps if available from the ticket.>
 
    ## Investigation
 
@@ -306,7 +306,7 @@ When all pipeline stages complete for an issue:
 
    ## How to test
 
-   <Test commands (agent eval, unit tests)>
+   <Test commands (project test suite, targeted specs)>
    <Manual verification steps>
    <Diagnostic script if applicable>
 

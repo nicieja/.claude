@@ -79,7 +79,7 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 4. **Generate the slug.** Aim for **2–4 words, ≤32 chars**, lowercase, hyphen-separated. Strip qualifiers, hedges, and parentheticals. Bias toward the *core noun phrase that names the change*, not the surrounding context.
 
    Examples:
-   - ✅ `eor-deposit-gap` — not `other-invoice-accounting-items-eor-deposit-gap`
+   - ✅ `webhook-retry-gap` — not `payment-provider-webhook-retry-gap-handling`
    - ✅ `model-routing` — not `model-routing-via-openrouter`
    - ✅ `agreements` — not `structured-agreement-fields-and-signing-workflows`
 
@@ -350,3 +350,4 @@ Wait for **all** specialists to return before writing.
 14. **The plan should read as a thought process, not a conclusion.** Considerations captures what was challenged and how it changed the proposal — synthesized in one voice, not transcribed as a back-and-forth. That's what makes the plan reviewable later.
 15. **Self-audit before final ask.** A plan built section by section under different lenses drifts. The audit (Step 8.6) re-reads the whole plan and catches Context/Implementation coverage gaps, unanswered Considerations, Verification that doesn't match success criteria, and contradictions between sections. Edit in place — never expose the audit as scaffolding in the plan file.
 16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/query` for any surviving claim about current data state — schema reality, row distributions, query plans, lock behavior, status combinations. Refuted claims rewrite the plan; inconclusive ones surface in Open questions. `/query` is for what production currently *is*, not for what it will be — demand and behavior stay with `/pushback` and the CEO.
+17. **The publishability test extends "roles, not names" to domains.** This library is public: plans may carry project specifics (they're gitignored), but nothing written back into skills, commands, or agents may name an employer, product, customer, internal service, or industry domain. Examples in prompt files use neutral SaaS vocabulary (orders, accounts, subscriptions, webhooks).

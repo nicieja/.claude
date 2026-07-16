@@ -18,6 +18,7 @@ The tells to detect and score:
 - **Length bloat** — a section or step list grown well past what its job needs; deep nesting that could be one tight paragraph.
 - **Patching cross-references** — `as mentioned above`, `per Step 2`, `see guardrail #7`, `like Step 5`. A pointer that exists because content was added elsewhere instead of integrated where it's needed.
 - **Tonal / voice seams** — one section terse and confident, the next dense and didactic: the fingerprint of different editing sessions never smoothed together.
+- **Publishability leaks** — employer, product, customer, teammate, or industry-domain vocabulary in a tracked file. This library is public; examples must use neutral SaaS vocabulary. Tool names (Linear, Rails, Sentry) are fine; domain nouns that identify the employer's industry are not.
 
 A file's **debt score** is a judgment across these — how much a fresh reader pays for the history. One stray parenthetical is noise; a file with redundancy *and* duplicate rules *and* tonal drift is a re-integration candidate.
 

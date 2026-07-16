@@ -28,7 +28,7 @@ The `linear` command must be available on PATH. If `linear --version` fails, sto
 
 Accept either form:
 - Bare identifier: `ENG-2217`, `ABC-42`
-- Full URL: `https://linear.app/<workspace>/issue/ENG-2217/<slug>`
+- Full URL: `https://linear.app/<org>/issue/ENG-2217/<slug>`
 
 Extract the `[A-Z]+-\d+` identifier. If the input has no recognizable identifier, ask the user for one — do not guess.
 
@@ -47,7 +47,7 @@ Write GitHub-flavored markdown (Linear renders it). Headings, lists, code spans,
 - If a fix recommendation has alternatives, name them and the tradeoff briefly. Avoid presenting one option as if it were the only option.
 - Don't restate the issue body — the reader is on the ticket and can see it. Lead with what the conversation actually added: confirmation, root cause, evidence, recommendation.
 
-**Sensitive data:** real worker/user names from production data should be substituted or omitted unless they're load-bearing for the finding. Workspace names from the original ticket are fine to repeat.
+**Sensitive data:** real user names from production data should be substituted or omitted unless they're load-bearing for the finding. Account names from the original ticket are fine to repeat.
 
 ### Step 3: Write to a temp file
 
