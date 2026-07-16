@@ -71,7 +71,7 @@ Follow these steps in order. Do NOT skip steps.
    unresolved overlapping stage means the affected issues are skipped with the
    conflict named in the run report — never guess.
 
-4. If specific issue IDs were provided as arguments, skip to Step 2 with those issues.
+4. If specific issue IDs were provided as arguments, take them as the eligible set and continue with Step 1 — skip only the list fetch (Step 1.1 fetches each provided ID's details directly) and the no-PR eligibility filter (an explicitly named issue is worked regardless). Type inference, prior-analysis synthesis, and tier assignment run for every issue, argument-provided or not; nothing dispatches without a tier.
 
 5. Otherwise, fetch issues:
    ```bash
@@ -84,7 +84,7 @@ Follow these steps in order. Do NOT skip steps.
 
 ### Step 1: Filter to Eligible Issues
 
-1. From the issue list, get JSON details for each:
+1. From the issue list (or the IDs provided as arguments), get details for each:
    ```bash
    linear issue view <ID> --json --no-pager
    ```
