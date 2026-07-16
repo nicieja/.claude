@@ -31,6 +31,10 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Drafting a Linear title/description from the current diff | `/linear` |
 | Self-improvement — "what did we learn this session, update the skills" | `/learn` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
+| Morning kickoff — "what's on deck", overnight fleet results, what needs my decision | `/brief` |
+| Drafting the weekly review or metrics publish | `/weekly` |
+| Before a customer or partner call | `/prep-call` |
+| Right after a customer or partner call — filing what was learned | `/debrief-call` |
 | Committing / pushing / opening a PR | `/commit`, `/push` |
 
 #### Agents

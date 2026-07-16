@@ -32,27 +32,53 @@ Subagents Claude Code dispatches via the Agent tool.
 - `product-manager` — product strategy, prioritization, and roadmap decisions
 - `prompt-engineer` — designs and evaluates prompts for production LLM systems
 - `security-auditor` — vulnerability assessment and compliance review
+- `software-engineer` — principal-level implementation with taste in naming and abstraction
 - `tester` — test strategy, design, automation, and CI integration as one craft
 
 ## Skills (`skills/`)
 
 User-invocable slash commands with multi-step workflows.
 
-- `/shape` — turn a half-formed idea into a refined plan via codebase + web research, CEO challenge, and specialist pushback
+- `/10x` — paint the platonic ideal of an artifact and surface the gap
+- `/brief` — morning brief and decision inbox from live sources; schedulable
+- `/comment` — post conversation findings as a Linear comment
+- `/debrief-call` — file a partner call into the insight log with verbatim quotes
+- `/deslop` — strip AI slop from prose and comments without changing meaning
 - `/estimate` — honest estimate with codebase exploration and recursive break-down
-- `/investigate` — diagnose production issues via console scripts (read-only diagnostic, then dry-run fix)
+- `/explain-pr` — explain and review a large PR through parallel reviewers
+- `/investigate` — diagnose production issues via read-only console scripts, then dry-run fixes
+- `/learn` — turn a session's corrections into durable harness improvements
+- `/polish` — re-voice an English draft in the author's own literary voice
+- `/prep-call` — one-page brief before a customer or partner call
 - `/prototype` — smallest working build to answer one question, throwaway by design
 - `/pushback` — anti-sycophantic challenge framework; six forcing questions
-- `/retro` — extract learning fro a piece of work
-- `/summary` — write an investigation summary
-- `/triage` — fetch unassigned tickets and orchestrate parallel pipelines through PR
+- `/query` — verify one claim about runtime state with one read-only script
+- `/retro` — extract learning from a shipped piece of work
+- `/self-heal` — repair accretion debt across this library without regressing behavior
+- `/shape` — turn a half-formed idea into a refined plan via research and adversarial review
+- `/summary` — humanized Slack summary of an investigation
+- `/triage` — dispatch tracker issues through parallel, tiered, repo-aware pipelines to draft PRs
+- `/weekly` — draft the charter-defined weekly review; computed numbers only
 
 ## Commands (`commands/`)
 
-Thin slash-command wrappers for git and Linear.
+Thin slash-command wrappers.
 
 - `/ack` — acknowledge external file changes
+- `/auto-review` — batch-review the PRs awaiting your review
 - `/commit` — create a focused git commit
-- `/learn` — document insights from the session into skills
 - `/linear` — write a title and description for a Linear issue
 - `/push` — open a pull request
+- `/standup` — humanized standup update from a seed
+
+## The context layer (`context/`)
+
+The tracked library is mechanism; configuration is private. `context/<project>/`
+(gitignored) holds each project's charter, risk tiers, escalation contract, stack
+notes, partner roster, remembered skill resolutions, and decision log — see
+`context.example/` for the shape of each file. Skills read the active project's
+context at runtime and degrade gracefully when a file is missing.
+
+Repos can also carry their own skills; this library defers to them — it detects
+overlap, asks once, and remembers the answer per repo. Nothing project- or
+employer-specific ever appears in tracked files.
