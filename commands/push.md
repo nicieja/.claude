@@ -14,3 +14,5 @@ description: Create a pull request
 ## Your task
 
 Based on the above changes, create a pull request against the base branch. If the branch hasn't been pushed yet, push it first with -u flag.
+
+If the repo carries its own PR workflow (a pr skill, stacked-PR tooling, conventions doc), surface it per the deference protocol in ~/.claude/CLAUDE.md before creating the PR — remembered resolutions in context/<project>/resolutions.md apply.

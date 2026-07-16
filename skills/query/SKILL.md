@@ -1,6 +1,6 @@
 ---
 name: query
-version: 1.0.0
+version: 1.1.0
 description: |
   Generate a single read-only diagnostic script (Rails console, SQL,
   EXPLAIN) to verify or refute a specific claim about runtime state.
@@ -14,7 +14,7 @@ allowed-tools:
 
 # Query
 
-Verify a single claim about runtime state. The artifact is a verdict — `Confirmed`, `Refuted`, or `Inconclusive` — with the cited evidence from output the user pastes back.
+Verify a single claim about runtime state. The artifact is a verdict — `Confirmed`, `Refuted`, or `Inconclusive` — with the cited evidence from output the user pastes back. The console flavor and access mode come from the project's `stack.md` when present; the default is a Rails console the user runs by hand.
 
 This skill is **one-shot**. It does not iterate, does not chain follow-ups, does not generate fix scripts. Multi-round diagnostic chains belong in `/investigate`; data mutations belong in `/investigate` Step 4. `/query` produces exactly one script and one verdict.
 
@@ -54,7 +54,7 @@ If the claim is too vague to pin down all three, ask the caller for one round of
 
 Before writing any query that names columns, verify them in the schema. A wrong column name is the most common cause of a crashed script.
 
-- Read `db/schema.rb` for every table you'll touch. Read the actual `create_table` block — do not guess column names from model code alone.
+- Read the owning app's schema for every table you'll touch (`db/schema.rb`, the location named in `~/.claude/context/<project>/stack.md`, or discovered via `**/db/schema.rb`). Read the actual `create_table` block — do not guess column names from model code alone.
 - Confirm column types and NULL constraints relevant to the assertion.
 - Confirm how subject records are looked up. Identifiers in the claim (slugs, names, URLs) may not be database columns directly.
 - For state machines, confirm whether state is a column accessor or an AASM-style helper (`in_state?`, `current_state`).

@@ -1,9 +1,10 @@
 ---
 name: investigate
-version: 1.0.0
+version: 1.1.0
 description: |
   Investigate production issues by exploring the codebase and generating
-  Rails console scripts for diagnosis and fixes. Iterative workflow:
+  read-only console scripts for diagnosis and dry-run fixes (Rails console
+  by default; the project's stack.md can override). Iterative workflow:
   explore code, generate read-only diagnostic script, analyze output,
   generate fix script with dry-run safety.
 allowed-tools:
@@ -14,7 +15,7 @@ allowed-tools:
 
 # Production Issue Investigation
 
-Generate Rails console scripts to diagnose and fix production issues. You explore the codebase, generate read-only diagnostic scripts for the user to run, analyze the output, and iterate until the root cause is found and fixed.
+Generate production-console scripts to diagnose and fix production issues (Rails console by default — see the project-context step below). You explore the codebase, generate read-only diagnostic scripts for the user to run, analyze the output, and iterate until the root cause is found and fixed.
 
 ## Arguments
 - `/investigate <description>` — issue description, ticket URL, or bug report
@@ -47,12 +48,26 @@ If critical information is missing (e.g., no identifier to look up), ask for it 
 
 ---
 
+### Step 0.5: Load project context
+
+Read `~/.claude/context/<project>/stack.md` if it exists (`<project>` = repo directory
+name). Take from it: the console flavor and access mode, the schema location(s), and
+the architecture reading order. If the file is missing, ask once whether to scaffold
+it from `context.example/stack.md`, then proceed with defaults: Rails console, human
+runs scripts and pastes output, schema discovered by glob.
+
+In a monorepo, identify the owning app before exploring: follow the architecture
+reading order from stack.md, or look for a services index / architecture doc at the
+repo root. Scope every subsequent path in this skill to that app.
+
+---
+
 ### Step 1: Explore the Codebase
 
 This step is MANDATORY before generating any script. Use Read, Glob, and Grep to build a domain model understanding.
 
 **1a. Find relevant models**
-- Search `app/models/**/*.rb` for models matching domain terms
+- Search the owning app's models directory (e.g. `app/models/**/*.rb`, or `<app>/app/models/**/*.rb` in a monorepo) for models matching domain terms
 - Read each relevant model file completely
 
 **1b. Map the domain**
@@ -64,7 +79,7 @@ For each relevant model, note:
 - Any STI or polymorphic patterns
 
 **1c. Check the schema (MANDATORY)**
-- Read `db/schema.rb` for every table you plan to query. Read the actual `create_table` block — do not guess column names from model code alone.
+- Read the owning app's schema for every table you plan to query — `db/schema.rb`, or the location stack.md names; discover with a glob like `**/db/schema.rb` when unsure. Read the actual `create_table` block — do not guess column names from model code alone.
 - Note column types, defaults, null constraints, and indexes
 - Identifiers from the issue (slugs, URLs, names) often don't map to column names. Confirm how records are actually looked up before writing any query.
 
@@ -190,6 +205,7 @@ end
 - If fixing multiple records, process them in a loop with per-record safety checks and output
 - Under 100 lines
 - Independently runnable
+- For non-Rails consoles (per stack.md), preserve the same safety structure: an explicit dry-run flag defaulting to on, a transaction or equivalent rollback path, safety checks before any mutation, and before/after output.
 
 ---
 

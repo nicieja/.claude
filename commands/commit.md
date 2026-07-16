@@ -13,3 +13,5 @@ description: Create a git commit
 ## Your task
 
 Based on the above changes, create a single git commit.
+
+If the repo defines commit conventions (a .gitmessage template, a commit doc or skill), follow them and say which you followed.

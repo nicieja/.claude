@@ -1,6 +1,6 @@
 ---
 name: shape
-version: 1.0.0
+version: 1.1.0
 description: |
   Take a half-formed task idea, research the codebase and the open web,
   challenge it with the CEO subagent, run the implementation plan through
@@ -14,6 +14,7 @@ allowed-tools:
   - Glob
   - Grep
   - Agent
+  - Skill
   - AskUserQuestion
   - WebFetch
   - WebSearch
@@ -43,7 +44,15 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 
 1. **Capture the seed.** If invoked as `/shape <text>`, that's the seed. If bare, ask once: "What's the idea you want to shape?" Do not proceed without a seed.
 
-2. **Find (or create) the plan directory.** First find the repo root:
+2. **Project-skill check.** Some repos carry their own skill for this job. Check `~/.claude/context/<project>/resolutions.md` first (`<project>` = repo directory name): if it records a resolution for `shape`, follow it silently. Otherwise scan the project's skills (`<root>/skills/*/SKILL.md`, `<root>/.claude/skills/`, `<root>/.agents/skills/`, plus any project-scoped entries already in the available-skills listing) for one whose *output* covers turning an idea into a shaped plan or brief. No overlap → proceed. Overlap → ask via AskUserQuestion, one question:
+
+   - **Use the project's skill (Recommended)** — invoke it via the Skill tool and end here; the project's workflow is the local law.
+   - **Use this skill** — proceed as normal.
+   - **Compose** — this skill's process, the project skill's output conventions (artifact home, format, naming).
+
+   Append the choice to `resolutions.md` (create it if missing): `- shape → <choice> (<date>)`. Later runs follow it without asking. Unattended runs never ask: no recorded resolution means skip this work, note the conflict in the run report, and leave the decision for an interactive session.
+
+3. **Find (or create) the plan directory.** First find the repo root:
    ```bash
    git rev-parse --show-toplevel 2>/dev/null
    ```
@@ -74,9 +83,9 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 
    Tell the user the chosen path. Distinguish discovered ("using existing `<path>`") from created ("creating `<path>`"). If the user picked the repo template, mention "following `<path>/TEMPLATE.md`" so they know the structure isn't being invented.
 
-3. **Extract URLs** from the seed using a simple regex (`https?://[^\s)]+`). Queue them for Step 2's URL reading.
+4. **Extract URLs** from the seed using a simple regex (`https?://[^\s)]+`). Queue them for Step 2's URL reading.
 
-4. **Generate the slug.** Aim for **2–4 words, ≤32 chars**, lowercase, hyphen-separated. Strip qualifiers, hedges, and parentheticals. Bias toward the *core noun phrase that names the change*, not the surrounding context.
+5. **Generate the slug.** Aim for **2–4 words, ≤32 chars**, lowercase, hyphen-separated. Strip qualifiers, hedges, and parentheticals. Bias toward the *core noun phrase that names the change*, not the surrounding context.
 
    Examples:
    - ✅ `webhook-retry-gap` — not `payment-provider-webhook-retry-gap-handling`
@@ -91,7 +100,7 @@ Follow these steps in order. Do NOT skip steps unless the step explicitly says i
 
 Use Write to create the skeleton at `<plan-dir>/<slug>.md`.
 
-**If the user picked the repo template in Step 0.2:** copy that template's structure verbatim. Title goes at the top. Sections that won't be filled by shaping (status logs, rollback notes, etc.) get `_To be filled as work progresses._` placeholders. **Out-of-scope still goes near the end as its own section** even if the template doesn't show one — that's the one structural rule this skill imposes regardless of template.
+**If the user picked the repo template in Step 0.3:** copy that template's structure verbatim. Title goes at the top. Sections that won't be filled by shaping (status logs, rollback notes, etc.) get `_To be filled as work progresses._` placeholders. **Out-of-scope still goes near the end as its own section** even if the template doesn't show one — that's the one structural rule this skill imposes regardless of template.
 
 **Otherwise (no TEMPLATE.md, or user picked the shape skill default), use this default skeleton:**
 
@@ -337,7 +346,7 @@ Wait for **all** specialists to return before writing.
 1. **The spec is the artifact, the process isn't.** Nothing in the plan file should reveal how it was produced — no subagent names ("CEO", "architect-reviewer", "tester"), no procedural subheadings ("CEO challenge", "User response", "Specialist pushback", "Verdict"), no "the user said" framing. A reader six months from now should see one coherent voice, not a transcript of the shaping session.
 2. **Roles, not names.** Refer to people by role ("the customer's accountant", "Finance", "the team", "we"). Never name individuals — engineers, customers, teammates — even when the seed uses names verbatim. Repos can be public; team members rotate; specific names rot.
 3. **Abstract narrative; specific verification.** Context narrates the *class of problem* in role-based, identifier-free prose. Specific charge IDs, invoice numbers, exact amounts, and exact dates only appear in `## Verification`, where they help reproduce or sanity-check.
-4. **Plan directory: discover first, default last.** Step 0.2 checks `docs/plans/`, `plans/`, `rfcs/`, `designs/`, `.agents/plans/`. When a `TEMPLATE.md` is detected, the user picks (repo template vs. skill default) — the skill recommends the repo template but doesn't override silently. Fall back to `~/.claude/plans/` only when not in a git repo, and tell the user.
+4. **Plan directory: discover first, default last.** Step 0.3 checks `docs/plans/`, `plans/`, `rfcs/`, `designs/`, `.agents/plans/`. When a `TEMPLATE.md` is detected, the user picks (repo template vs. skill default) — the skill recommends the repo template but doesn't override silently. Fall back to `~/.claude/plans/` only when not in a git repo, and tell the user.
 5. **Out-of-scope lives in exactly one section, near the end** (before Verification). Context contains in-scope only; Implementation has no out-of-scope subsection.
 6. **Slugs are tight.** 2–4 words, ≤32 chars, the core noun phrase. The plan title matches the slug's intent.
 7. **One question per AskUserQuestion call.** Never batch.
