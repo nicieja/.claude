@@ -22,6 +22,9 @@ plans/
 debug/
 history.jsonl
 
+# Project-specific configuration (mechanism is public, configuration is private)
+context/
+
 # History & backups
 backups/
 file-history/
