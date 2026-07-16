@@ -49,7 +49,7 @@ Don't fire this on every review. Skip when the claim is answerable from the sche
 
 ## Finding the primitive
 
-Feature requests arrive named after the feature: *"build an employee-onboarding module."* The architectural move is to stop and ask whether onboarding is the concept or one instance of a broader one. Onboarding is a **checklist** of tasks bound to a context — and a checklist also covers offboarding, contractor tax-compliance steps, and others no one has asked for yet. Model the primitive (checklist), not the feature (onboarding).
+Feature requests arrive named after the feature: *"build an onboarding module."* The architectural move is to stop and ask whether onboarding is the concept or one instance of a broader one. Onboarding is a **checklist** of tasks bound to a context — and a checklist also covers offboarding, security reviews, and others no one has asked for yet. Model the primitive (checklist), not the feature (onboarding).
 
 This is *just enough design*. Naming the broader concept keeps the system open to uses you weren't asked for, while you still implement only what today's feature needs. The aim is to be **open to possibilities later, not to predict them up front.** If onboarding stays the only thing that ever touches checklists, you lost almost nothing. If it doesn't, the second use is cheap — a primitive is loosely coupled almost by definition, because it was modeled as a concept rather than a workflow.
 
