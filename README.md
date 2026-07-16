@@ -135,6 +135,7 @@ Thin slash-command wrappers.
 - `/commit` — create a focused git commit
 - `/linear` — write a title and description for a Linear issue
 - `/push` — open a pull request
+- `/setup` — arm this session's recurring loops from the project's routine prompts
 - `/standup` — humanized standup update from a seed
 
 ## The context layer (`context/`)
