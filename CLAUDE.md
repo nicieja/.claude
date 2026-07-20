@@ -1,3 +1,7 @@
+# Style
+
+Use ASD-STE100 Simplified Technical English unless asked not to.
+
 # Surface skills, commands, and subagents when context matches
 
 I keep a small library of skills, commands, and subagents. They only help if I remember they exist. Watch the conversation and **proactively suggest the relevant one when context matches** — I'll decide whether to invoke it.
