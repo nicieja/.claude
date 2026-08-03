@@ -111,7 +111,6 @@ User-invocable slash commands with multi-step workflows.
 - `/debrief-call` — file a partner call into the insight log with verbatim quotes
 - `/deslop` — strip AI slop from prose and comments without changing meaning
 - `/estimate` — honest estimate with codebase exploration and recursive break-down
-- `/explain-pr` — explain and review a large PR through parallel reviewers
 - `/investigate` — diagnose production issues via read-only console scripts, then dry-run fixes
 - `/learn` — turn a session's corrections into durable harness improvements
 - `/polish` — re-voice an English draft in the author's own literary voice
@@ -120,6 +119,7 @@ User-invocable slash commands with multi-step workflows.
 - `/pushback` — anti-sycophantic challenge framework; six forcing questions
 - `/query` — verify one claim about runtime state with one read-only script
 - `/retro` — extract learning from a shipped piece of work
+- `/review-pr` — differential PR review: post only what bots and prior reviewers haven't said
 - `/self-heal` — repair accretion debt across this library without regressing behavior
 - `/shape` — turn a half-formed idea into a refined plan via research and adversarial review
 - `/summary` — humanized Slack summary of an investigation
@@ -131,7 +131,6 @@ User-invocable slash commands with multi-step workflows.
 Thin slash-command wrappers.
 
 - `/ack` — acknowledge external file changes
-- `/auto-review` — batch-review the PRs awaiting your review
 - `/commit` — create a focused git commit
 - `/linear` — write a title and description for a Linear issue
 - `/push` — open a pull request

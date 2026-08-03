@@ -1,6 +1,6 @@
 # Style
 
-Use ASD-STE100 Simplified Technical English unless asked not to.
+Always use ASD-STE100 Simplified Technical English when responding unless asked not to.
 
 # Surface skills, commands, and subagents when context matches
 
@@ -27,6 +27,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/10x` |
 | Sizing work in hours/days, "how long will this take" | `/estimate` |
 | Building the smallest thing that answers one question, throwaway exploration | `/prototype` |
+| Reviewing a PR assigned to me that already has bot/human feedback — deciding what I can add, posting my review | `/review-pr` |
 | Looking back on a shipped PR/commit/issue, lessons learned, waste, debt | `/retro` |
 | Writing up findings for Slack after an investigation | `/summary` |
 | Prose that reads AI-generated — verbose, jargon-stuffed, hedged, em-dash-ridden — or a PR/code stuffed with obvious comments | `/deslop` |

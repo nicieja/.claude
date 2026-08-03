@@ -21,6 +21,8 @@ Files:
 - `partners.md` — the customer/partner roster for prep and debrief workflows.
 - `resolutions.md` — remembered answers to project-skill conflicts. Written by skills.
 - `decisions.md` — a dated log of non-obvious calls and why they were made.
+- `review-focus.md` — cached map of the code areas the user owns and actively
+  touches, used as a review lens. Written by `/review-pr`; refreshes after ~30 days.
 - `routines/` — prompt sources for scheduled runs (private by nature).
 
 Nothing in `context/` is ever tracked. Nothing project-specific ever leaves it.
