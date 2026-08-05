@@ -1,12 +1,12 @@
 ---
 name: review-pr
-version: 1.0.0
+version: 1.1.0
 description: |
   Differential PR review: baseline what any bot would say, absorb what human
   and AI reviewers already said, then dispatch code-reviewer with the context
   bots lack — ticket intent, file history, your ownership map, whole-repo
   blast radius — to find only what has NOT been raised. Staged reveal
-  (sentence → paragraph → tour → per-issue Q&A) ending in one GitHub review
+  (sentence → paragraph → tour → per-issue solution choice) ending in one GitHub review
   of inline comments in your voice — or in "nothing novel to add," which is
   success too.
 allowed-tools:
@@ -251,7 +251,7 @@ Single dispatch (`subagent_type: "code-reviewer"`). No simplifier — style poli
 
 - The closing scope instruction (literal):
 
-  > "The total diff is ~`<N>` LoC, but ~`<M>` LoC of that is mechanical/generated across these paths: `<list>`. Those don't need line-by-line review. Focus on the critical-path files above, plus their tests. **Do not refuse to review based on total LoC — the surface is already scoped for you.** Apply your usual Blocking / Should fix / Suggestion / Praise bucketing with `file:line` references. Apply `/pushback` framing — challenge, don't validate. Report only — do not post anything to GitHub."
+  > "The total diff is ~`<N>` LoC, but ~`<M>` LoC of that is mechanical/generated across these paths: `<list>`. Those don't need line-by-line review. Focus on the critical-path files above, plus their tests. **Do not refuse to review based on total LoC — the surface is already scoped for you.** Apply your usual Blocking / Should fix / Suggestion / Praise bucketing with `file:line` references. For each finding, give the remedy you recommend **plus 1-2 genuine alternatives at different cost/risk levels** — a narrow local patch, a root-cause fix, defer-with-a-guard. One line each: what it changes, what it costs, what it leaves unfixed. Say plainly when there is only one sane fix — do not invent alternatives to fill a slot. Apply `/pushback` framing — challenge, don't validate. Report only — do not post anything to GitHub."
 
 ---
 
@@ -262,10 +262,10 @@ Classify every finding `code-reviewer` returned, in this order. Matching is sema
 1. Matches a `KNOWN[resolved]` line → **drop** (already handled on the thread).
 2. Matches a `KNOWN[baseline]` line → **drop** (obvious — any bot would say it).
 3. Matches a `KNOWN[open]` line, or arrived prefixed `ENDORSE:` → **endorsement candidate** — the +1 that tells the author which open comment actually matters.
-4. Arrived prefixed `REFUTE:` → **refutation candidate** — rides the Q&A like a finding ("X claims Y; our analysis disagrees — reply saying so?").
+4. Arrived prefixed `REFUTE:` → **refutation candidate** — the counter-reply that tells the author an open comment is wrong.
 5. Otherwise → **novel**.
 
-Sort novel by severity (Blocking > Should fix > Suggestion); fold at most one Praise into the eventual review body. Cap the Q&A at **5 items** — novel first, then endorsements/refutations; the remainder gets one named line each in chat and stays out of the posted review unless the user promotes one.
+Sort novel by severity (Blocking > Should fix > Suggestion); fold at most one Praise into the eventual review body. Cap the per-issue Q&A at **5 novel findings**; endorsements and refutations always ride the single grouped question in Step 12(d). The remainder gets one named line each in chat and stays out of the posted review unless the user promotes one.
 
 Validate every candidate's anchor now, against the Step 4 patches: parse hunk headers `@@ -a,b +c,d @@`; a `side: RIGHT` anchor is valid iff its line falls inside some `c…c+d-1` range for that file (context lines count); deletions anchor `side: LEFT` within `a…a+b-1`. Fallback chain: nearest changed line in the same file (re-point the comment text accordingly) → the review body. Record the differential counts: found F / dropped-as-known D / novel K / endorsements E / refutations R.
 
@@ -283,9 +283,25 @@ Never name the machinery — no "baseline agent", no "code-reviewer", no mask ja
 
 **(c) The tour** (only on request) — the comprehension layer, compressed: the bucket shape; an architecture sketch (entry points and key modules, named by file path, grouped by directory); the 2-3 critical-path files with one sentence each on why; the before-state paragraph; a suggested reading order. Then re-ask: **Show the issues (Recommended)** / **Stop**.
 
-**(d) Per-issue Q&A**, severity order, max 5. For each issue: print it in full — severity, `file:line` and where it will land (inline or review body), the issue, why it matters, the suggested fix. Then AskUserQuestion — header "Issue <i>/<K>", question = the issue in one line; options = up to 3 issue-specific dispositions with the first labeled **(Recommended)** (e.g. *"Keep as blocking (Recommended)"*, *"Downgrade to suggestion"*, *"Rephrase as a question to the author"*), plus **"Drop — leave out of the review"**. The built-in "Other" is the discuss-in-chat path: answer whatever the user raises, then re-ask the same question; if their free text amounts to a disposition ("drop it", "say it this way: …"), honor it directly.
+**(d) Per-issue solution choice**, novel findings only, severity order, max 5. The user is not rubber-stamping someone else's verdict — they are deciding, as the engineer, how the thing gets fixed. Their answer is the suggested fix that posts.
 
-After the capped five: name the remainder, one line each — chat-only, not posted. If endorsements/refutations exist and were not individually asked, one grouped AskUserQuestion: **Include all (Recommended)** / **Pick which** / **Skip them**.
+For each issue: print it in full — severity, `file:line` and where it will land (inline or review body), the issue, why it matters, and the candidate remedies with their tradeoffs. Then AskUserQuestion — header `Issue <i>/<K>`, question **"How would you solve this?"** with the issue named in one line; options, in this order:
+
+- **Option 1** — the reviewer's recommended remedy, labeled **(Recommended)**: the fix in the label, its cost and risk in the description.
+- **Options 2-3** — the alternatives; for each, what it changes, what it costs, what it leaves unfixed.
+- **Option 4** — **"Drop — leave out of the review."**
+
+Four is the ceiling — AskUserQuestion takes no more, and "Other" is appended for free.
+
+Use the option `preview` field when a remedy reads better as a code sketch than as a sentence; previews render side by side.
+
+If the reviewer returned only one remedy, derive one or two genuine alternatives yourself at different cost/risk levels — a narrower local patch, a root-cause fix, or defer-with-a-guard. **Never pad**: two real options beat three where one is filler. Drop is always present, so the tool's two-option floor is always met.
+
+The built-in **"Other"** is the user's own words, and it is authoritative. A fix replaces the remedy. A disposition (*"make it a suggestion"*, *"ask the author instead"*, *"drop it"*) is honored directly. A question is answered in chat, then the same question is re-asked.
+
+Record the chosen remedy against the finding — Step 13 posts it.
+
+After the capped five: name the remainder, one line each — chat-only, not posted. If endorsements/refutations exist, one grouped AskUserQuestion: **Include all (Recommended)** / **Pick which** / **Skip them**.
 
 ---
 
@@ -294,7 +310,7 @@ After the capped five: name the remainder, one line each — chat-only, not post
 Assemble three parts:
 
 - **Review body** (short): the verdict recommendation; one line of differential transparency (*"N points already covered by existing reviews were left out"*); any unanchorable findings as `path:line — issue` prose; at most one Praise line if genuinely earned.
-- **Inline comments**: every anchored finding the user kept, each with its `{path, line, side}`.
+- **Inline comments**: every anchored finding the user kept, each with its `{path, line, side}`. The suggested fix in each comment is **the remedy the user chose**, not the reviewer's default; where they answered in free text, the comment carries their fix in their words. Never list the alternatives they passed over.
 - **Endorsement/refutation replies**: one short reply per target thread (from the endorsement-target table). If `viewer_is_author`, reword replies as acknowledgements (*"Confirmed — will fix"*), not +1s.
 
 Then the **voice pass** (literal): Read `~/.claude/skills/polish/voice-guide.md` and `~/.claude/skills/deslop/slop-guide.md` in full — every run, not from memory; they are tuned over time. Rewrite every body just assembled (review body, inline comments, replies) applying slop-guide fully and voice-guide's register, fluency, and anti-pattern sections — these are engineering comments, not stories, so skip the narrative devices. Do NOT invoke the polish or deslop skills. Meaning, severity, and every `file:line` reference stay fixed.
@@ -351,8 +367,8 @@ On post:
 - **Never asks.** No AskUserQuestion anywhere. Anything that would have been a question becomes a skip or a run-report item.
 - **>10k LoC** → stop with a run report instead of asking.
 - **The baseline is skipped when the PR already has bot feedback** (Step 3 probe) — the bots themselves are the mask there.
-- **All novel findings are kept** at the reviewer's severity; would-be Q&A dispositions become run-report recommendations.
-- **Runs Steps 0–11, then Step 13's assembly and voice pass** (the draft must be paste-ready); Step 12's questions become printed sections — sentence, paragraph, findings with recommended dispositions.
+- **All novel findings are kept** at the reviewer's severity, each carrying its recommended remedy plus the named alternatives, one line each — the user picks after the fact instead of in the flow.
+- **Runs Steps 0–11, then Step 13's assembly and voice pass** (the draft must be paste-ready); Step 12's questions become printed sections — sentence, paragraph, findings with their remedy sets.
 - **Stops after the printed draft. Never posts.** No review, no replies, no exceptions.
 - **Ends with a run report:** the differential counts (found / dropped-as-known / novel / endorsements / refutations), a one-line recommended event (comment / request changes / approve / stay silent), and every gap (Linear unavailable, baseline skipped or failed, focus map missing, >10k stop).
 
@@ -361,7 +377,7 @@ On post:
 ## Key rules
 
 1. **Don't read the whole diff top-to-bottom.** Bucket first, find the critical path, go deep only there.
-2. **Don't critique the code yourself.** Orchestrate; code judgment comes from the dispatched reviewer.
+2. **Don't critique the code yourself.** Orchestrate; code judgment comes from the dispatched reviewer, and so do the candidate remedies. The user picks among them; you carry the pick through to the post.
 3. **Novelty rides in the briefs, never as an instruction.** Asymmetric context (ticket, history, focus map, blast radius) plus the mask is the mechanism; "find novel things" is not one.
 4. **Dedupe against resolved only.** Open threads produce endorsements, not silence — an ignored critical finding endorsed by a human reviewer is high-value review.
 5. **Nothing-novel is success.** Say it, recommend approve, stop. Never manufacture findings to justify the run.
