@@ -43,7 +43,7 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 ## When this is the wrong skill
 
 - Stripping AI-slop from arbitrary prose or code → `/deslop`. self-heal repairs *structural accretion in the prompt library*, not emptiness in any text.
-- Re-voicing prose into the author's literary voice → `/polish`.
+- Re-voicing prose into the author's literary voice → `/voice`.
 - Restructuring working *code*, or reviewing a code diff → `code-simplifier` / `code-reviewer`. self-heal only touches prompt markdown; it never reads source for logic.
 - It composes with `/deslop` — a heal may tighten sloppy prose inside a file as it goes — but self-heal is the one that sweeps the whole library, knows each artifact type's healthy shape, and preserves a coverage ledger across a from-scratch rewrite.
 

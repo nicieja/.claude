@@ -113,7 +113,7 @@ User-invocable slash commands with multi-step workflows.
 - `/estimate` — honest estimate with codebase exploration and recursive break-down
 - `/investigate` — diagnose production issues via read-only console scripts, then dry-run fixes
 - `/learn` — turn a session's corrections into durable harness improvements
-- `/polish` — re-voice an English draft in the author's own literary voice
+- `/voice` — re-voice an English draft in the author's own literary voice
 - `/prep-call` — one-page brief before a customer or partner call
 - `/prototype` — smallest working build to answer one question, throwaway by design
 - `/pushback` — anti-sycophantic challenge framework; six forcing questions

@@ -42,11 +42,11 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 
 ## When this is the wrong skill
 
-- They want the prose re-voiced into their own literary voice, or non-native fluency fixed → `/polish`.
+- They want the prose re-voiced into their own literary voice, or non-native fluency fixed → `/voice`.
 - They want a *claim, proposal, or design* grilled, not the prose edited → `/pushback`.
 - They want code reviewed for **bugs or correctness** → `code-reviewer`. Deslop never reads for logic.
 - They want code **restructured** or dead code removed → `code-simplifier` / `/simplify`. Deslop prunes comments and prose; it does not refactor.
-- Compose with `/polish`: **deslop first** (cut the empty, the over-dense, the noise comments), **then polish** (re-voice what remains).
+- Compose with `/voice`: **deslop first** (cut the empty, the over-dense, the noise comments), **then voice** (re-voice what remains).
 
 ## Instructions
 

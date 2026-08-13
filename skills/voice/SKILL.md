@@ -1,5 +1,5 @@
 ---
-name: polish
+name: voice
 version: 1.0.0
 description: |
   Polish an English working draft so it reads like a native speaker wrote it,
@@ -12,7 +12,7 @@ allowed-tools:
   - Write
 ---
 
-# Polish
+# Voice
 
 Take an English working draft and rewrite it so it (1) reads like fluent native English and (2) carries the author's own voice — the fingerprint distilled in `voice-guide.md` (rhythm dial, em-dash habits, register collision, understatement, rationed imagery, ironic self-aware narrator, reframing last line). The draft's **meaning, plot, facts, POV, and intent stay fixed.** You re-voice; you don't co-author.
 
@@ -20,10 +20,10 @@ This exists to help the author finish drafts faster: hand it rough English, get 
 
 ## Arguments
 
-- `/polish <text>` — rewrite the pasted text.
-- `/polish <file path>` — read the file and rewrite it. **Output to chat; never overwrite the source** unless explicitly told to save.
-- `/polish` (bare) — rewrite the draft under discussion in the current conversation. If there's no obvious draft, ask once: "What should I rewrite?"
-- Add a steer in plain words: `/polish --light ...` or "light touch" (fluency + gentle rhythm only), "go further" / "make it sing" (full voice), "keep my paragraph breaks," "this is non-fiction," etc. Default intensity = **match the source** (see Step 2).
+- `/voice <text>` — rewrite the pasted text.
+- `/voice <file path>` — read the file and rewrite it. **Output to chat; never overwrite the source** unless explicitly told to save.
+- `/voice` (bare) — rewrite the draft under discussion in the current conversation. If there's no obvious draft, ask once: "What should I rewrite?"
+- Add a steer in plain words: `/voice --light ...` or "light touch" (fluency + gentle rhythm only), "go further" / "make it sing" (full voice), "keep my paragraph breaks," "this is non-fiction," etc. Default intensity = **match the source** (see Step 2).
 
 ## When this is the wrong skill
 
@@ -43,7 +43,7 @@ If the path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails w
 
 ### Step 1: Load the voice
 
-Read `~/.claude/skills/polish/voice-guide.md` in full **before rewriting**. It is the spec. Do not rewrite from memory of it — load it every run, because it's the thing the author tunes over time.
+Read `~/.claude/skills/voice/voice-guide.md` in full **before rewriting**. It is the spec. Do not rewrite from memory of it — load it every run, because it's the thing the author tunes over time.
 
 ### Step 2: Read the draft and set the dial
 
