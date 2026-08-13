@@ -1,20 +1,18 @@
 ---
 name: query
-version: 1.1.0
+version: 1.2.0
 description: |
   Generate a single read-only diagnostic script (Rails console, SQL,
   EXPLAIN) to verify or refute a specific claim about runtime state.
-  Hand it to the user for execution, parse the output, and return a
-  verdict (Confirmed / Refuted / Inconclusive) with the evidence cited.
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
+  Execute it directly through a confirmed query MCP (Metabase, a
+  Postgres/BigQuery connector) when the session has one; otherwise hand
+  it to the user for execution. Parse the output and return a verdict
+  (Confirmed / Refuted / Inconclusive) with the evidence cited.
 ---
 
 # Query
 
-Verify a single claim about runtime state. The artifact is a verdict — `Confirmed`, `Refuted`, or `Inconclusive` — with the cited evidence from output the user pastes back. The console flavor and access mode come from the project's `stack.md` when present; the default is a Rails console the user runs by hand.
+Verify a single claim about runtime state. The artifact is a verdict — `Confirmed`, `Refuted`, or `Inconclusive` — with the cited evidence from the query output. The execution channel comes from the project's `stack.md` when present: a confirmed query MCP the skill drives itself, or a console script the user runs by hand and pastes back. The default, absent any confirmed MCP, is the hand-run Rails console.
 
 This skill is **one-shot**. It does not iterate, does not chain follow-ups, does not generate fix scripts. Multi-round diagnostic chains belong in `/investigate`; data mutations belong in `/investigate` Step 4. `/query` produces exactly one script and one verdict.
 
@@ -50,11 +48,26 @@ If the claim is too vague to pin down all three, ask the caller for one round of
 
 ---
 
+### Step 0.5: Resolve the execution channel
+
+Decide who runs the script: you (through a query MCP) or the user (copy-paste into a console).
+
+1. **Read `~/.claude/context/<project>/stack.md`** (`<project>` = repo directory name). If its **Production console** line names a query MCP, use that MCP silently. If it says the human runs scripts (or explicitly rules out an MCP), use handoff mode. Either way, skip the rest of this step.
+2. **If stack.md doesn't settle it**, check the current session for MCP tools that can execute remote read-only queries — Metabase, Postgres, BigQuery, Snowflake, and similar connectors. Scan the deferred-tools listing and search with ToolSearch (keywords like "metabase sql query database execute").
+3. **If candidates exist, ask once** via AskUserQuestion: one option per candidate MCP, plus "hand scripts to me to run". When the user picks an MCP, offer to record the choice in stack.md's **Production console** line so later runs don't re-ask (update only that line; if stack.md is missing, offer to scaffold it from `context.example/stack.md` per the existing convention).
+4. **No candidates, or the user declines** → handoff mode, exactly the classic behavior.
+5. **Unattended run with nothing recorded** → never guess. Return `Inconclusive — no execution channel confirmed` and end the skill.
+
+A confirmed MCP channel is for **read-only diagnostics only**. It changes who executes the query, not what the query is allowed to do.
+
+---
+
 ### Step 1: Schema check (mandatory for column-level claims)
 
 Before writing any query that names columns, verify them in the schema. A wrong column name is the most common cause of a crashed script.
 
 - Read the owning app's schema for every table you'll touch (`db/schema.rb`, the location named in `~/.claude/context/<project>/stack.md`, or discovered via `**/db/schema.rb`). Read the actual `create_table` block — do not guess column names from model code alone.
+- In MCP mode, the queryable schema may differ from the app schema — a Metabase or warehouse connector may expose different table names or a subset of columns. When stack.md says so, or when the MCP offers schema/table-listing tools, verify against that source instead.
 - Confirm column types and NULL constraints relevant to the assertion.
 - Confirm how subject records are looked up. Identifiers in the claim (slugs, names, URLs) may not be database columns directly.
 - For state machines, confirm whether state is a column accessor or an AASM-style helper (`in_state?`, `current_state`).
@@ -65,7 +78,7 @@ Skip this step only when the claim is purely about query plans (`EXPLAIN`) over 
 
 ### Step 2: Generate ONE read-only script
 
-Generate a single script that produces the smallest evidence from Step 0.
+Generate a single script that produces the smallest evidence from Step 0, in the dialect of the channel from Step 0.5: SQL for a Metabase-style query MCP, ActiveRecord/Ruby for a hand-run Rails console, or whatever flavor stack.md names. The read-only rules below apply verbatim in every dialect.
 
 **Strictly read-only:**
 
@@ -77,7 +90,7 @@ Generate a single script that produces the smallest evidence from Step 0.
 
 Queries only: `find`, `find_by`, `where`, `pluck`, `count`, `exists?`, `EXPLAIN`, `SELECT`.
 
-**Common Rails / Ruby gotchas:**
+**Common Rails / Ruby gotchas (Rails-console mode):**
 
 - **Rails 8 strict pluck/order/select** — raw SQL fragments in `pluck`, `order`, or `select` raise `ActiveRecord::UnknownAttributeReference`. Wrap in `Arel.sql(...)`:
   ```ruby
@@ -104,7 +117,17 @@ For raw SQL (psql / `EXPLAIN`), the same read-only rules apply; wrap multi-state
 
 ---
 
-### Step 3: Hand off and wait
+### Step 3: Execute or hand off
+
+**MCP mode** (channel confirmed in Step 0.5):
+
+Execute the query yourself through the confirmed MCP tool and treat its result as the output. Show the user the query you ran alongside the verdict — the query is part of the evidence.
+
+- On an execution error (bad column, dialect mismatch, timeout), fix the query once and retry.
+- If it still fails, fall back to the human handoff below (interactive session) or return `Inconclusive — MCP execution failed: <error>` (unattended).
+- Never "fix" an error by weakening the read-only rules — a query that only works with a mutation or DDL is not this skill's query.
+
+**Handoff mode:**
 
 Present the script in a fenced code block, then ask for the output:
 
@@ -154,3 +177,5 @@ For `Inconclusive`, suggest a next-narrowest query but **do not auto-iterate**. 
 4. **Verdict is a single label.** `Confirmed`, `Refuted`, or `Inconclusive`. No hedged "probably" — if it's inconclusive, say so and name what's missing.
 5. **Don't auto-iterate.** One script, one output, one verdict. The caller drives any follow-up.
 6. **No code edits, no fix scripts.** This skill produces a diagnostic and a verdict. Anything that touches data lives elsewhere.
+7. **Direct execution is read-only execution.** A query MCP is never used for mutations, no matter what it's capable of; anything that writes goes through a human-run fix script in `/investigate` Step 4.
+8. **The user confirms the channel.** Never start querying production through a connector the user hasn't confirmed for this project — either in this session or recorded in stack.md.

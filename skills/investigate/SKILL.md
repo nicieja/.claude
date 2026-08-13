@@ -1,21 +1,19 @@
 ---
 name: investigate
-version: 1.1.0
+version: 1.2.0
 description: |
   Investigate production issues by exploring the codebase and generating
-  read-only console scripts for diagnosis and dry-run fixes (Rails console
-  by default; the project's stack.md can override). Iterative workflow:
-  explore code, generate read-only diagnostic script, analyze output,
-  generate fix script with dry-run safety.
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
+  read-only diagnostic queries — executed directly through a confirmed
+  query MCP (Metabase, a Postgres connector) when the session has one,
+  or as console scripts the user runs by hand (Rails console by default;
+  the project's stack.md can override). Iterative workflow: explore code,
+  run a read-only diagnostic, analyze output, generate fix script with
+  dry-run safety. Fix scripts are always human-run.
 ---
 
 # Production Issue Investigation
 
-Generate production-console scripts to diagnose and fix production issues (Rails console by default — see the project-context step below). You explore the codebase, generate read-only diagnostic scripts for the user to run, analyze the output, and iterate until the root cause is found and fixed.
+Diagnose and fix production issues through read-only diagnostics and human-run fix scripts (Rails console by default — see the project-context step below). You explore the codebase, generate read-only diagnostic queries — executed through a confirmed query MCP when one exists, handed to the user to run otherwise — analyze the output, and iterate until the root cause is found and fixed.
 
 ## Arguments
 - `/investigate <description>` — issue description, ticket URL, or bug report
@@ -51,10 +49,16 @@ If critical information is missing (e.g., no identifier to look up), ask for it 
 ### Step 0.5: Load project context
 
 Read `~/.claude/context/<project>/stack.md` if it exists (`<project>` = repo directory
-name). Take from it: the console flavor and access mode, the schema location(s), and
-the architecture reading order. If the file is missing, ask once whether to scaffold
+name). Take from it: the console flavor and access mode — including a query MCP for
+direct read-only execution, if one is recorded — the schema location(s), and the
+architecture reading order. If the file is missing, ask once whether to scaffold
 it from `context.example/stack.md`, then proceed with defaults: Rails console, human
 runs scripts and pastes output, schema discovered by glob.
+
+Channel detection and confirmation live in `/query` (its Step 0.5), not here — when no
+channel is recorded, the first `/query` invocation detects candidate MCPs, asks the
+user once, and records the answer in stack.md. Every later invocation in this
+investigation reuses it silently.
 
 In a monorepo, identify the owning app before exploring: follow the architecture
 reading order from stack.md, or look for a services index / architecture doc at the
@@ -100,7 +104,7 @@ These are **hypotheses, not conclusions**. Code reading tells you what *could* h
 
 ### Step 2: Generate Diagnostic Script via `/query`
 
-Pick the claim to verify in this round and invoke `/query` with it as the argument. `/query` handles schema verification, script generation, the user handoff, and verdict parsing — its single artifact is one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence.
+Pick the claim to verify in this round and invoke `/query` with it as the argument. `/query` handles schema verification, script generation, execution — direct through the confirmed query MCP, or handed to the user to run — and verdict parsing. Its single artifact is one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence.
 
 **First script priority: verify the reported symptoms.**
 A bug report is a claim, not a fact. Before investigating *why* something is broken, confirm *that* it is broken and *how*. The first invocation of `/query` should target the reported symptoms against the actual records mentioned in the report. If the reported symptoms don't match reality, the investigation changes direction entirely.
@@ -125,7 +129,7 @@ Subsequent iterations refine the hypothesis based on Step 3 analysis. Do not inv
 
 ### Step 3: Analyze and Iterate
 
-When the user pastes back console output:
+When query output returns (executed via the MCP, or pasted back by the user):
 
 1. Parse the output carefully, noting any unexpected values or nil fields
 2. Cross-reference with your codebase understanding from Step 1
@@ -146,6 +150,8 @@ When the user pastes back console output:
 ### Step 4: Generate Fix Script
 
 Only generate a fix AFTER at least one diagnostic script has been run and the root cause is confirmed.
+
+Fix scripts are **always human-run**. The query MCP is never used to apply a fix — not even in dry-run form. A mutation goes through the user's own console session, with the safety structure below.
 
 **Script structure:**
 
@@ -213,9 +219,10 @@ end
 
 1. **Never treat the bug report as ground truth.** A report describes what someone observed — it may be incomplete, misattributed, or wrong. The first diagnostic script must verify the reported symptoms against actual data. Do not hypothesize root causes until you've confirmed the problem exists as described.
 2. **Never generate a fix without diagnosis.** At least one diagnostic script must be run and its output analyzed before proposing any mutation.
-3. **Never apply code fixes during an investigation.** This skill produces diagnostic and fix *scripts* for the user to run. Do not edit application code, modify serializers, change prompts, or make any code changes yourself. If the investigation reveals a code-level fix is needed, describe it — do not apply it.
+3. **Never apply code fixes during an investigation.** This skill produces read-only diagnostics and fix *scripts* for the user to run. Do not edit application code, modify serializers, change prompts, or make any code changes yourself. If the investigation reveals a code-level fix is needed, describe it — do not apply it.
 4. **Always explore the codebase first.** Step 1 is mandatory. Never guess at model names, column names, or associations.
 5. **Each script is independently runnable.** No shared state between scripts. A user should be able to copy-paste any single script and have it work.
 6. **Scripts must be copy-paste ready.** No placeholders like `<FILL_IN>`. Use the actual identifiers from the issue. No setup instructions beyond "paste this in Rails console."
 7. **Diagnostic scripts are read-only. No exceptions.** If you need to test a write, that's a fix script with dry_run.
-8. **When in doubt, gather more data.** Another diagnostic script is always safer than a premature fix.
+8. **Fix scripts are always human-run.** A confirmed query MCP grants read-only diagnostic access, nothing more. Never execute a mutation through it, no matter what it's capable of.
+9. **When in doubt, gather more data.** Another diagnostic script is always safer than a premature fix.
