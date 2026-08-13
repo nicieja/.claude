@@ -118,6 +118,7 @@ User-invocable slash commands with multi-step workflows.
 - `/prototype` — smallest working build to answer one question, throwaway by design
 - `/pushback` — anti-sycophantic challenge framework; six forcing questions
 - `/query` — verify one claim about runtime state with one read-only script
+- `/quiz` — short quiz on the crucial decisions behind a PR/doc so you can defend it in review
 - `/retro` — extract learning from a shipped piece of work
 - `/review-pr` — differential PR review: post only what bots and prior reviewers haven't said
 - `/self-heal` — repair accretion debt across this library without regressing behavior
