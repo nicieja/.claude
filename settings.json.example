@@ -13,6 +13,18 @@
   },
   "autoMemoryEnabled": false,
   "alwaysThinkingEnabled": true,
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/ste-style.sh"
+          }
+        ]
+      }
+    ]
+  },
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true,
   "permissions": {
