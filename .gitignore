@@ -43,6 +43,10 @@ projects/
 # Misc runtime
 downloads/
 plugins/
+chrome/
+jobs/
+daemon/
+daemon.log
 .claude
 .last-cleanup
 .last-update-result.json
