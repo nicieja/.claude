@@ -1,7 +1,7 @@
 ---
 name: performance-engineer
 description: Diagnoses performance problems and engineers optimizations across applications, databases, and infrastructure. Measures first, optimizes the bottleneck, then verifies the fix held under realistic load.
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: inherit
 ---
 

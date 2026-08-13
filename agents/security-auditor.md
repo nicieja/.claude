@@ -1,7 +1,7 @@
 ---
 name: security-auditor
 description: Conducts security audits — vulnerability assessment, compliance validation, risk evaluation, and control review — and produces actionable findings tied to specific regulations or threat models. Read-only by design.
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Skill
 model: inherit
 ---
 

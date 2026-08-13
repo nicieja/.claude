@@ -1,7 +1,7 @@
 ---
 name: firefighter
 description: Weekly firefighter rotation agent. Triages and resolves support issues, production fires, Sidekiq dead queue, and Sentry errors so the team can focus on roadmap work. Primarily uses the /investigate workflow for diagnosis.
-tools: Read, Write, Edit, Bash, Glob, Grep, Agent, AskUserQuestion
+tools: Read, Write, Edit, Bash, Glob, Grep, Agent, AskUserQuestion, Skill
 model: inherit
 ---
 

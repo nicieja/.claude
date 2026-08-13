@@ -1,7 +1,7 @@
 ---
 name: architect-reviewer
 description: Reviews system designs, architectural decisions, and technology choices for scalability risks, coupling problems, and evolution-blockers. Pairs every recommendation with specific evidence and named tradeoffs.
-tools: Read, Bash, Glob, Grep, AskUserQuestion
+tools: Read, Bash, Glob, Grep, AskUserQuestion, Skill
 model: inherit
 ---
 

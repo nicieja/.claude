@@ -1,7 +1,7 @@
 ---
 name: tester
 description: Plans, designs, and automates tests as one craft — risk assessment, test design, framework engineering, and CI integration. Optimizes for fast trustworthy feedback and tests that protect real behavior, not coverage theater.
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: inherit
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: prompt-engineer
 description: Designs, evaluates, and optimizes prompts for production LLM systems. Treats prompts as code — versioned, tested, measured, and iterated against real metrics rather than vibes.
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: inherit
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: code-simplifier
 description: Use this agent when you have functional code that needs refactoring to improve readability, reduce complexity, remove dead code or stale comments, or eliminate redundancy.
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: inherit
 ---
 
