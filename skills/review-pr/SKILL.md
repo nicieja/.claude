@@ -1,6 +1,6 @@
 ---
 name: review-pr
-version: 1.1.0
+version: 1.2.0
 description: |
   Differential PR review: baseline what any bot would say, absorb what human
   and AI reviewers already said, then dispatch code-reviewer with the context
@@ -285,7 +285,11 @@ Never name the machinery — no "baseline agent", no "code-reviewer", no mask ja
 
 **(d) Per-issue solution choice**, novel findings only, severity order, max 5. The user is not rubber-stamping someone else's verdict — they are deciding, as the engineer, how the thing gets fixed. Their answer is the suggested fix that posts.
 
-For each issue: print it in full — severity, `file:line` and where it will land (inline or review body), the issue, why it matters, and the candidate remedies with their tradeoffs. Then AskUserQuestion — header `Issue <i>/<K>`, question **"How would you solve this?"** with the issue named in one line; options, in this order:
+Each issue is one cycle with two parts, in the same turn, in this order: **the write-up in chat, then the question**. The write-up is a gate — the question for an issue must never appear before its write-up. This holds on every pass of the loop: after the user answers Issue N, print Issue N+1 in full before asking about it. Do not print one issue and then ask the remaining questions bare.
+
+The write-up must stand alone: severity; `file:line` and where it will land (inline or review body); the failure mechanism step by step — which pieces of code interact, the sequence that goes wrong, and what hides it on the happy path; why it matters; what is confirmed versus unverified; and each candidate remedy with what it changes, what it costs, and what it leaves unfixed. The test: the user can pick a remedy from the write-up alone, without asking for an explanation. The one-line issue name inside the question is a label, not the explanation.
+
+Then AskUserQuestion — header `Issue <i>/<K>`, question **"How would you solve this?"** with the issue named in one line; options, in this order:
 
 - **Option 1** — the reviewer's recommended remedy, labeled **(Recommended)**: the fix in the label, its cost and risk in the description.
 - **Options 2-3** — the alternatives; for each, what it changes, what it costs, what it leaves unfixed.
@@ -378,13 +382,14 @@ On post:
 
 1. **Don't read the whole diff top-to-bottom.** Bucket first, find the critical path, go deep only there.
 2. **Don't critique the code yourself.** Orchestrate; code judgment comes from the dispatched reviewer, and so do the candidate remedies. The user picks among them; you carry the pick through to the post.
-3. **Novelty rides in the briefs, never as an instruction.** Asymmetric context (ticket, history, focus map, blast radius) plus the mask is the mechanism; "find novel things" is not one.
-4. **Dedupe against resolved only.** Open threads produce endorsements, not silence — an ignored critical finding endorsed by a human reviewer is high-value review.
-5. **Nothing-novel is success.** Say it, recommend approve, stop. Never manufacture findings to justify the run.
-6. **The focus map is a lens, never a fence.** Depth in the user's areas; full scope everywhere.
-7. **Hide the machinery.** No agent names, no "baseline", no mask jargon — in the reveal and in everything posted.
-8. **Don't let `code-reviewer` bail on size.** The Step 10 brief keeps the explicit scoping language.
-9. **Never post without the Step 14 ack; unattended never posts at all.** The printed Step 13 draft is exactly what posts.
-10. **The voice pass changes wording only.** Meaning, severity, and anchors are fixed.
-11. **Writes are bounded:** `~/.claude/context/<project>/review-focus.md` and the scratchpad payload — nothing else.
-12. **Skip silently when a step doesn't apply.** No ticket → no Linear mention; no feedback → the mask is just the baseline; analysis-only → one note, then no posting talk.
+3. **Never ask about an issue the user has not read.** Every per-issue question is preceded, in the same turn, by that issue's full write-up.
+4. **Novelty rides in the briefs, never as an instruction.** Asymmetric context (ticket, history, focus map, blast radius) plus the mask is the mechanism; "find novel things" is not one.
+5. **Dedupe against resolved only.** Open threads produce endorsements, not silence — an ignored critical finding endorsed by a human reviewer is high-value review.
+6. **Nothing-novel is success.** Say it, recommend approve, stop. Never manufacture findings to justify the run.
+7. **The focus map is a lens, never a fence.** Depth in the user's areas; full scope everywhere.
+8. **Hide the machinery.** No agent names, no "baseline", no mask jargon — in the reveal and in everything posted.
+9. **Don't let `code-reviewer` bail on size.** The Step 10 brief keeps the explicit scoping language.
+10. **Never post without the Step 14 ack; unattended never posts at all.** The printed Step 13 draft is exactly what posts.
+11. **The voice pass changes wording only.** Meaning, severity, and anchors are fixed.
+12. **Writes are bounded:** `~/.claude/context/<project>/review-focus.md` and the scratchpad payload — nothing else.
+13. **Skip silently when a step doesn't apply.** No ticket → no Linear mention; no feedback → the mask is just the baseline; analysis-only → one note, then no posting talk.
