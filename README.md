@@ -4,6 +4,8 @@ My personal [Claude Code](https://claude.com/claude-code) configuration — agen
 
 Open-sourced so others can crib from it. It's opinionated; most pieces here reflect how I prefer to work, not best practices for everyone. Treat it as a reference, not a drop-in.
 
+Three kinds of thing live here. Agents are *who* you ask. Skills are *how* the work gets run. Commands just remove typing.
+
 ## Install
 
 If you don't already have a `~/.claude/`, you can clone directly:
@@ -19,56 +21,52 @@ git clone git@github.com:nicieja/.claude.git ~/code/nicieja-claude
 ln -s ~/code/nicieja-claude/skills/pushback ~/.claude/skills/pushback
 ```
 
-## Agents (`agents/`)
+## Agents
 
-Subagents Claude Code dispatches via the Agent tool.
+An agent is a named professional with an opinion, pulled in for one question,
+then gone. The point isn't extra hands. It's disagreement: each takes a position
+and defends it with evidence, because an assistant that agrees with you is worth
+nothing on the decision you're about to get wrong.
 
-- `architect-reviewer` — reviews system designs for scalability, coupling, and evolution risks
-- `ceo` — founder-CEO archetype that grills proposals before execution
-- `code-reviewer` — multi-domain code review that dispatches specialists in parallel
-- `code-simplifier` — refactors functional code for readability
-- `firefighter` — weekly support / production-fire rotation pair-partner
-- `marketer` — positioning, narrative, and copy that teaches the buyer how to buy
-- `performance-engineer` — diagnoses bottlenecks and engineers optimizations
-- `product-manager` — product strategy, prioritization, and roadmap decisions
-- `prompt-engineer` — designs and evaluates prompts for production LLM systems
-- `security-auditor` — vulnerability assessment and compliance review
-- `software-engineer` — principal-level implementation with taste in naming and abstraction
-- `tester` — test strategy, design, automation, and CI integration as one craft
+Some implement a slice with taste in naming and abstraction, then clean it
+without changing behavior. Others review from one named angle, because a change
+can be wrong in ways that don't overlap; the generalist takes correctness and
+dispatches the specialists in parallel. Some hold no write tools, on the theory
+that finding a gap and closing it are different jobs. The rest aren't
+engineering, split on purpose: one makes a proposal its strongest version, one
+works out how it gets sold, one breaks it. An agent that both strengthens and
+breaks does neither.
 
-## Skills (`skills/`)
+## Skills
 
-User-invocable slash commands with multi-step workflows.
+A skill is a workflow I don't trust myself to improvise, usually because the
+moment it runs is the moment I'm in a hurry. Each is multi-step, each stops at a
+checkpoint instead of running to the end, and each is allowed to come back with
+nothing.
 
-- `/10x` — paint the platonic ideal of an artifact and surface the gap
-- `/comment` — post conversation findings as a Linear comment
-- `/deslop` — strip AI slop from prose and comments without changing meaning
-- `/investigate` — diagnose production issues via read-only console scripts, then dry-run fixes
-- `/learn` — turn a session's corrections into durable harness improvements
-- `/pushback` — anti-sycophantic challenge framework; six forcing questions
-- `/query` — verify one claim about runtime state with one read-only script
-- `/quiz` — short quiz on the crucial decisions behind a PR/doc so you can defend it in review
-- `/retro` — extract learning from a shipped piece of work
-- `/review-pr` — differential PR review: post only what bots and prior reviewers haven't said
-- `/self-heal` — repair accretion debt across this library without regressing behavior
-- `/shape` — turn a half-formed idea into a refined plan via research and adversarial review
-- `/summary` — humanized Slack summary of an investigation
-- `/triage` — dispatch tracker issues through parallel, tiered, repo-aware pipelines to draft PRs
-- `/voice` — re-voice an English draft in the author's own literary voice
+Together they cover the arc of a piece of work: shaping an idea and grilling it
+while it's still cheap to change, dispatching and diagnosing once it's underway,
+hunting what the bots and earlier reviewers missed before it ships, writing it
+up for whoever needs it, and turning the corrections into changes to the harness
+itself — this library included.
 
-## Commands (`commands/`)
+Three rules matter more than any single step. No invented numbers: a figure that
+can't be computed appears as a named gap, never an estimate dressed as a
+measurement. Where production is involved it stays read-only: an agent writes
+the script, a human runs it, the output comes back as a paste. And an honest
+"nothing here" is a finished result — no lesson, no finding, no cut left to
+make, said plainly instead of padded into something that looks like work.
 
-Thin slash-command wrappers.
+## Commands
 
-- `/ack` — acknowledge external file changes
-- `/commit` — create a focused git commit
-- `/linear` — write a title and description for a Linear issue
-- `/push` — open a pull request
-- `/setup` — arm this session's recurring loops from the project's routine prompts
-- `/simple` — restate the last message in Simplified Technical English
-- `/standup` — humanized standup update from a seed
+Commands are the opposite: no workflow, no checkpoint, no judgment. Each runs a
+few shell commands, drops the output into the prompt, and asks for one piece of
+writing I'd otherwise type from scratch. What they save is the paste.
 
-## The context layer (`context/`)
+The line between the two is that checkpoint. Anything that has to stop and ask
+belongs on the other side of it.
+
+## The context layer
 
 The tracked library is mechanism; configuration is private. `context/<project>/`
 (gitignored) holds each project's charter, risk tiers, escalation contract, stack
