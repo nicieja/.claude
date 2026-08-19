@@ -32,7 +32,6 @@ Turn a half-formed idea into a refined plan. The skill researches the codebase, 
 - They want to challenge a single claim, not plan work → use `/pushback` instead
 - They want to diagnose a production issue → use `/investigate` instead
 - The Linear ticket is already shaped and ready to execute → use `/triage` instead
-- They want hours/days for a clear scope → use `/estimate` instead
 
 ## Instructions
 
@@ -266,7 +265,7 @@ Edit `## Implementation` with:
 - **Files to create / modify** — bulleted list with one line per file on what changes
 - **Sequence** — what ships first, what comes after, what depends on what
 - **Hard tradeoffs** — for each, name the tradeoff and the chosen side ("Use Solid Queue over Sidekiq because we're already on Rails 8 and want one fewer infra dep")
-- **Effort sense** — only if asked. Otherwise skip; that's `/estimate`'s job.
+- **Effort sense** — only if asked. Otherwise skip.
 
 Be detailed but not overly verbose.
 

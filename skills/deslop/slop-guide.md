@@ -17,7 +17,7 @@ For any passage, try to cut it by **half** without losing meaning. Whatever drop
 **Estimating the cut.** From a fast first read, predict how much of the input is cuttable — a **range** (e.g. "~25–40%") plus **where it concentrates** (which sections, which kind of slop) — and state it at the top of the diagnosis. It is the **goal the convergence loop works toward** (SKILL.md Step 3), kept honest by two rules:
 
 - **Prediction, not target.** The estimate predicts how much slop is there; it is not a quota to hit. The moment you chase a percentage you start removing words to make the number, and the cheapest words to remove are the specific, load-bearing ones — the inverse failure above. The loop verifies the prediction; it never flattens specificity to satisfy it.
-- **Range over point**, the way `/estimate` refuses single numbers — a point estimate invites false precision and harder anchoring.
+- **Range over point** — a point estimate invites false precision and harder anchoring.
 
 The estimate's job is to **expose a timid cut** — and the loop is what acts on the exposure. So a shortfall is not reported and shrugged off; it is **resolved**. After each pass, measure the actual reduction against the goal:
 

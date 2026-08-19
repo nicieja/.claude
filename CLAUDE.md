@@ -23,13 +23,14 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | If the conversation involves… | Suggest |
 |---|---|
 | A half-formed task idea, "how should we approach X", refining scope before coding | `/shape` |
+| Tracker issues already shaped and ready to build — dispatching them, not planning them | `/triage` |
 | An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling | `/pushback` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/10x` |
-| Sizing work in hours/days, "how long will this take" | `/estimate` |
-| Building the smallest thing that answers one question, throwaway exploration | `/prototype` |
 | Reviewing a PR assigned to me that already has bot/human feedback — deciding what I can add, posting my review | `/review-pr` |
 | Looking back on a shipped PR/commit/issue, lessons learned, waste, debt | `/retro` |
 | Work built with AI is about to ship — checking I can defend every decision in the PR/doc before review | `/quiz` |
+| A production issue that needs diagnosing — errors, a stuck job, data that looks wrong | `/investigate` |
+| One claim about live runtime state to verify — a count, a flag, whether a row exists | `/query` |
 | Writing up findings for Slack after an investigation | `/summary` |
 | Prose that reads AI-generated — verbose, jargon-stuffed, hedged, em-dash-ridden — or a PR/code stuffed with obvious comments | `/deslop` |
 | Polishing an English draft into native, voiced prose (fluency, rhythm, register) | `/voice` |
@@ -37,10 +38,6 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Drafting a Linear title/description from the current diff | `/linear` |
 | Self-improvement — "what did we learn this session, update the skills" | `/learn` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
-| Morning kickoff — "what's on deck", overnight fleet results, what needs my decision | `/brief` |
-| Drafting the weekly review or metrics publish | `/weekly` |
-| Before a customer or partner call | `/prep-call` |
-| Right after a customer or partner call — filing what was learned | `/debrief-call` |
 | Committing / pushing / opening a PR | `/commit`, `/push` |
 
 #### Agents
@@ -76,7 +73,7 @@ Repos I work in may carry their own skills (`skills/`, `.claude/skills/`, `.agen
 
 # The context layer
 
-`~/.claude/context/<project>/` (gitignored) holds everything project-specific: charter and metric definitions, risk tiers, escalation contract, stack notes, partner roster, remembered resolutions, decision log. Tracked `context.example/` documents each file's shape. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully: ask once, offer to scaffold it from its template, and default to the conservative reading (unknown risk tier = high, unknown metric = ask, no roster = ask). Nothing project- or employer-specific ever goes in tracked files — mechanism is public, configuration is private.
+`~/.claude/context/<project>/` (gitignored) holds everything project-specific: charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, decision log. Tracked `context.example/` documents each file's shape. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully: ask once, offer to scaffold it from its template, and default to the conservative reading (unknown risk tier = high, unknown metric = ask). Nothing project- or employer-specific ever goes in tracked files — mechanism is public, configuration is private.
 
 # Hand plans off to software-engineer, then code-simplifier
 

@@ -101,7 +101,7 @@ Pass 1 hits the passages named in Step 2; later passes hit whatever verification
 - **Short, and slop remains** — the gap is a timid or incomplete pass, not a dense input. Name the passages still carrying slop and run **Pass N+1** aimed at them. This is the case the loop exists for: a 6% cut on a 30%-sloppy input does not get to stop here.
 - **Short, but the remainder is load-bearing** — the prediction was high; what's left is specific and real (the inverse failure in the guide). **Revise the goal down, record why** ("the body was denser than the intro implied"), and exit. This is the *justify* exit — the only honest way to finish below the prediction.
 
-**Cap at ~3 passes.** If it still hasn't converged, stop and say so plainly — what's left, and why it resisted — rather than spin or pad the count. (Same honesty as `/estimate` capping its break-down: the answer can be "this is as tight as it gets," never a faked number.)
+**Cap at ~3 passes.** If it still hasn't converged, stop and say so plainly — what's left, and why it resisted — rather than spin or pad the count. The answer can be "this is as tight as it gets," never a faked number.
 
 **Every pass obeys the guardrails.** Meaning and code logic stay untouched (Rule 3), and **don't-over-compress wins every tie** (Rule 7): the loop may never flatten specificity to chase the goal. Its only two exits are *converged* and *justified* — never "I tried, the gap is just a finding."
 
