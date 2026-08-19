@@ -54,6 +54,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Prompt design, LLM evals, model choice, prompt regressions | `prompt-engineer` |
 | Product strategy, prioritization tradeoffs, roadmap, opportunity cost | `product-manager` |
 | Positioning, category naming, launch copy, pitch narrative, channel choice | `marketer` |
+| Talking to a proxy customer — testing whether a pitch survives someone hard to sell (usually driven by `marketer`) | `persona` |
 | A strategic bet, roadmap call, or cross-cutting proposal that needs executive grilling on top of engineering pushback | `ceo` |
 
 ### Anti-patterns
