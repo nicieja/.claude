@@ -56,6 +56,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Test strategy, missing coverage, flaky tests, framework choice | `tester` |
 | Prompt design, LLM evals, model choice, prompt regressions | `prompt-engineer` |
 | Product strategy, prioritization tradeoffs, roadmap, opportunity cost | `product-manager` |
+| Positioning, category naming, launch copy, pitch narrative, channel choice | `marketer` |
 | A strategic bet, roadmap call, or cross-cutting proposal that needs executive grilling on top of engineering pushback | `ceo` |
 
 ### Anti-patterns

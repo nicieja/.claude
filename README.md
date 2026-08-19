@@ -94,6 +94,7 @@ Subagents Claude Code dispatches via the Agent tool.
 - `code-reviewer` — multi-domain code review that dispatches specialists in parallel
 - `code-simplifier` — refactors functional code for readability
 - `firefighter` — weekly support / production-fire rotation pair-partner
+- `marketer` — positioning, narrative, and copy that teaches the buyer how to buy
 - `performance-engineer` — diagnoses bottlenecks and engineers optimizations
 - `product-manager` — product strategy, prioritization, and roadmap decisions
 - `prompt-engineer` — designs and evaluates prompts for production LLM systems
@@ -136,6 +137,7 @@ Thin slash-command wrappers.
 - `/linear` — write a title and description for a Linear issue
 - `/push` — open a pull request
 - `/setup` — arm this session's recurring loops from the project's routine prompts
+- `/simple` — restate the last message in Simplified Technical English
 - `/standup` — humanized standup update from a seed
 
 ## The context layer (`context/`)
