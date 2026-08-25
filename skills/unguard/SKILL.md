@@ -1,13 +1,13 @@
 ---
 name: unguard
-version: 1.0.0
+version: 2.0.0
 description: |
   Cut over-defensive code — guards for states no caller can produce, rescues that
-  return a default, retries and flags nobody asked for — without weakening a single
-  real boundary. Takes a file, the current diff, or a PR; maps the trust boundaries
-  first, then ranks every guard Cut / Keep / Ask and waits for your call before it
-  touches anything. The burden of proof is on the cut: name the caller, or the guard
-  stays. Loads guard-guide.md every run.
+  swallow, retries and flags nobody asked for. Takes a file, the current diff, or a
+  PR; maps the trust boundaries per value, then rules on every guard Cut / Convert /
+  Ask / Keep. Uncertainty resolves to Convert — make the guard loud — never to
+  leaving it alone. Keep is rare and must cite a real trigger. Loads guard-guide.md
+  every run.
 allowed-tools:
   - Read
   - Edit
@@ -20,29 +20,92 @@ allowed-tools:
 
 # Unguard
 
-Take a file, a diff, or a PR and cut its **armor**: the defense that was written for
-states the code cannot reach. A nil check no call site can trigger. A `rescue` around
-code that doesn't raise. A catch-and-default that turns a failure into a plausible
-wrong answer. A retry, a timeout, a kill-switch flag nobody asked for. The same
+Take a file, a diff, or a PR and cut its **armor**: defense written for states the code
+cannot reach, and defense that hides the states it does reach. A nil check no call site
+can trigger. A `return` on a bad argument that silently does nothing. A `rescue` that
+logs and continues. A retry, a timeout, a kill-switch flag nobody asked for. The same
 validation repeated three layers inside one trust boundary.
 
-This is the code twin of `/deslop`. Slop is generated-but-not-authored prose; armor
-is generated-but-not-authored defense — cheap for an agent to add, expensive for a
-human to read, and impossible to delete later because nobody can prove it's dead.
-Deleting it is a behavior change on paper and no change at all in fact, which is
-exactly why it needs evidence rather than taste.
+**The enemy is silence, not caution.** Most armor is not wrong to notice a state — it is
+wrong about what to do next. `return if invoice.nil?` and `raise ArgumentError` defend
+the same state; one hides the bug for a year and one names it in the stack trace. So the
+question is almost never "is this guard paranoid?" It is **"if this state ever happened,
+would anyone find out?"**
 
-The **silent fallback** is the first target. Extra lines cost reading time; a fallback
-costs truth. It trades an error you would have seen for an answer you won't question.
+That reframing is what makes this skill safe to be aggressive with. You are not asking
+the code to be braver. You are asking it to stop lying.
 
-One instrument runs the method: **the call-site test.** For each guard, name the caller
-that can reach the state it defends. If you can name one, the guard stays. If you
-cannot — after actually looking — it goes. No evidence, no cut. That test, and not a
-preference for short code, is what makes this skill safe to run.
+## The two tests
 
-The inverse failure is real and it is worse than the disease: a skill that strips
-validation off a system boundary has caused a bug, not removed one. Step 2 exists to
-prevent it, and Key Rule 2 outranks every other rule here.
+**1. The call-site test — is the state reachable?** For each guard, name the *production*
+call site that can produce the state it defends. Search; don't imagine.
+
+**2. The loudness test — if it happened, who finds out?** A guard that raises, or returns
+a typed failure the caller must handle, is loud. A guard that returns nil, returns a
+default, logs and continues, or `return`s from a void method is **silent** — and silent
+is the target, whether or not the state is reachable.
+
+The two tests give four verdicts. Run both on every candidate; the second decides more
+cases than the first.
+
+## The four verdicts
+
+- **Cut** — the call-site test found nothing and the state is unreachable. Delete the
+  guard. Evidence names the callers you searched and the search you ran.
+- **Convert** — the state may be reachable, or you cannot prove it isn't, **and the guard
+  is silent**. Make it loud: `return` → `raise`; `rescue => e; log` → `rescue => e; log;
+  raise`; optional argument with a nil default → required argument; `|| {}` → let it fail.
+  Behavior on the reachable paths is unchanged; only the unreachable path changes, from
+  quiet wrong to loud wrong.
+- **Ask** — the guard encodes a **product decision**: retry or fail, degrade or alert,
+  drop or queue. Name the options; don't pick one.
+- **Keep** — rare. The guard is already loud *and* it has a cited trigger (below).
+
+**Uncertainty resolves to Convert.** Never to Keep. "I can't rule it out" is the exact
+condition Convert exists for — you keep the check and delete the silence. A run that
+ends with every candidate Keep has almost certainly used a void reason; go back and
+check it against the list.
+
+## What licenses a Keep
+
+A Keep needs **one cited, concrete trigger**, in this list:
+
+- The guard sits on the **first read of an untrusted value** at a boundary (see Step 2)
+  and it fails loudly.
+- A **named production call site** reaches the state. Cite `file:line`.
+- A **real incident, ticket, or regression test that names what it prevents.** Not a test
+  that merely exercises it.
+- A **constraint the type system cannot carry** — a polymorphic column, a schemaless
+  field, a `jsonb` blob — plus the code path that writes the odd shape.
+- **Concurrency**, where the check actually closes the window: it is inside a
+  transaction, holds a lock, or backs a unique constraint. A bare check-then-act closes
+  nothing and is not a Keep.
+
+## Void reasons — a Keep resting on any of these is not a Keep
+
+These are the arguments that turned the first two runs of this skill into zero cuts.
+Every one of them is disqualified. If a verdict rests on one, downgrade it to Convert
+and say which reason you rejected.
+
+1. **"A test reaches it."** Tests are not production callers. A test that exercises an
+   unreachable state is a finding about the test — name it as follow-up work.
+2. **"An upstream bug could produce this."** True of every state in every program. This
+   argument proves all armor and therefore proves none.
+3. **"This class sits on a boundary."** Boundaries belong to *values*, not files. See
+   Step 2.
+4. **"It's cheap / harmless to keep."** The cost is the reader who goes looking for the
+   caller that doesn't exist.
+5. **"Defense in depth."** Depth is for hostile input. Inside a boundary it is repetition.
+6. **"A future refactor might reintroduce the state."** Not until it does.
+7. **"Deploy skew might send the old shape"** — void unless you name the deploy, the
+   version window, and when it closes.
+8. **"It's documented / it has a comment."** A comment is not evidence of reachability.
+9. **"Crashing here would be worse."** That is an *Ask*, not a Keep — and usually the
+   choice is between crashing and lying.
+
+**Pre-existing code is a scope question, not a verdict.** If a guard predates the diff,
+don't rule on it — list it under *Out of scope* with one line, so it isn't smuggled into
+the Keep column as if it had been examined.
 
 ## Arguments
 
@@ -50,138 +113,122 @@ prevent it, and Key Rule 2 outranks every other rule here.
   under discussion. If neither, ask once: "What should I unguard?"
 - `/unguard <file path>` — read the file and audit all of it.
 - `/unguard <PR number | url | branch>` — fetch with `gh`; audit what the diff **adds**.
-  Note whether the PR's branch is the current checkout: that decides whether Step 4 can
-  edit files or only report.
-- Steers in plain words: `--report` / "just tell me" (diagnose and stop, write nothing),
-  `--deep` / "the whole file" (on a diff target, audit the surrounding file too, not only
-  the added lines).
+  Whether the branch is the current checkout decides edit or report.
+- Steers in plain words: `--report` / "just tell me" (rule and stop, write nothing),
+  `--deep` / "the whole file" (on a diff target, audit the surrounding file too).
 
 ## When this is the wrong skill
 
-- They want the code read for **bugs or correctness** → `code-reviewer` or `/code-review`.
-  Unguard removes; it does not hunt.
-- They want code **restructured**, or dead functions and branches removed → `code-simplifier`
-  or `/simplify`.
-- They want **comments or prose** cut → `/deslop`.
-- A boundary is **missing** a guard — the opposite complaint → `code-reviewer`, or
-  `security-auditor` when the boundary is a security one.
-- The failure policy itself is the question ("should this retry or alert?") → that's a
-  product decision; `/pushback` or a plain conversation, not this.
+- Code read for **bugs or correctness** → `code-reviewer` or `/code-review`.
+- Code **restructured**, dead functions removed → `code-simplifier` or `/simplify`.
+- **Comments or prose** → `/deslop`.
+- A **missing** guard on a boundary → `code-reviewer`, or `security-auditor` when the
+  boundary is a security one.
 
 ## Instructions
 
-Follow in order.
-
 ### Step 0: Resolve the target
 
-Resolve per **Arguments** — file, diff, PR, or bare.
-
-- **File:** read it whole.
-- **Diff:** `git diff HEAD` (add `--staged` if the user says staged). Audit added and
-  changed lines; under `--deep`, the surrounding file too.
-- **PR:** `gh pr view <ref>` and `gh pr diff <ref>`. Read-only: no push, no posted review,
-  without an explicit ask.
-- **Bare, nothing obvious:** ask once and wait.
-
-State the target and its size in one line before you go on.
+Per **Arguments**. For a diff: `git diff HEAD` (`--staged` if they say staged); audit
+added and changed lines, plus the surrounding file under `--deep`. For a PR: `gh pr view`
+and `gh pr diff`, read-only. State the target and its size in one line.
 
 ### Step 1: Load the guide
 
-Read `~/.claude/skills/unguard/guard-guide.md` in full **before you judge anything**. It
-holds the pattern taxonomy, the boundary map, the per-language search patterns, and the
-keep-list. Load it every run — it's the part tuned over time; don't work from memory.
+Read `~/.claude/skills/unguard/guard-guide.md` in full **before ruling on anything**. It
+holds the pattern taxonomy, the boundary rules, the per-language searches, and the worked
+Convert examples. Every run.
 
-### Step 2: Map the boundaries first
+### Step 2: Map the boundaries — per value, not per file
 
-Before a single verdict, list the **system boundaries** this code touches: HTTP params
-and handlers, CLI input, external API responses, deserialization, queue and webhook
-payloads, third-party callbacks, rows whose shape isn't guaranteed, the public surface of
-a library. Use the guide's boundary map.
+A boundary is a **value crossing into your control**, not a class, a file, or a service.
+For this target, list each untrusted value and where it enters: a request param, a webhook
+body, a deserialized blob, an external API response, an argument to a public library
+method.
 
-Write the list down in the diagnosis. A guard **on** a boundary is a Keep by default and
-needs no further argument. Everything inside the boundary is a candidate, and nothing
-else is.
+Three rules that stop the boundary map from swallowing the audit:
 
-This step is not optional and it is not a formality. Judging guards before mapping
-boundaries is how this skill breaks a system.
+- **One value, one guard.** The first read validates. Downstream reads of the same value
+  are inside the boundary and are candidates like anything else.
+- **A boundary licenses a loud guard, not a silent one.** Untrusted input earns a refusal
+  — a raise, a typed failure, a 400. It never earns a silent default. Armor at a boundary
+  is still armor when it swallows.
+- **Another service you own is a soft boundary.** It earns one loud validation at entry.
+  It does not turn every method behind that entry into boundary code.
 
-### Step 3: Diagnose — rank every guard, then stop
+### Step 3: Rule on every guard, then stop
 
-Find the candidates (the guide's search patterns make this fast), then rank them. **Do
-not edit yet.**
+Find candidates with the guide's searches, then rule on each. **Do not edit yet.**
 
-**Declare the goal: a count and its location.** "~7 of 11 guards look cuttable, mostly in
-the service layer, none in the controller." This is the prediction Step 4 verifies
-against — never a quota. Skip it when there are only two or three guards in scope.
+Open with the shape of the target: how many guards are in scope, how many are silent, how
+many sit on a first boundary read. Then one row each: `location · pattern · verdict ·
+evidence`.
 
-**Rank each candidate** in one table: `location · pattern · verdict · evidence`.
+Evidence is symmetric. **A Cut cites the search; a Keep cites the trigger.** Prose is not
+a citation. A Keep whose evidence column contains a scenario rather than a `file:line`, a
+ticket, or a named test is a Convert.
 
-- **Cut** — no caller can produce the state. The evidence column names what you checked:
-  the call sites and the search that found them ("3 callers, all pass a built object —
-  `grep -rn 'InvoiceSync.new'`"). An unchecked guess is not evidence.
-- **Keep** — a boundary, a documented contract, a type that admits the state, or a real
-  caller reaches it. One clause of reason is enough.
-- **Ask** — the guard encodes a **product decision** you don't get to make: retry or
-  fail, degrade or alert, drop or queue. Name the options and put them to the user.
+Then, before presenting, two required self-checks:
 
-**Reconcile** the count against the table before presenting. If the named cuts fall well
-short of the prediction, either the prediction was inflated or the scan missed guards —
-resolve that now, on paper, not after editing.
+- **The void-reason sweep.** Re-read each Keep against the void list. Downgrade what
+  fails.
+- **The weakest Keep.** Name the Keep you are least sure of and state exactly what
+  evidence would flip it. If you cannot name one, you have not ruled — you have agreed.
 
-Present the boundary map, then the goal, then the table, and **stop for the user's
-call.** They can correct a verdict, veto a cut, or answer the Asks. This checkpoint is
+Present the boundary map, the shape line, the table, the weakest Keep, and **stop for the
+user's call.** They can flip a verdict, veto a cut, or answer the Asks. This checkpoint is
 the skill.
 
-### Step 4: Cut, then verify
+### Step 4: Apply, then verify
 
-With the go-ahead, remove what was approved — **cuts only**. No renaming, no extracting,
-no tidying the neighbourhood. Where a Cut leaves a now-pointless local variable or an
-empty block, remove that too; anything larger is `/simplify`'s job.
+Apply what was approved — **cuts and converts only**, no refactoring, no renaming, no
+tidying the neighborhood.
 
-Then verify with what the project already configures: the targeted tests, the
-typechecker, the linter. Name what you ran.
+Verify with what the project already configures: targeted tests, typechecker, linter.
+Name what you ran.
 
-**A test that fails because it asserted the guard is evidence, not an obstacle.** Something
-reaches that state, or someone decided it must be handled. Restore the guard, move it to
-Keep, and say so in the report. Never delete the test to make the cut survive.
+**A test that fails after a change is information, not a verdict.**
 
-If verification surfaces more candidates, run another pass. Cap at ~3, then stop and say
-what's left.
+- It failed because the state is *reachable in production* → the Cut was wrong. Restore
+  the guard as a Convert and say so.
+- It failed because **the test itself manufactures a state production cannot** → the test
+  is the finding. Do not restore the guard to keep the test green. Report it as follow-up:
+  the test needs to construct a real state, or the argument needs to be required.
+
+Never delete a test to protect a change.
 
 ### Step 5: Report
 
-- **File or diff target:** the edits are in the working tree. Never commit, never push.
-- **PR, branch checked out:** same. Summarize what changed.
-- **PR, not checked out, or `--report`:** print the ranked table plus the suggested
-  removals. Offer to post them as review comments only if asked.
+Edits stay in the working tree. Never commit, never push, never post a review.
 
-Report:
-
-- **Cut** — count against the prediction, one line each.
-- **Kept** — with the reason, boundary keeps first. This half of the report matters as
-  much as the other; a run that cut nothing but proved the armor was load-bearing is a
-  finished result.
+- **Cut** — count and one line each.
+- **Converted** — the loudest half of the work: what was silent, what it says now.
 - **Open Asks** — the product decisions still unanswered.
+- **Kept** — with the cited trigger, one line each.
+- **Out of scope** — pre-existing guards you did not rule on.
 - **Verification** — what ran, what passed, what a failure taught you.
-- **Residual risk** — in one honest line. If a cut changes behavior on a path you could
-  not fully rule out, say which path and why you judged it unreachable.
+- **Residual risk** — one honest line.
+
+**If the run produced zero cuts and zero converts, it owes an audit of itself.** Say which
+named patterns were absent from the target and which were present but survived, name the
+weakest Keep, and say what would flip it. "Nothing to cut" is a legitimate result — on a
+target with more than a handful of guards it is also an unusual one, so it arrives with
+its work shown, never as a victory lap.
 
 ## Key Rules
 
-1. **The burden of proof is on the cut.** Name the caller, or the guard stays. An
-   unchecked assumption is not evidence.
-2. **Boundaries keep their armor.** User input, external responses, deserialized
-   payloads, public library surfaces. Stripping a real validation for tidiness is the one
-   failure this skill must never have — this rule outranks all the others.
-3. **Silent fallbacks first.** A catch-and-default is the highest-value cut: it hides
-   bugs, and it is the pattern agents add most.
-4. **A failing test is evidence.** Restore the guard and reclassify. Never edit the test
-   to protect the cut.
-5. **Cuts only.** No refactoring, no renaming, no unrelated cleanup while you're in there.
-6. **Never guess a failure policy.** Retry, degrade, alert, drop — that's the user's
-   call. Verdict *Ask*, not a quiet decision.
-7. **Load `guard-guide.md` every run.** The taxonomy and keep-list live there, not in
-   memory.
-8. **Never commit, never push, never post a review** without an explicit ask.
-9. **"Nothing to cut" is a finished result.** Say it plainly. Padding a thin run with
-   marginal cuts is how this skill would start causing the bugs it was written to prevent.
+1. **Silence is the target.** Ask "if this happened, who finds out?" before "can this
+   happen?" A loud guard is usually fine; a silent one usually isn't.
+2. **Uncertainty resolves to Convert.** Never to Keep. Keep the check, delete the silence.
+3. **Keep needs a citation.** A `file:line`, a ticket, a named regression test, a
+   boundary read. A scenario is not evidence.
+4. **The void reasons are void.** Tests-reach-it, a-bug-could, the-class-is-a-boundary,
+   defense-in-depth, cheap-to-keep. Downgrade to Convert and name the rejection.
+5. **Boundaries belong to values.** One value, one loud guard, at the first read.
+6. **Never guess a failure policy.** Retry, degrade, alert, drop — that is the user's
+   call. Verdict *Ask*.
+7. **Cuts and converts only.** No refactoring while you're in there.
+8. **Load `guard-guide.md` every run.**
+9. **Never commit, never push, never post a review** without an explicit ask.
+10. **A zero-change run shows its work.** Name the weakest Keep and what would flip it.
+    A skill that only ever agrees with the code is not an instrument.

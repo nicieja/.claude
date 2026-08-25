@@ -1,88 +1,91 @@
 # Guard guide
 
-The reference `unguard` loads every run. It defines what armor is, the test that
-licenses a cut, the boundaries that are never cut, the pattern taxonomy with worked
-examples, and the searches that find candidates fast. Tune it over time — it is the
-spec, and the author sharpens it as the patterns evolve.
+The reference `unguard` loads every run. It defines what armor is, the two tests, how a
+boundary is scoped, the pattern taxonomy with its default verdicts, the worked cases that
+tuned this file, and the searches that find candidates fast. Tune it over time — it is
+the spec.
 
 ## What armor is
 
 Armor is **generated-but-not-authored defense**: a check, a rescue, a fallback, a retry
-written for a state the code cannot reach. It is the defensive twin of slop. Cheap for an
-agent to add — code with fallbacks passes more runs, so the training signal rewards it —
-and expensive for a human to remove later, because deleting a guard *looks* like a
-behavior change even when the guarded state is unreachable.
+written because it looked prudent, not because someone decided it. It is the defensive
+twin of slop. Cheap for an agent to add — code with fallbacks passes more runs, so the
+training signal rewards it — and expensive for a human to remove later, because deleting
+a guard *looks* like a behavior change even when the state is unreachable.
 
-Two costs, and the second is the one that matters:
+Armor has two costs, and the second is the one that matters:
 
-- **Reading cost.** Every branch is a claim that the state can happen. A reader who
-  believes the claim goes looking for the caller that produces it. There isn't one. They
-  lose the afternoon.
+- **Reading cost.** Every branch is a claim that the state can happen. A reader believes
+  the claim and goes looking for the caller that produces it. There isn't one.
 - **Truth cost.** A guard that returns a default converts a failure into a plausible wrong
   answer. The system stops crashing and starts lying. Stability bought this way is worth
-  nothing — the app is up and the number on the screen is wrong.
+  nothing: the app is up and the number on the screen is wrong.
 
-Defense a human decided on is not armor, whatever it looks like. The target is the
-guess, not the guard.
+So the target is **silence**, not caution. These two defend the same state:
 
-## The call-site test (primary instrument)
+```ruby
+return if invoice.nil?                    # silent: the method does nothing, forever
+raise ArgumentError, "invoice required"   # loud: the bug has a stack trace
+```
 
-For each candidate, ask: **which caller can produce the state this defends?**
+The first is armor. The second is a contract. Converting one into the other costs nothing
+on any path that actually runs, and it is the most common right answer in this skill.
 
-- **You can name one** → Keep. Done, no further argument.
-- **You looked and there is none** → Cut. "Looked" means a search over the callers, quoted
-  in the evidence column — not an impression.
-- **You can't tell** → Keep. Uncertainty resolves toward the guard, always.
+## The two tests
 
-The test survives taste, which is why it is the instrument. Short code is not the goal;
-honest code is. A run that keeps every guard and can say why each one is reachable has
-done the job.
+**The call-site test — is the state reachable?** Name the *production* call site that can
+produce it. Search the callers; don't imagine one. A type that cannot hold the state is
+proof on its own. A language where everything can be nil proves nothing, so the search is
+the only evidence.
 
-**The inverse failure: defended is not the same as over-defended.** Code at a system
-boundary is *supposed* to look paranoid. Validation there is the design, not the debris.
-Stripping it produces exactly the bug class this skill claims to prevent, and it produces
-it in the one place where the input is hostile. When a file reads defensively and sits on
-a boundary, that is a well-built file — say so and cut nothing.
+**The loudness test — if it happened, who finds out?**
 
-**Type systems count as evidence.** In a language where the type cannot be null, a null
-check is unreachable by construction and needs no call-site search. In a language where
-everything can be nil, the type proves nothing and the search is the only evidence.
+| Silent | Loud |
+|---|---|
+| `return` / `return nil` on a bad argument | `raise` with the argument named |
+| `rescue => e; log(e)` | `rescue => e; log(e); raise` |
+| `rescue => e; nil` | a typed failure the caller must handle |
+| `value \|\| default`, `value ?? default` | let it fail, or `fetch` |
+| optional parameter with a nil default | required parameter |
+| `.try(:x)`, `&.x` on a link that can't be nil | `.x` |
 
-## The boundary map
+**Silent and unreachable → Cut. Silent and maybe reachable → Convert. Loud and cited →
+Keep.** There is no fourth square where "leave the silent one alone" is correct.
 
-A guard is right by default at every one of these, and none of them are candidates:
+## Boundaries belong to values
 
-- **User input** — form params, query strings, request bodies, CLI arguments, uploaded
-  files.
-- **External responses** — third-party APIs, webhooks, callbacks, anything over a network
-  you don't own.
-- **Deserialization** — JSON, YAML, CSV, protobuf, cached blobs, session data, anything
-  that was a string a moment ago.
-- **Queues and jobs** — payloads enqueued by an older deploy, retried out of order, or
-  written by another service.
-- **Storage of unguaranteed shape** — schemaless columns, `jsonb`, legacy rows written
-  before a constraint existed.
-- **The public surface of a library** — callers you cannot enumerate, by definition. The
-  call-site test can't be run, so the guard stays.
-- **Concurrency and time** — a check that exists because a value can change between two
-  reads is not defending a state, it's defending an interleaving.
-- **Anything with a comment or a test naming the incident it came from.** Somebody paid
-  for that guard.
+A boundary is a **value crossing into your control** — a request param, a webhook body, a
+deserialized blob, an external API response, an argument to a public library method whose
+callers you cannot enumerate. Values that qualify:
 
-Inside the boundary — service objects, models, private methods, code whose callers you can
-list — the call-site test applies.
+user input · external responses · deserialization (JSON, YAML, cached blobs, session
+data) · queue and job payloads written by another deploy · schemaless or polymorphic
+columns · the public surface of a library · a value read across a concurrency window
+
+Three rules keep the boundary map from swallowing the audit — all three were broken in
+the runs that produced zero cuts:
+
+1. **One value, one guard, at the first read.** After that the value is validated and
+   every later check on it is inside the boundary, and is a candidate.
+2. **A boundary licenses a *loud* guard.** Untrusted input earns a refusal — a raise, a
+   typed failure, a 400. It never earns a silent default. Armor at a boundary is still
+   armor when it swallows.
+3. **A service you own is a soft boundary.** One loud validation at entry. It does not
+   turn every method behind that entry into boundary code, and "this class moved onto a
+   boundary" is not a verdict for the checks inside it.
 
 ## The pattern taxonomy
 
-### 1. Impossible-state guard
+Each pattern carries a default verdict. The default holds unless the guard is already
+loud and carries a citation.
 
-A check for a value the callers cannot pass.
+### 1. Impossible-state guard → Cut
 
 ```ruby
 # before — every caller builds the invoice first
 def sync(invoice)
   return unless invoice
-  return if invoice.number.nil?
+  return if invoice.number.nil?    # non-null column; and it silently no-ops
   push(invoice.number)
 end
 
@@ -92,129 +95,140 @@ def sync(invoice)
 end
 ```
 
-Note the second line's real damage: `return` on a nil number means the method *silently
-does nothing*. The bug survives, without a trace.
-
-### 2. Catch-and-default — the silent fallback
-
-The highest-value cut in this guide.
+### 2. Catch-and-default — the silent fallback → Convert, or Ask
 
 ```python
 # before
-def exchange_rate(currency):
-    try:
-        return api.rate(currency)
-    except Exception:
-        return 1.0          # <- invoices now total wrongly, forever, quietly
+try:
+    return api.rate(currency)
+except Exception:
+    return 1.0          # invoices total wrongly, forever, quietly
 
 # after
-def exchange_rate(currency):
-    return api.rate(currency)
+return api.rate(currency)
 ```
 
-If the call really can fail and the failure needs handling, that is a **product
-decision** — verdict *Ask*, with the options named: raise and alert, use the last known
-rate and mark the invoice, or queue for retry. Never pick one silently, and never pick
-`1.0`.
+If the call genuinely needs handling, that is a **product decision** — Ask, with the
+options named: raise and alert, use the last known rate and mark the invoice, queue for
+retry. Never `1.0`.
 
-### 3. Broad rescue
+### 3. Broad rescue → Convert
 
 ```ruby
-# before
 begin
   report.generate
 rescue => e
-  Rails.logger.error(e)     # swallowed; the caller believes it worked
+  Rails.logger.error(e)   # the caller believes it worked
 end
-
-# after
-report.generate
 ```
 
-Log-and-continue is catch-and-default wearing a hat. Either the caller must know
-(re-raise) or the failure is genuinely ignorable (say why, in one comment).
+Log-and-continue is catch-and-default wearing a hat. Re-raise, or say in one comment why
+this failure is genuinely ignorable.
 
-### 4. Unrequested retry or timeout
+### 4. Silent early return → Convert
 
-```typescript
-// before — nobody asked for this, and 3 attempts on a non-idempotent POST is a bug
-for (let i = 0; i < 3; i++) {
-  try { return await post(order); } catch { await sleep(500); }
-}
-```
+The single most common piece of armor, and the easiest win. `return if x.blank?` in a
+method whose whole job is to do something. Convert to a raise or a typed failure; the
+caller learns nothing today.
+
+### 5. Unrequested retry or timeout → Cut, or Ask
 
 Retries change semantics: duplicate charges, duplicate emails, duplicate rows. Cut unless
-the user specified them, or Ask.
+the user specified them. If the call really is flaky, Ask.
 
-### 5. Re-validation inside a boundary
+### 6. Re-validation inside a boundary → Cut
 
-The controller validated. The service validates again. The model validates a third time.
-Keep the outermost one, cut the echoes — unless the inner one is a genuine invariant the
-type doesn't carry.
+The controller validated, the service validates again, the model a third time. Keep the
+outermost. Cut the echoes unless an inner one carries an invariant the type doesn't.
 
-### 6. Defensive copy
-
-```ruby
-items = raw_items.dup   # nothing mutates it
-```
-
-Cut when no callee mutates. Keep when one does, or when the object crosses a boundary you
-don't control.
-
-### 7. Existence-check spray
+### 7. Existence-check spray → Cut or Convert
 
 `obj&.a&.b&.c`, `obj?.a?.b?.c`, `hasattr(x, "y")`, `.try(:name)`, `.respond_to?`. Written
-one `&.` at a time, never removed. Ask which link in the chain can actually be nil;
-usually one can and three cannot, and the two extra hide a real bug in the one.
+one link at a time, never removed. Usually one link can be nil and three cannot, and the
+three hide a real bug in the one. `.try` is worse than `&.`: it swallows a missing method
+as well as a nil, so it hides type errors too.
 
-### 8. Shim for a format that never shipped
+### 8. Shim for a shape that never shipped → Cut
 
 ```typescript
-// before — v1 payloads never existed outside this branch
 const id = payload.id ?? payload.legacy_id ?? payload.data?.id;
 ```
 
-Cut when the old shape was never written to production. Keep, with a removal note, when a
+Cut when the old shape was never written to production. Keep, with a removal date, when a
 real migration window is open.
 
-### 9. Kill-switch flag
+### 9. Kill-switch flag → Cut, or Ask
 
-A config flag added so the new path can be turned off. If the user didn't ask for it,
-it's armor with an operations manual attached — and a second code path to maintain
-forever. Cut, or Ask.
+A config flag so the new path can be turned off. If nobody asked for it, it is armor with
+an operations manual attached, and a second code path to maintain forever.
 
-### 10. Over-broad defaults
+### 10. Over-broad defaults → Convert
 
 ```python
 def notify(user, subject="", body="", cc=None):
 ```
 
-A default that invents a value hides a missing argument. Required arguments should be
-required; an empty email is not a graceful degradation.
+A default that invents a value hides a missing argument. Required things should be
+required; an empty email is not graceful degradation.
 
-## Search patterns
+## Worked cases
 
-Fast candidate-finding, per language. Every hit is a candidate, never a verdict.
+Both are real verdicts from the first two runs of this skill, and both were wrong.
 
-- **Ruby** — `rescue`, `rescue nil`, `&.`, `.try(`, `.presence ||`, `|| {}`, `|| []`,
-  `return if .*\.nil\?`, `retry`, `Timeout::timeout`.
-- **TypeScript / JS** — `?.`, `?? `, `catch (`, `catch {`, `|| {}`, `|| []`, `try {`,
-  `setTimeout.*retry`, `as any`.
-- **Python** — `except Exception`, `except:`, `getattr(`, `hasattr(`, `or {}`, `or []`,
-  `if .* is None: return`, `contextlib.suppress`.
+### Case A — "six tests reach it"
+
+The run proved a parameter guard unreachable in production: one production caller, and
+the constructor raises when the value is blank. Then it kept the guard, because **six
+tests omitted the argument**.
+
+Wrong. Tests are not production callers. The correct ruling is **Convert** — make the
+parameter required — with the six tests named as follow-up work. A test that manufactures
+a state production cannot produce is a finding about the test. Keeping armor to protect a
+test's convenience is how the armor becomes permanent.
+
+### Case B — "exactly what a bug produces"
+
+The run kept an ownership check with: *the state it defends is exactly what an agent bug
+produces.* Every state in every program is what some bug produces; the argument proves
+all armor and therefore proves none.
+
+The real question was the loudness test, and the guard passed it — it returned a typed
+failure the caller must handle. So the ruling was right and the reasoning was void. Record
+the citation, not the story: the polymorphic association with no type restriction, plus
+the unique index the mis-aimed write would burn.
+
+The same run kept a check-then-act (*"the turn can close while the model composes"*) under
+the concurrency heading. A bare check-then-act closes no window — it narrows it and hides
+the remainder. That is a **finding**: either take the lock, lean on the constraint, or
+admit the race is unhandled.
+
+## Searches
+
+Every hit is a candidate, never a verdict. Lead with the silence patterns — they are the
+highest-value cuts.
+
+- **Ruby** — `rescue nil`, `rescue => e` (then look for a missing `raise`), `return if`,
+  `return unless`, `&.`, `.try(`, `.presence ||`, `|| {}`, `|| []`, `retry`,
+  `Timeout::timeout`.
+- **TypeScript / JS** — `catch (`, `catch {`, `?? `, `?.`, `|| {}`, `|| []`,
+  `return;` inside a guard, `as any`.
+- **Python** — `except Exception`, `except:`, `contextlib.suppress`, `getattr(`,
+  `hasattr(`, `or {}`, `or []`, `if .* is None:\n *return`.
 - **Go** — `if err != nil {\n\treturn nil`, `_ = `, `recover()`, `if x == nil { return }`.
 
-Then filter by the boundary map before you rank anything: a hit inside a request handler
-is usually a Keep, and the same hit in a service object usually isn't.
+Then scope by the boundary rules: the same hit is usually a loud-guard Keep at a first
+boundary read, and a Convert or a Cut two layers in.
 
-## The keep-list
+## The citation list
 
-Never cut, whatever the search says:
+A Keep needs one of these, cited — not described:
 
-- Anything on the boundary map.
-- A guard with a comment, a test, or a ticket naming the incident behind it.
-- A check the type system doesn't make redundant, where the callers can't be enumerated.
-- A guard in code you were not asked to touch. Scope is scope.
-- Anything where the call-site test came back uncertain.
-- Anything encoding a product decision about failure — that is an **Ask**, not a Cut,
-  even when you're confident which option is right.
+- The first read of an untrusted value, failing loudly.
+- A named production call site: `file:line`.
+- A real incident, ticket, or a regression test that names what it prevents.
+- A constraint the type system cannot carry — polymorphic column, `jsonb`, schemaless
+  field — plus the path that writes the odd shape.
+- Concurrency where the check actually closes the window: inside a transaction, under a
+  lock, or backed by a unique constraint.
+
+Anything else, including every argument on the void list in `SKILL.md`, is a **Convert**.
