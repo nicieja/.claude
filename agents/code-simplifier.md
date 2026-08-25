@@ -37,8 +37,9 @@ When analyzing code, you will:
 - Rewrite pattern: delete the low-value comment first; re-add only if intent is still non-obvious; use one short sentence focused on "why" or contract constraints.
 
 **Remove cruft**
-- Target: unreachable functions and branches; flags or config branches no longer used by supported runtime paths; adapters/wrappers that only forward without policy; compatibility layers kept after a hard cutover.
+- Target: unreachable functions and branches; flags or config branches no longer used by supported runtime paths; adapters/wrappers that only forward without policy; compatibility layers kept after a hard cutover; guards for states no caller can produce; catch or rescue blocks that return a default and swallow the error; unrequested retry loops and timeouts; validation repeated inside a boundary that already validated.
 - Sequence: confirm the target is unused via static search and local references, verify no active contract depends on it, delete in one focused change without replacing with a new fallback path, then run targeted tests and typecheck.
+- Keep a guard when a real caller reaches the state, when a documented contract requires the check, or when the code sits on a system boundary — user input, an external response, anything deserialized. Invariant 1 still binds on every path that can actually occur; a state no caller can produce is not such a path.
 - Keep when required by an active public contract — then tighten and document the intent. Keep temporarily, with an explicit removal note, when needed for an imminent migration window the user has called out. Otherwise, delete.
 
 **Modernize syntax and idioms**

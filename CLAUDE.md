@@ -33,6 +33,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | One claim about live runtime state to verify — a count, a flag, whether a row exists | `/query` |
 | Writing up findings for Slack after an investigation | `/summary` |
 | Prose that reads AI-generated — verbose, jargon-stuffed, hedged, em-dash-ridden — or a PR/code stuffed with obvious comments | `/deslop` |
+| Code that guards states that can't happen — needless rescues, fallbacks, retries, armor I didn't ask for | `/unguard` |
 | Polishing an English draft into native, voiced prose (fluency, rhythm, register) | `/voice` |
 | Posting investigation findings as a Linear comment | `/comment` |
 | Drafting a Linear title/description from the current diff | `/linear` |
@@ -85,3 +86,9 @@ When you're writing a plan in native Plan mode **and the plan involves writing o
 - **Skip when there's nothing to build.** Pure research, investigation, retro, doc-only, or prompt-engineering plans don't need the handoff at all.
 - **Stage 2 is optional on thin surface area.** If there's not enough code to clean up, drop the simplifier. Judgment call, not a rule.
 - **Native Plan mode only.** `/shape` runs its own workflow and is unaffected.
+
+# Don't defend against what can't happen
+
+Write the code the task needs, and no armor around it. Validate at the system boundary — user input, external API responses, deserialized payloads — and trust what you find inside. No guards for states no caller can produce. No catch-and-default that turns a bug into a wrong answer. No retries, timeouts, or config flags I didn't ask for. Prefer the crash: an exception with a good message beats a fallback that puts the wrong number on a screen. When the right failure behavior is a real decision — retry, degrade, alert, drop — name the options and ask me instead of picking the safe-looking one silently.
+
+Carry the rule into the brief of any agent you dispatch. And don't summon the behavior with the words that cause it: *robust*, *production-ready*, *bulletproof*, *handle all the edge cases*. Say what must not break, and what should happen when it does.

@@ -22,7 +22,7 @@ The bar is not perfection — it's whether this change leaves the codebase healt
 
 **Design.** Does this belong in the codebase? Does it integrate cleanly with what's around it? Is now the right time? A wrong-shape change wastes everything below this line. Surface design problems immediately so the author isn't building on a foundation you'll ask them to rip out — and so you don't waste your own time line-reviewing code that's about to disappear.
 
-**Correctness.** Does the code do what the diff claims? Edge cases (nil, empty, negative, very large), error handling that swallows or logs without acting, off-by-one in pagination, missing transaction boundaries, inverted booleans. Run the new code paths in your head with edge inputs.
+**Correctness.** Does the code do what the diff claims? Edge cases the system can actually produce (nil, empty, negative, very large) — trace one to a real call site before you ask for a guard — error handling that swallows or logs without acting, off-by-one in pagination, missing transaction boundaries, inverted booleans. Run the new code paths in your head with edge inputs.
 
 **Concurrency.** Race conditions, deadlocks, and ordering bugs are nearly invisible from reading code. If the change introduces parallel work — threads, goroutines, async coordination, locks, shared mutable state — slow down. Walk through the interleavings, check atomicity boundaries, verify the synchronization primitives match the access patterns. Where the model is non-trivial, flag the category for specialist or in-person review rather than rubber-stamping.
 
@@ -30,7 +30,7 @@ The bar is not perfection — it's whether this change leaves the codebase healt
 
 **Security.** Injection (SQL, command, template), authentication and authorization gaps, sensitive data in logs or responses, missing rate limits, weak crypto, unsafe deserialization, dependency CVEs. If a change touches user input or auth boundaries, security comes first.
 
-**Complexity and over-engineering.** Is this more complex than it needs to be? Watch for code generalized for problems the author *might* have someday. Solve the problem you can see now; the future problem will arrive with its actual shape attached. "Too complex" usually means "another developer will have trouble understanding or modifying this safely." Flag premature abstractions and unjustified extractions — duplication is usually cheaper than the wrong coupling.
+**Complexity and over-engineering.** Is this more complex than it needs to be? Watch for code generalized for problems the author *might* have someday. Solve the problem you can see now; the future problem will arrive with its actual shape attached. "Too complex" usually means "another developer will have trouble understanding or modifying this safely." Flag premature abstractions and unjustified extractions — duplication is usually cheaper than the wrong coupling. The same test applies to defense, not only to abstraction: flag guards for states no caller can produce, `try`/`catch` around code that doesn't throw, rescue blocks that return a default and hide the failure, retries and timeouts nobody specified, and validation repeated inside a boundary that already validated. Ask which caller passes nil. If there is no answer, the check is dead code that will outlive you.
 
 **Performance.** N+1 queries, missing indexes for new where-clauses, unbounded loops, sync work where async would do, memory leaks from references held in long-lived objects, payload bloat. Don't guess — point to the slow path.
 
