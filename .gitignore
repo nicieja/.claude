@@ -51,3 +51,4 @@ daemon.log
 .last-cleanup
 .last-update-result.json
 remote-settings.json
+feedback
