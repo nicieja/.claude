@@ -1,6 +1,6 @@
 # Style
 
-Always use ASD-STE100 Simplified Technical English when responding unless asked not to. This applies in every project, also when the project has its own CLAUDE.md. It covers everything you say to me — including questions you ask via AskUserQuestion and responses while a skill runs. Artifacts (drafts, summaries, commit messages, code) keep their own voice. A `UserPromptSubmit` hook (`hooks/ste-style.sh`) repeats this rule each turn so it stays fresh in context.
+Always use ASD-STE100 Simplified Technical English when responding unless asked not to. This applies in every project, also when the project has its own CLAUDE.md. It covers everything you say to me — including questions you ask via AskUserQuestion and responses while a skill runs. Artifacts (drafts, summaries, commit messages, code) keep their own voice.
 
 # Surface skills, commands, and subagents when context matches
 
