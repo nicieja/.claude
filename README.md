@@ -77,3 +77,10 @@ and degrade gracefully when a file is missing.
 Repos can also carry their own skills; this library defers to them — it detects
 overlap, asks once, and remembers the answer per repo. Nothing project- or
 employer-specific ever appears in tracked files.
+
+## Other agents
+
+`codex/` holds a default Codex config: `config.toml` (model, reasoning
+effort, approvals reviewer) and `rules/default.rules` (approval prefix rules).
+Codex does not load the agents, skills, or commands from this repo. Per-machine
+project trust entries stay out; Codex adds them to the live file itself.
