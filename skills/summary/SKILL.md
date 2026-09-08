@@ -34,16 +34,9 @@ This is the most important part. The summary should read like a real person type
 - It's fine to be a little casual ("so basically", "the culprit was", "long story short")
 - Contractions are good. Sentence fragments are fine when they land.
 - If something was surprising or non-obvious, say so ("we initially thought X but it turned out to be Y")
-- **Use normal sentence case.** Capitalize the first word of every sentence and proper nouns. Casual tone comes from word choice, contractions, and rhythm — never from dropping capitalization. All-lowercase output reads as twee/affected, not casual.
+- Normal sentence case; the casual tone comes from word choice and rhythm.
 
-**Don't do this:**
-- Don't use rigid headers like "*What happened:*", "*Root cause:*", "*Steps taken:*" — that's the AI-report smell
-- Don't use bullet points for everything — mix prose and bullets naturally like a person would
-- Don't start with a formulaic title like "*Investigation Summary —*" every time. Start with whatever feels right: the punchline, the context, or a quick "heads up, we just dealt with X"
-- Don't pad with filler ("Upon investigation we determined that..." — just say what you found)
-- Don't be overly formal or overly structured
-- No emojis in every section. One or two max if they feel natural, zero is also fine.
-- Don't use "Key Findings", "Action Items", "Impact Assessment" or any corporate-report language
+**Shape:** open with whatever a person would lead with — the punchline, the context, or "heads up, we just dealt with X" — and say what you found without the run-up. Prose carries it; a list appears where a person would reach for one. A label, when it helps, is a bold line, not a report section. An emoji or two is fine when it feels natural; zero is also fine.
 
 **Slack formatting basics** (use Slack mrkdwn, not GitHub markdown):
 - Bold: `*text*`

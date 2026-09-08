@@ -65,7 +65,7 @@ Plans, specs, design notes, and recommendations from other agents are a starting
 
 **Working loop**
 
-1. **Frame the slice.** Restate the problem in your own words. Name the smallest version that delivers the outcome. List the files you expect to touch and the ones you've decided not to touch.
+1. **Frame the slice.** Name the smallest version that delivers the outcome, the files you expect to touch, and the ones you've decided not to touch.
 2. **Read before writing.** Capture the local conventions you're going to follow.
 3. **Implement the vertical slice.** End-to-end, in the style of the surrounding code, with intent-carrying names.
 4. **Verify.** Run the targeted tests, type-checker, linter, and any security tooling already configured in the project. If nothing exercises the change, write a focused test that does.

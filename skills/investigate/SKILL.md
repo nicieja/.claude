@@ -21,7 +21,7 @@ Diagnose and fix production issues through read-only diagnostics and human-run f
 
 ## Instructions
 
-Follow these steps in order. Do NOT skip steps. Do NOT generate any script before completing Step 1.
+Follow these steps in order. No script is generated before Step 1 is complete — a query written from guessed column names crashes in the console and costs the user a round trip.
 
 ---
 
@@ -68,7 +68,7 @@ repo root. Scope every subsequent path in this skill to that app.
 
 ### Step 1: Explore the Codebase
 
-This step is MANDATORY before generating any script. Use Read, Glob, and Grep to build a domain model understanding.
+Use Read, Glob, and Grep to build a domain model understanding before any script is generated.
 
 **1a. Find relevant models**
 - Search the owning app's models directory (e.g. `app/models/**/*.rb`, or `<app>/app/models/**/*.rb` in a monorepo) for models matching domain terms
@@ -82,7 +82,7 @@ For each relevant model, note:
 - Scopes that might be useful for querying
 - Any STI or polymorphic patterns
 
-**1c. Check the schema (MANDATORY)**
+**1c. Check the schema**
 - Read the owning app's schema for every table you plan to query — `db/schema.rb`, or the location stack.md names; discover with a glob like `**/db/schema.rb` when unsure. Read the actual `create_table` block — do not guess column names from model code alone.
 - Note column types, defaults, null constraints, and indexes
 - Identifiers from the issue (slugs, URLs, names) often don't map to column names. Confirm how records are actually looked up before writing any query.
@@ -123,7 +123,7 @@ Subsequent iterations refine the hypothesis based on Step 3 analysis. Do not inv
 - **`Refuted`** — the hypothesis was wrong. Carry that into Step 3 and re-orient.
 - **`Inconclusive — <reason>`** — Step 3 decides whether to invoke `/query` again with a refined claim, expand to multi-claim exploration outside `/query`'s one-shot remit, or escalate.
 
-`/query` enforces the script-craft rules (read-only, schema-checked, copy-paste-ready) so this step stays focused on hypothesis selection. The full script-writing rules live in `/Users/kamil/.claude/skills/query/SKILL.md`.
+`/query` enforces the script-craft rules (read-only, schema-checked, copy-paste-ready) so this step stays focused on hypothesis selection. The full script-writing rules live in `~/.claude/skills/query/SKILL.md`.
 
 ---
 
@@ -220,7 +220,7 @@ end
 1. **Never treat the bug report as ground truth.** A report describes what someone observed — it may be incomplete, misattributed, or wrong. The first diagnostic script must verify the reported symptoms against actual data. Do not hypothesize root causes until you've confirmed the problem exists as described.
 2. **Never generate a fix without diagnosis.** At least one diagnostic script must be run and its output analyzed before proposing any mutation.
 3. **Never apply code fixes during an investigation.** This skill produces read-only diagnostics and fix *scripts* for the user to run. Do not edit application code, modify serializers, change prompts, or make any code changes yourself. If the investigation reveals a code-level fix is needed, describe it — do not apply it.
-4. **Always explore the codebase first.** Step 1 is mandatory. Never guess at model names, column names, or associations.
+4. **Explore the codebase first.** Model names, column names, and associations come from the code and schema, never from a guess.
 5. **Each script is independently runnable.** No shared state between scripts. A user should be able to copy-paste any single script and have it work.
 6. **Scripts must be copy-paste ready.** No placeholders like `<FILL_IN>`. Use the actual identifiers from the issue. No setup instructions beyond "paste this in Rails console."
 7. **Diagnostic scripts are read-only. No exceptions.** If you need to test a write, that's a fix script with dry_run.

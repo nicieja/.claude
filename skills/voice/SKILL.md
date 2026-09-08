@@ -47,7 +47,7 @@ Read `~/.claude/skills/voice/voice-guide.md` in full **before rewriting**. It is
 
 ### Step 2: Read the draft and set the dial
 
-Read the draft closely and decide, briefly (don't narrate this to the user):
+Read the draft closely and decide:
 
 - **What it's trying to do** — genre, POV, tense, mood, who's speaking. These are constraints you preserve.
 - **What it means** — the literal content, the facts, the beats. These are fixed.

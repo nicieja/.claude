@@ -6,7 +6,7 @@ description: |
   honesty — without changing meaning or code logic. Takes text, a file, or a PR;
   diagnoses first and waits for your call, then converges through verify-and-repeat
   passes until it hits the predicted cut or proves the rest is load-bearing. Default
-  for comments: none, and each must earn its place. Loads slop-guide.md every run.
+  for comments: none, and each must earn its place.
 allowed-tools:
   - Read
   - Edit
@@ -28,7 +28,7 @@ Two surfaces, handled differently:
 - **Prose** — diagnosed in two tiers. *Structural* tells (the real target): low information density, jargon standing in for information, rhetorical postures that promise rigor they don't deliver, redundancy, hedging that never decides. *Surface* tells (cosmetic, low-confidence): generic AI vocabulary, em-dash overuse, the monotone "not X, but Y" cadence. Lead with structure; surface tells are gameable and unmeasured, never proof.
 - **Code comments** — one rule: **the default is no comment, and a comment must earn its place.** It earns it only by explaining *why* (not *what*): a non-obvious decision, a gotcha, an invariant the code doesn't show, an external constraint, or a workaround. AI agents over-comment by narrating the obvious; that narration is the prime target.
 
-Two instruments run the method. The **compression test** measures: try to cut a passage by half without losing meaning — what you can cut was slop, what survives is content. The **convergence loop** drives the work: declare a goal, cut, verify against it, repeat — until you hit the predicted cut or prove what's left is load-bearing. The loop is what stops a timid pass from quitting at 6% on a 30%-sloppy input.
+Two instruments run the method. The **compression test** measures: try to cut a passage by half without losing meaning — what you can cut was slop, what survives is content. The **convergence loop** drives the work: declare a goal, cut, verify against it, repeat — until you hit the predicted cut or prove what's left is load-bearing. The loop is what stops a timid pass from quitting a fraction of the way into a sloppy input.
 
 ## Arguments
 
@@ -140,4 +140,4 @@ Close with **one honest line** separating *cosmetic* from *substantive* changes.
 8. **Surface tells are weak.** Em dashes, AI vocabulary, and the "not X, but Y" cadence are gameable, false-positive-prone, and unmeasured. Light polish, never proof, never the headline.
 9. **Load `slop-guide.md` every run.** The taxonomy and examples live there, not in memory.
 10. **The cut estimate is a prediction the loop verifies, never a target you flatten to hit.** Range over point, location over total. An *unexplained* shortfall means another pass; you may finish below the prediction only by proving the remainder is load-bearing and revising it down with that reason. Judgment wins every tie — treat the skill's own number with the suspicion it aims at em-dash counts.
-11. **Converge; don't report-and-shrug.** Loop pass→verify until the goal is met or the remainder is proven load-bearing — cap at ~3 passes, then stop honestly. Two exits only: *met* or *justified*. A timid pass that quits short and calls the gap "a finding" is the failure this skill was rebuilt to prevent.
+11. **Converge; don't report-and-shrug.** Loop pass→verify until the goal is met or the remainder is proven load-bearing — cap at ~3 passes, then stop honestly. Two exits only: *met* or *justified*. A timid pass that quits short and calls the gap "a finding" is the failure this skill exists to prevent.

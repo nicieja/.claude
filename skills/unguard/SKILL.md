@@ -6,8 +6,7 @@ description: |
   swallow, retries and flags nobody asked for. Takes a file, the current diff, or a
   PR; maps the trust boundaries per value, then rules on every guard Cut / Convert /
   Ask / Keep. Uncertainty resolves to Convert — make the guard loud — never to
-  leaving it alone. Keep is rare and must cite a real trigger. Loads guard-guide.md
-  every run.
+  leaving it alone. Keep is rare and must cite a real trigger.
 allowed-tools:
   - Read
   - Edit
@@ -83,8 +82,7 @@ A Keep needs **one cited, concrete trigger**, in this list:
 
 ## Void reasons — a Keep resting on any of these is not a Keep
 
-These are the arguments that turned the first two runs of this skill into zero cuts.
-Every one of them is disqualified. If a verdict rests on one, downgrade it to Convert
+Every one of these is disqualified. If a verdict rests on one, downgrade it to Convert
 and say which reason you rejected.
 
 1. **"A test reaches it."** Tests are not production callers. A test that exercises an

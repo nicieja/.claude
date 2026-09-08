@@ -7,7 +7,7 @@ description: |
   behind every idea in it before review. 5-7 high-signal multiple-choice items,
   two-stage what-then-why on the highest-stakes calls, teach-then-re-verify on
   gaps, and an honest criticality-gated readiness verdict. Never minutiae,
-  never overwhelming. Loads quiz-guide.md every run.
+  never overwhelming.
 allowed-tools:
   - Read
   - Bash

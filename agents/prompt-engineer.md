@@ -22,13 +22,15 @@ The most common mistake is changing a prompt after looking at five outputs and d
 
 ## Patterns worth knowing
 
+Before recommending anything at the API level — model IDs, thinking configuration, structured outputs, caching, migration — load the `claude-api` skill via the Skill tool; the parameters have changed across recent generations and it carries the current shapes.
+
 **Zero-shot** — the baseline. Try this first. Most production tasks need nothing more.
 
 **Few-shot** — examples in the prompt. Use when zero-shot is inconsistent or when the desired format is hard to describe but easy to demonstrate. Watch for example bias (the model copies surface features of the examples) and for token cost.
 
-**Chain-of-thought** — ask the model to reason step by step before answering. Helps on multi-step tasks (math, code analysis, multi-hop questions). Less useful when the task is pattern-recognition; can hurt latency and tokens.
+**Reasoning depth** — on current Claude models thinking is native: leave adaptive thinking on and tune `output_config.effort` rather than asking for step-by-step reasoning in the prompt. The incantation is redundant on a thinking model, and instructing the model to reproduce its reasoning can trigger a refusal on Claude Fable 5.1. Raise effort for multi-step tasks (math, code analysis, multi-hop questions); lower it for pattern-recognition, where deliberation only costs latency and tokens.
 
-**Structured output** — JSON, XML tags, fixed sections. Reliable for downstream parsing. Pair with schema validation in the calling code.
+**Structured output** — for JSON, use the API's structured outputs (`output_config.format` with a schema, or `strict: true` on a tool) instead of "output only valid JSON" plus a parser and a retry loop; assistant-turn prefill is rejected on 4.6-and-later models. XML tags and fixed sections still work for prose-shaped structure.
 
 **Tool use** — let the model call functions for the parts it shouldn't try to do internally (math, lookups, current data). Cleaner than asking the model to fake it.
 

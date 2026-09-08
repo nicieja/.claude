@@ -9,8 +9,7 @@ description: |
   audit that flags dead artifacts and asks which to remove. Ranks the worst,
   then, on your pick and diagnose-first, re-integrates a file from scratch so
   it reads like one author wrote it in one sitting — without regressing a
-  single baked-in rule. The prompt-library analog of code-simplifier. Loads
-  heal-guide.md every run.
+  single baked-in rule. The prompt-library analog of code-simplifier.
 allowed-tools:
   - Read
   - Edit

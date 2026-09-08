@@ -126,10 +126,10 @@ query($owner:String!, $name:String!, $number:Int!, $endCursor:String) {
 
 Precision notes: pass `number` with `-F` (typed int — `-f` sends a string and the query fails); `--paginate` on GraphQL requires the `$endCursor` variable and the `pageInfo { hasNextPage endCursor }` block exactly as written; `comments(first:1)` is deliberate — the first comment is the thread's top-level comment, and its `databaseId` is the only valid target for the Step 14 replies endpoint. Threads on deleted lines have `line: null` → use `originalLine` with side LEFT.
 
-Fetch the patches now too (Step 11 validates anchors against them):
+Fetch the patches now too and save them to the scratchpad (Step 11 validates anchors against them):
 
 ```bash
-gh api repos/<owner>/<repo>/pulls/<num>/files --paginate --jq '.[] | {filename, patch}'
+gh api repos/<owner>/<repo>/pulls/<num>/files --paginate > <scratchpad>/pr-files.json
 ```
 
 (The files endpoint caps at 3000 files and omits `patch` for very large or binary files — fall back to `gh pr diff <num>` and parse the same hunk headers.)
@@ -267,7 +267,7 @@ Classify every finding `code-reviewer` returned, in this order. Matching is sema
 
 Sort novel by severity (Blocking > Should fix > Suggestion); fold at most one Praise into the eventual review body. Cap the per-issue Q&A at **5 novel findings**; endorsements and refutations always ride the single grouped question in Step 12(d). The remainder gets one named line each in chat and stays out of the posted review unless the user promotes one.
 
-Validate every candidate's anchor now, against the Step 4 patches: parse hunk headers `@@ -a,b +c,d @@`; a `side: RIGHT` anchor is valid iff its line falls inside some `c…c+d-1` range for that file (context lines count); deletions anchor `side: LEFT` within `a…a+b-1`. Fallback chain: nearest changed line in the same file (re-point the comment text accordingly) → the review body. Record the differential counts: found F / dropped-as-known D / novel K / endorsements E / refutations R.
+Validate every candidate's anchor now with `python3 ~/.claude/skills/review-pr/validate-anchors.py <scratchpad>/pr-files.json`, feeding it one `{"path": …, "line": N, "side": "RIGHT" | "LEFT"}` JSON object per line on stdin. It applies the hunk-range rule (a `RIGHT` anchor must fall inside a `+c,d` range for that file, a `LEFT` anchor inside `-a,b`; context lines count) and prints, for each invalid anchor, the nearest changed line on that side. Fallback chain: that nearest changed line (re-point the comment text accordingly) → the review body. Record the differential counts: found F / dropped-as-known D / novel K / endorsements E / refutations R.
 
 **K + E + R = 0 → the nothing-novel path.** The reveal still runs (sentence, paragraph), then concludes: *"Nothing to add beyond the existing review — recommend approve (or stay silent)."* Step 14 offers only **Post — approve / Don't post**.
 
@@ -285,7 +285,7 @@ Never name the machinery — no "baseline agent", no "code-reviewer", no mask ja
 
 **(d) Per-issue solution choice**, novel findings only, severity order, max 5. The user is not rubber-stamping someone else's verdict — they are deciding, as the engineer, how the thing gets fixed. Their answer is the suggested fix that posts.
 
-Each issue is one cycle with two parts, in the same turn, in this order: **the write-up in chat, then the question**. The write-up is a gate — the question for an issue must never appear before its write-up. This holds on every pass of the loop: after the user answers Issue N, print Issue N+1 in full before asking about it. Do not print one issue and then ask the remaining questions bare.
+Each issue is one cycle with two parts, in the same turn, in this order: **the write-up in chat, then the question** — on every pass of the loop, so after the user answers Issue N, Issue N+1 is printed in full before its question.
 
 The write-up must stand alone: severity; `file:line` and where it will land (inline or review body); the failure mechanism step by step — which pieces of code interact, the sequence that goes wrong, and what hides it on the happy path; why it matters; what is confirmed versus unverified; and each candidate remedy with what it changes, what it costs, and what it leaves unfixed. The test: the user can pick a remedy from the write-up alone, without asking for an explanation. The one-line issue name inside the question is a label, not the explanation.
 

@@ -62,8 +62,7 @@ user input · external responses · deserialization (JSON, YAML, cached blobs, s
 data) · queue and job payloads written by another deploy · schemaless or polymorphic
 columns · the public surface of a library · a value read across a concurrency window
 
-Three rules keep the boundary map from swallowing the audit — all three were broken in
-the runs that produced zero cuts:
+Three rules keep the boundary map from swallowing the audit:
 
 1. **One value, one guard, at the first read.** After that the value is validated and
    every later check on it is inside the boundary, and is a candidate.
@@ -173,7 +172,7 @@ required; an empty email is not graceful degradation.
 
 ## Worked cases
 
-Both are real verdicts from the first two runs of this skill, and both were wrong.
+Two verdicts that read as reasonable and are wrong.
 
 ### Case A — "six tests reach it"
 

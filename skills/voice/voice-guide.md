@@ -1,6 +1,6 @@
 # My Voice
 
-This is a portable, language-agnostic distillation of one author's prose voice extracted from their short stories. The rules below are stated for **English** prose. The `rewrite` skill loads this file and applies it.
+This is a portable, language-agnostic distillation of one author's prose voice extracted from their short stories. The rules below are stated for **English** prose. The `voice` skill loads this file and applies it.
 
 Read **"How to apply this"** before anything else. The fastest way to wreck this voice is to apply all of it at once.
 

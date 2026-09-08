@@ -27,4 +27,4 @@ Use the seed to pick which PRs are relevant; drop the rest. For each PR you plan
 
 - Humanized and conversational — suitable to paste into a standup channel.
 - Reference PR numbers (e.g. `#450`) only when they help the reader navigate to something still open or in review. Don't cite every PR by default.
-- No headers, no preamble like "Here's your update:". Just the update.
+- Start with the update itself — no "Here's your update:" lead-in. It's a Slack message: paragraphs and the short group labels from above, nothing heavier.

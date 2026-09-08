@@ -35,7 +35,7 @@ Turn a half-formed idea into a refined plan. The skill researches the codebase, 
 
 ## Instructions
 
-Follow these steps in order. Do NOT skip steps unless the step explicitly says it can be skipped.
+Follow these steps in order. A step that plainly doesn't apply is skipped, with the skip noted in the plan (Key Rule 11).
 
 ---
 

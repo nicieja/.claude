@@ -157,7 +157,7 @@ Follow these steps in order. Do NOT skip steps.
 
 For each selected issue:
 
-1. **Create a task** (TaskCreate) to track its pipeline state. Include issue ID, title, and current stage.
+1. **Record its pipeline state** — issue ID, title, current stage — in your working notes. The Step 4 status table is the user-facing view of that record.
 
 2. **Dispatch the first pipeline stage** as a background agent (`run_in_background: true`).
 
@@ -176,7 +176,7 @@ Always pass these into every agent prompt:
 - Results from ALL prior stages for this issue
 - Any user feedback from the previous stage
 
-Subagents must treat the synthesis as authoritative for what's pre-established: don't re-derive root causes that comments have already confirmed, don't re-explore files when comments name specific paths. But they MUST verify anything in the "still to verify" list.
+Subagents must treat the synthesis as authoritative for what's pre-established: don't re-derive root causes that comments have already confirmed, don't re-explore files when comments name specific paths. But they verify everything in the "still to verify" list.
 
 The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 
@@ -189,10 +189,8 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Goal:** Confirm the root cause with production data before building a fix
 - **Work:** Generate a read-only diagnostic script for the project's production console (flavor and access mode per `stack.md`; Rails console by default) for the user to run in production. The script must be read-only (no mutations). **Before writing any script, read the actual model files and schema to verify every method name, attribute, and association path you plan to use.** Never assume a model has a given method — check first. Present the script, wait for the user to paste output, then analyze. Iterate if needed. Only proceed to Build once the root cause is confirmed by production data.
 - **Agent selection:** This phase is handled by the orchestrator (you), not a subagent. You generate the script directly.
-- **When to use:** For any bug or customer-reported issue. Skip for features, refactors, and chores where there's no production state to diagnose.
-- **IMPORTANT — do NOT skip Diagnose for bugs.** Even when the root cause seems obvious from code review, production data often reveals that the actual behavior differs from what the code suggests. If the Linear issue includes identifiers (record IDs, account slugs, thread links, environment), use them to write targeted diagnostic scripts that verify the exact scenario described. The Understand phase tells you *what the code does*; Diagnose tells you *what actually happened*.
-- **When Diagnose is impractical:** If the issue is purely a system prompt gap (no production state to query), or if no identifiers are provided in the ticket, fold diagnostic script generation into the Build phase instead — the Build agent must include a `diagnostic_script.rb` file alongside the fix that the user can run post-deploy to verify the fix works.
-- **When prior analysis in comments confirms the root cause:** If the prior-analysis synthesis (step 1.4) marks the root cause as pre-established — a teammate has named the specific files, lines, or methods in confirmed (non-hedged) language and the issue notes no broken production state needing repair — Diagnose may be skipped. The Build phase still produces a `tmp/diagnostic_<issue_id>.rb` script (per the existing Build-phase rule when Diagnose is skipped) that re-validates the documented root cause against production data, so the comment-stated cause is verified by the run, not assumed. If comments are hedged, contradictory, or describe a hypothesis rather than a confirmed cause, do NOT skip Diagnose.
+- **When to use:** every bug or customer-reported issue. The Understand phase tells you *what the code does*; Diagnose tells you *what actually happened*, and the two differ more often than code review suggests — so a root cause that looks obvious from the code still gets checked against production data. Use the identifiers in the ticket (record IDs, account slugs, thread links, environment) to target the exact scenario described. Skip for features, refactors, and chores with no production state to diagnose.
+- **Diagnose moves into Build in two cases:** the ticket carries no identifiers or no production state to query (a pure system-prompt gap, say), or the prior-analysis synthesis (step 1.4) marks the root cause as pre-established in confirmed, non-hedged language with no broken production state to repair. In both, the Build agent produces `tmp/diagnostic_<issue_id>.rb` — a read-only console script the user runs after deploy to re-validate the cause against production data — so the cause is verified by the run, not assumed. Hedged, contradictory, or hypothetical comments do not qualify; Diagnose runs.
 
 #### Phase: Design
 - **Goal:** Create an implementation plan
@@ -200,11 +198,11 @@ The pipeline is a sequence of **work phases**, not a fixed list of agent types:
 - **Agent selection:** Pick the agent best suited for software architecture and planning.
 
 #### Phase: Build
-- **Isolation:** `worktree` (REQUIRED — each issue gets its own isolated copy of the repo)
+- **Isolation:** `worktree` — each issue gets its own isolated copy of the repo
 - **Goal:** Write the code
 - **Work:** Implement the plan. Write clean code following existing codebase patterns. Do NOT commit — just write the files.
 - **Agent selection:** Pick the agent best suited for writing production code. If the issue is primarily a refactor, prefer an agent specialized in simplification/refactoring if one exists.
-- **Diagnostic scripts for bugs:** When building a fix for a bug or customer-reported issue, the Build agent MUST also produce a `tmp/diagnostic_<issue_id>.rb` file — a read-only Rails console script the user can run in production to verify the fix addresses the real issue. The script should target the specific records and identifiers named in the Linear issue. If Diagnose was skipped, this script is mandatory.
+- **Diagnostic scripts for bugs:** for a bug or customer-reported issue, the Build agent also produces `tmp/diagnostic_<issue_id>.rb` — a read-only Rails console script, targeting the records and identifiers named in the Linear issue, that the user runs in production to verify the fix addresses the real issue. When Diagnose moved into Build, this script is the diagnosis.
 - **Evidence bundle:** the Build agent's completion report must end with five short sections — What changed, Why this shape, What you ran, Residual risk, Rollback. Verify and Review receive it, and the PR body's How-to-test section carries its verified commands.
 
 #### Phase: Verify
@@ -228,7 +226,7 @@ This is the core loop. Repeat until all issues are complete or the user says Don
 
 1. **When any background agent completes:**
 
-   a. **Update the task** (TaskUpdate) for that issue with the new stage status.
+   a. **Update that issue's recorded stage** with the new status.
 
    b. **Show status table for ALL issues:**
       ```
@@ -258,7 +256,7 @@ This is the core loop. Repeat until all issues are complete or the user says Don
 
 5. **Auto-fix loop on Review blockers.** When the Review phase returns with **blocking findings** (severity `Blocking`, or a verdict of `request changes` / `rework`), close the loop without asking the user — the same way a developer would re-run the test suite after a fix. Specifically:
 
-   a. **Cap: 2 auto-fix iterations per issue**, total across the pipeline. Track this per issue in the task metadata. After the cap, surface to the user with: *"Auto-fix attempted N times for ENG-XXX. Remaining blockers: [list]."* and ask Continue / Redo / Skip / Done.
+   a. **Cap: 2 auto-fix iterations per issue**, total across the pipeline. Track the count in the issue's record. After the cap, surface to the user with: *"Auto-fix attempted N times for ENG-XXX. Remaining blockers: [list]."* and ask Continue / Redo / Skip / Done.
 
    b. **Construct a feedback message** from the Review's blocking findings — verbatim quotes of each blocker, with file:line references. Don't paraphrase; the Build agent needs the specifics.
 
@@ -341,7 +339,7 @@ When all pipeline stages complete for an issue:
    )"
    ```
 
-4. **Update the task** as completed (TaskUpdate).
+4. **Mark the issue's record completed.**
 
 5. Show confirmation:
    ```
@@ -385,7 +383,7 @@ interactive flow, all non-negotiable:
 1. **Choose agents dynamically.** Examine available `subagent_type` options for each phase and pick the best fit. Never assume a fixed mapping — new agent types may be added at any time.
 2. **One subagent per issue at a time.** Pipeline phases are sequential within an issue. Never run Design and Build simultaneously for the same issue.
 3. **Multiple issues in parallel.** Different issues can have agents running at the same time. Use `run_in_background: true` for all agent dispatches.
-4. **Worktree isolation for Build.** The Build phase MUST use `isolation: "worktree"` so parallel issues don't conflict with each other.
+4. **Worktree isolation for Build.** The Build phase uses `isolation: "worktree"` so parallel issues don't conflict with each other.
 5. **Always show status.** After every agent completion, show the status table for ALL issues — not just the one that completed.
 6. **User feedback between phases.** Always ask unless auto-advance is active (3+ consecutive approvals).
 7. **Draft PRs only.** Never create ready-for-review PRs. Always use `--draft`.
