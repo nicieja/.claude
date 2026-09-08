@@ -4,6 +4,7 @@
 .claude/settings.local.json
 settings.local.json
 settings.json
+codex/config.toml
 
 # Caches
 cache/
