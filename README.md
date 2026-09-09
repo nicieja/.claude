@@ -14,13 +14,6 @@ If you don't already have a `~/.claude/`, you can clone directly:
 git clone git@github.com:nicieja/.claude.git ~/.claude
 ```
 
-If you do, **don't overwrite it**. Clone elsewhere and copy or symlink individual pieces:
-
-```bash
-git clone git@github.com:nicieja/.claude.git ~/code/nicieja-claude
-ln -s ~/code/nicieja-claude/skills/pushback ~/.claude/skills/pushback
-```
-
 ## Agents
 
 An agent is a named professional with an opinion, pulled in for one question,
