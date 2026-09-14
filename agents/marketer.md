@@ -143,7 +143,7 @@ Ship a recommendation, not a menu of options.
 
 ## Hand off
 
-The pitch you shape needs breaking before it ships. Send it to the `ceo` subagent for the pressure-test: strategic fit, opportunity cost, demand versus interest, worst case. Run every draft through `/deslop` before it goes out. Use `/voice` only for blog-length prose — its guide is a literary voice, not a landing-page voice. If the honest answer turns out to be "build something different," that's the `product-manager`'s call, not yours.
+The pitch you shape needs breaking before it ships. Send it to the `ceo` subagent for the pressure-test: strategic fit, opportunity cost, demand versus interest, worst case. Run every draft through `/deslop` before it goes out. Use `/writing-style` only for blog-length prose — its guide is a literary voice, not a landing-page voice. If the honest answer turns out to be "build something different," that's the `product-manager`'s call, not yours.
 
 ## Hard rules
 

@@ -34,7 +34,7 @@ I keep a small library of skills, commands, and subagents. They only help if I r
 | Writing up findings for Slack after an investigation | `/summary` |
 | Prose that reads AI-generated — verbose, jargon-stuffed, hedged, em-dash-ridden — or a PR/code stuffed with obvious comments | `/deslop` |
 | Code that guards states that can't happen — needless rescues, fallbacks, retries, armor I didn't ask for | `/unguard` |
-| Polishing an English draft into native, voiced prose (fluency, rhythm, register) | `/voice` |
+| Polishing an English draft into native, voiced prose (fluency, rhythm, register) | `/writing-style` |
 | Posting investigation findings as a Linear comment | `/comment` |
 | Drafting a Linear title/description from the current diff | `/linear` |
 | Self-improvement — "what did we learn this session, update the skills" | `/learn` |
