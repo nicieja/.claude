@@ -50,12 +50,11 @@ I have a small library of skills, commands, and subagents. They only help if I r
 | System design, architectural decisions, technology choices, coupling concerns | `architect-reviewer` |
 | Security-sensitive changes (auth, money, PII, crypto, file uploads, external input) | `security-auditor` |
 | Slow endpoint, N+1, memory blow-up, scaling concerns | `performance-engineer` |
-| Test strategy, missing coverage, flaky tests, framework choice | `tester` |
-| Prompt design, LLM evals, model choice, prompt regressions | `prompt-engineer` |
+| Test strategy, missing coverage, flaky tests, framework choice | `quality-engineer` |
 | Product strategy, prioritization tradeoffs, roadmap, opportunity cost | `product-manager` |
-| Positioning, category naming, launch copy, pitch narrative, channel choice | `marketer` |
-| Talking to a proxy customer, testing a pitch on a simulated buyer whose temperament the brief sets (usually driven by `marketer`) | `persona` |
-| A strategic bet, roadmap call, or cross-cutting proposal that needs executive grilling on top of engineering pushback | `ceo` |
+| Positioning, category naming, launch copy, pitch narrative, channel choice | `product-marketer` |
+| Talking to a proxy customer, testing a pitch on a simulated buyer whose temperament the brief sets (usually driven by `product-marketer`) | `persona` |
+| A strategic bet, roadmap call, or cross-cutting proposal that needs executive grilling on top of engineering pushback | `founder` |
 
 ### Anti-patterns
 

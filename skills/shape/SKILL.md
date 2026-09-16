@@ -3,7 +3,7 @@ name: shape
 version: 1.1.0
 description: |
   Take a half-formed task idea, research the codebase and the open web,
-  challenge it with the CEO subagent, run the build plan through
+  challenge it with the founder subagent, run the build plan through
   technical specialists in pushback mode, and produce a refined plan in the
   project's plans/ directory. Never starts coding without explicit approval.
 allowed-tools:
@@ -22,7 +22,7 @@ allowed-tools:
 
 # Shape
 
-Turn a half-formed idea into a refined plan. The skill researches the codebase and reads any URLs in the seed. It asks scope questions and scans the open web for prior art. It runs the proposal through the CEO subagent for adversarial product review, then runs the build plan through technical specialists in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code. It ends with an explicit "build now / defer" choice.
+Turn a half-formed idea into a refined plan. The skill researches the codebase and reads any URLs in the seed. It asks scope questions and scans the open web for prior art. It runs the proposal through the founder subagent for adversarial product review, then runs the build plan through technical specialists in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code. It ends with an explicit "build now / defer" choice.
 
 ## Arguments
 - `/shape <seed>`: shape the proposal in the seed (a sentence, a paragraph or a Slack pitch with URLs)
@@ -208,9 +208,9 @@ Edit `## Research` with:
 
 ---
 
-### Step 5: CEO adversarial → write Considerations
+### Step 5: Founder adversarial → write Considerations
 
-Dispatch the `ceo` subagent via the Agent tool with `subagent_type: "ceo"`. The CEO runs in its own context window. That's the unbiased-review property the skill depends on.
+Dispatch the `founder` subagent via the Agent tool with `subagent_type: "founder"`. The founder runs in its own context window. That's the unbiased-review property the skill depends on.
 
 The brief must include:
 - The seed prompt verbatim
@@ -219,14 +219,14 @@ The brief must include:
 - An explicit ask:
   > "Challenge this end-to-end. Apply your usual interrogation. Don't rubber-stamp. Return your verdict (Solid / Weak / What to bring back) and the specific concerns I should reflect back to the user."
 
-When the CEO returns:
+When the founder returns:
 
 **If the verdict reports real concerns:**
 1. Brainstorm 2-3 ways to address them (as concrete options, not "we could think about…").
 2. Present via AskUserQuestion. Each option is a directional choice ("Narrow the wedge to X first", "Keep scope but add Y guardrail", etc.). The user can pick "Other" to write their own.
 3. Edit `## Considerations` to capture each surviving concern as **integrated prose owned by one voice**. Each paragraph says what the concern is and why it's real. It then says how the proposal answers it. These rules apply to the writing:
 
-   > **Hide the machinery**, because the reader doesn't care which subagent raised which concern. **Never** use headings, labels, or framings like "CEO challenge", "User response", "What changed", "Architect-reviewer", "Tester verdict", "Specialist pushback", **and do not name subagents at all.** The Considerations section should read as if one engineer wrote it after thinking hard about the proposal.
+   > **Hide the machinery**, because the reader doesn't care which subagent raised which concern. **Never** use headings, labels, or framings like "Founder challenge", "User response", "What changed", "Architect-reviewer", "Tester verdict", "Specialist pushback", **and do not name subagents at all.** The Considerations section should read as if one engineer wrote it after thinking hard about the proposal.
    >
    > **Synthesize, don't transcribe.** Each concern that was kept in the plan becomes one short paragraph in prose, without `**Why:**` / `**How to apply:**` style scaffolding, transcript-style call-and-response, or "the user said" framing.
    >
@@ -234,7 +234,7 @@ When the CEO returns:
 
 Someone reading the plan a month later should see the **thought process**, written as the writer's own reasoning rather than as a transcript of the shaping session.
 
-**If the CEO greenlights with no real concerns:** move on.
+**If the founder greenlights with no real concerns:** move on.
 ---
 
 ### Step 5.5: Verify riskiest assumptions against production data
@@ -253,7 +253,7 @@ For each surviving claim of this kind, invoke `/query` with the narrowest assert
 - **`Refuted`**: the design rested on a wrong premise. Loop back to Step 5 (re-brainstorm with the new information) or Step 3 (revise Context). Do not write `Implementation` on a refuted assumption.
 - **`Inconclusive`**: record it in Step 8's `## Open questions` with the specific query, count, or plan that would resolve it. `Implementation` can proceed, and the gap is stated so the next reader sees it.
 
-**When to skip.** Skip when no surviving claim concerns current data state, as with pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those belong to `/pushback` and the CEO interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
+**When to skip.** Skip when no surviving claim concerns current data state, as with pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those belong to `/pushback` and the founder interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
 
 **Hide the machinery.** Like Step 5, the verification itself doesn't show up in the plan file as scaffolding. Confirmed findings fold into Considerations or `Implementation` as if the writer just knew them. Refuted claims become dropped (or reshaped) plan items rather than "we asked `/query` and it said no" call-outs. Write in one voice without a transcript, the same rule as Step 5 and Step 8.1.
 
@@ -282,8 +282,7 @@ Be detailed but not overly verbose.
 | Touches auth, crypto, secrets, input validation, dependency surfaces | `security-auditor` |
 | Introduces new abstractions, cross-service boundaries, schema migrations, public APIs | `architect-reviewer` |
 | Hot paths, new queries (especially in loops), cache changes, async/sync swaps | `performance-engineer` |
-| Adds critical paths that need testing, changes test strategy, test infrastructure, or CI | `tester` |
-| Touches LLM prompts, model selection, evals | `prompt-engineer` |
+| Adds critical paths that need testing, changes test strategy, test infrastructure, or CI | `quality-engineer` |
 
 A change can match more than one specialist, in which case pick all that fit. A change that matches none probably doesn't need review at this gate, and you should say so.
 
@@ -319,7 +318,7 @@ Wait for **all** specialists to return before writing.
 
 5. **Verification section.** Edit `## Verification` with how to test the work end-to-end once it's built (what command, what to look for, what would prove it broken). **This is where specific identifiers from the seed (charge IDs, invoice numbers, exact amounts, dates) are allowed and useful**, because they help reproduce or sanity-check the fix in production.
 
-6. **Self-audit.** Re-read the plan end-to-end as if you'd never seen it before. The plan has been built section by section under different lenses (CEO, specialists, user clarifications). That makes drift between sections the default rather than the exception. Catch it before the user does.
+6. **Self-audit.** Re-read the plan end-to-end as if you'd never seen it before. The plan has been built section by section under different lenses (founder, specialists, user clarifications). That makes drift between sections the default rather than the exception. Catch it before the user does.
 
    Run these checks against the file you just wrote, and **edit in place** to fix any gaps you find. Do not put "audit notes" in the plan. The integration is silent, same as Step 5 and 8.1. The reader sees a coherent plan, and the caught inconsistencies are fixed in place rather than listed.
 
@@ -342,7 +341,7 @@ Wait for **all** specialists to return before writing.
 
 ## Key Rules
 
-1. **The spec is the artifact, the process isn't.** Nothing in the plan file should reveal how it was produced. That rules out subagent names ("CEO", "architect-reviewer", "tester"), procedural subheadings ("CEO challenge", "User response", "Specialist pushback", "Verdict"), and "the user said" framing. A reader six months from now should see one coherent voice rather than a transcript of the shaping session.
+1. **The spec is the artifact, the process isn't.** Nothing in the plan file should reveal how it was produced. That rules out subagent names ("founder", "architect-reviewer", "quality-engineer"), procedural subheadings ("Founder challenge", "User response", "Specialist pushback", "Verdict"), and "the user said" framing. A reader six months from now should see one coherent voice rather than a transcript of the shaping session.
 2. **Use roles instead of names.** Refer to people by role ("the customer's accountant", "Finance", "the team", "we"). Never name individuals (engineers, customers, teammates), even when the seed uses names verbatim. Repos can be public and team members rotate. Specific names rot.
 3. **Abstract narrative, specific verification.** Context narrates the *class of problem* in role-based, identifier-free prose. Specific charge IDs, invoice numbers, exact amounts, and exact dates only appear in `## Verification`, where they help reproduce or sanity-check.
 4. **Plan directory: discover first, default last.** Step 0.3 checks `docs/plans/`, `plans/`, `rfcs/`, `designs/`, `.agents/plans/`. When a `TEMPLATE.md` is detected, the user picks (repo template vs. skill default). The skill recommends the repo template but doesn't override silently. Fall back to `~/.claude/plans/` only when not in a git repo, and tell the user.
@@ -350,12 +349,12 @@ Wait for **all** specialists to return before writing.
 6. **Slugs are tight.** 2 to 4 words, ≤32 chars, the core noun phrase. The plan title matches the slug's intent.
 7. **One question per AskUserQuestion call.** Never batch.
 8. **Edit, don't rewrite.** After Step 1's skeleton, all section updates use Edit so user mid-flow tweaks survive.
-9. **CEO must run as a subagent** (`subagent_type: "ceo"`). The separate context is the unbiased-review property this skill depends on.
+9. **The founder must run as a subagent** (`subagent_type: "founder"`). The separate context is the unbiased-review property this skill depends on.
 10. **Specialists in Step 7 must be briefed with explicit pushback framing.** The brief says "challenge this" rather than "review this." A specialist who rubber-stamps got the wrong brief.
 11. **Skip steps when obviously not applicable**, but note the skip in the plan (`_External research skipped — internal scope._`). Don't silently drop work.
 12. **This skill never writes code.** The artifact is the plan file. The build is a separate invocation.
 13. **External research is best-effort.** If WebSearch and WebFetch return nothing useful, say so in the Research section. Don't pad with weak sources.
 14. **The plan should read as a thought process rather than a conclusion.** Considerations captures what was challenged and how it changed the proposal, synthesized in one voice rather than transcribed as a back-and-forth. That's what makes the plan reviewable later.
 15. **Self-audit before final ask.** A plan built section by section under different lenses drifts. The audit (Step 8.6) re-reads the whole plan and catches coverage gaps between Context and `Implementation`, unanswered Considerations, Verification that doesn't match the success criteria, and contradictions between sections. Edit in place and never expose the audit as scaffolding in the plan file.
-16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/query` for any surviving claim about the current state of data, such as schema reality, row distributions, query plans, lock behavior, or status combinations. Refuted claims rewrite the plan, and inconclusive ones are recorded in Open questions. `/query` is for the current state of production rather than for its future state. Demand and behavior belong to `/pushback` and the CEO.
+16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/query` for any surviving claim about the current state of data, such as schema reality, row distributions, query plans, lock behavior, or status combinations. Refuted claims rewrite the plan, and inconclusive ones are recorded in Open questions. `/query` is for the current state of production rather than for its future state. Demand and behavior belong to `/pushback` and the founder.
 17. **The publishability test extends "roles instead of names" to domains.** This library is public: plans may contain project specifics (they're gitignored), but nothing written back into skills, commands, or agents may mention an employer, product, customer, internal service, or industry domain. Examples in prompt files use neutral SaaS vocabulary (orders, accounts, subscriptions, webhooks).

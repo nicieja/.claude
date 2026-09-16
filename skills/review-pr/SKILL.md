@@ -216,7 +216,7 @@ Decide by trait, not gut feel. The signals are the Step 2 buckets, the Step 1 ti
 - **`architect-reviewer`**: any of a migration in the diff (`db/migrate/*`, `db/schema.rb` churn); a removed model association; a polymorphic / enum / scope change; a column that is dropped, made nullable, or added to `ignored_columns`. **Also** when the title or branch matches `re-?architect | migrate | cutover | rename | re-?model`.
 - **`security-auditor`**: auth/authz, crypto, secrets, PII, file upload, or new external-input handling on the critical path.
 - **`performance-engineer`**: new queries (especially inside loops), caching changes, async/sync swaps, hot-path edits.
-- **`tester`**: critical-path logic changed with thin or absent test coverage, or test-infrastructure / framework / CI edits.
+- **`quality-engineer`**: critical-path logic changed with thin or absent test coverage, or test-infrastructure / framework / CI edits.
 
 **Lean by default.** Most PRs match no trait. Then the directive is empty and `code-reviewer` triages on its own exactly as before. A PR can match more than one trait, and each one is required.
 

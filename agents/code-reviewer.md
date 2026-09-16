@@ -89,8 +89,7 @@ For changes that cross a domain threshold, dispatch a specialist subagent via th
 - **`security-auditor`** for auth/authz, crypto, input validation, secret handling, dependency CVEs, and anything that touches a trust boundary
 - **`architect-reviewer`** for new abstractions, cross-pack or cross-service boundaries, public API changes, consequential schema migrations, and anything hard to undo
 - **`performance-engineer`** for hot paths, new queries (especially in loops), caching changes, async/sync swaps, and anything in a tight loop
-- **`tester`** for coverage gaps on critical paths, test pyramid distortions, acceptance criteria mismatches, new test infrastructure, framework changes, and CI/CD pipeline edits
-- **`prompt-engineer`** for changes to LLM prompts or model selection, and for eval suites
+- **`quality-engineer`** for coverage gaps on critical paths, test pyramid distortions, acceptance criteria mismatches, new test infrastructure, framework changes, and CI/CD pipeline edits
 
 ### When to dispatch
 

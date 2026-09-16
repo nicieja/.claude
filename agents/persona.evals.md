@@ -88,7 +88,7 @@ something that could take this off my plate"). Root cause: the persona cannot
 distinguish a planted trait from an assigned temperament; the difference only exists
 relative to the hypothesis, which it rightly never sees. Fixes applied: the
 don't-show-your-cards rule and the play-the-circumstance translation in persona.md,
-and shopping status added to the brief ban list in marketer.md. The marketer-side
+and shopping status added to the brief ban list in product-marketer.md. The product-marketer-side
 brief audit is the main defense. This probe proves it, so keep the probe
 even though the prompt now dampens the leak. Weak signal, no fix beyond one line in
 "How to answer": 8 of 10 replies ended with a question back at the seller.
