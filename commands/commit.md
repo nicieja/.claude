@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(vale:*)
 description: Create a git commit
 ---
 
@@ -12,6 +12,14 @@ description: Create a git commit
 
 ## Your task
 
-Based on the above changes, create a single git commit.
+Based on the above changes, create one git commit.
 
 If the repo defines commit conventions (a .gitmessage template, a commit doc or skill), follow them and say which you followed.
+
+Before committing, lint the drafted message and fix every error-level alert:
+
+```
+vale --ext=.md --path=COMMIT_EDITMSG --no-exit --output=line <<'EOF'
+<the message>
+EOF
+```

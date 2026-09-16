@@ -1,12 +1,12 @@
-# Stack — <project>
+# Stack for <project>
 
-- **Tracker:** <name + how sessions reach it: MCP connector / CLI / API>
+- **Tracker:** <name + how sessions connect to it: MCP connector / CLI / API>
 - **Code host & PR flow:** <gh, stacked PRs?, merge queue?, draft-first?>
 - **Commit conventions:** <path to .gitmessage or doc, or "none">
 - **Error tracking:** <Sentry project(s) / …>
-- **Production console:** <flavor (Rails/psql/none) and access mode — e.g., "human
+- **Production console:** <flavor (Rails/psql/none) and access mode, e.g., "human
   runs scripts and pastes output", or "read-only queries via <MCP server, e.g.
-  Metabase MCP>; mutations always human-run". Agents may execute read-only queries
+  Metabase MCP>. Mutations always human-run". Agents may execute read-only queries
   through a user-confirmed MCP, never mutations>
 - **Schema locations:** <path or glob, e.g., db/schema.rb or apps/*/db/schema.rb>
 - **Architecture reading order:** <docs an agent should read before exploring>

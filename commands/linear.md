@@ -23,4 +23,4 @@ Description:
 - <bullet points of key changes>
 ```
 
-Keep it concise. Focus on the "what" and "why", not implementation details.
+Keep it concise. Focus on the "what" and "why", not the code-level details.

@@ -1,0 +1,10 @@
+extends: existence
+message: "Unbacked rhetorical posture: '%s'. Supply the number or mechanism, or drop the certainty."
+level: error
+ignorecase: true
+tokens:
+  - the numbers (?:simply )?don't add up
+  - the math is clear
+  - fails at scale
+  - non-starter
+  - it goes without saying

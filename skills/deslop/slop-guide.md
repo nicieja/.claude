@@ -1,65 +1,66 @@
 # Slop guide
 
-The reference `deslop` loads every run. It defines what slop is, the markers to look for, the rule for comments, and worked before/after examples. Tune it over time — it is the spec, and the author sharpens it as the tells evolve.
+The reference `deslop` loads every run. It defines what slop is and the markers to look for, then gives the rule for comments and worked before/after examples. Tune it over time. It is the spec, and the author sharpens it as the tells evolve.
 
 ## What slop is
 
-AI slop is **generated-but-not-authored** content: produced without a human applying judgment, review, or ownership. Its signature is the **form of competent work without the substance** — fluent, plausible, hollow. The economics are asymmetric: cheap to generate, expensive to read, verify, and maintain. The cost lands on the reader.
+AI slop is **generated-but-not-authored** content: produced without a human applying judgment, review, or ownership. Its signature is the **form of competent work without the substance**: fluent, plausible, hollow. The economics are asymmetric: cheap to generate, expensive to read, verify, and maintain. The cost goes to the reader.
 
-The fix is not cosmetic. Swapping fancy words for plain ones while the emptiness stays is still slop, just less ornate. Deslopping restores **information density** (meaning per unit of reading effort) and **honesty** (claims backed, postures dropped). Work a human shaped and stands behind is not slop, even when AI helped write it. The target is the abdication of judgment, not the tool.
+The fix is not cosmetic. Swapping fancy words for plain ones while the emptiness remains is still slop, just less ornate. Deslopping restores **information density** (meaning per unit of reading effort) and **honesty** (claims backed, postures dropped). Work a human shaped and is accountable for is not slop, even when AI helped write it. The target is the abdication of judgment, not the tool.
 
 ## The compression test (primary instrument)
 
-For any passage, try to cut it by **half** without losing meaning. Whatever drops was slop; what survives is the content. This is the test that matters because it survives paraphrase — you can't pass it by changing vocabulary. Apply it to the longest and densest passages first.
+For any passage, try to cut it by **half** without losing meaning. Whatever drops was slop, and whatever survives is the content. This is the test that matters because it survives paraphrase. You can't pass it by changing vocabulary. Apply it to the longest and densest passages first.
 
-**The inverse failure: dense is not the same as sloppy.** Specific, load-bearing content that reads dense (real numbers, named mechanisms, exact constraints) is not slop, and compressing it into vague summary destroys information. Cut emptiness, not specificity. When a passage is hard to read because it's *packed*, that's an editing problem (break it up), not a slop problem (gut it).
+**The inverse failure is that dense is not the same as sloppy.** Specific, essential content that reads dense (real numbers, named mechanisms, exact constraints) is not slop, and compressing it into vague summary destroys information. Cut emptiness, not specificity. When a passage is hard to read because it's *packed*, that's an editing problem, so break it up. Gutting it would treat it as a slop problem, which it is not.
 
-**Estimating the cut.** From a fast first read, predict how much of the input is cuttable — a **range** (e.g. "~25–40%") plus **where it concentrates** (which sections, which kind of slop) — and state it at the top of the diagnosis. It is the **goal the convergence loop works toward** (SKILL.md Step 3), kept honest by two rules:
+**Estimating the cut.** From a fast first read, predict how much of the input is cuttable, as a **range** (e.g. "~25 to 40%") plus **where it concentrates** (which sections, which kind of slop), and state it at the top of the diagnosis. It is the **goal the convergence loop works toward** (SKILL.md Step 3), kept honest by two rules:
 
-- **Prediction, not target.** The estimate predicts how much slop is there; it is not a quota to hit. The moment you chase a percentage you start removing words to make the number, and the cheapest words to remove are the specific, load-bearing ones — the inverse failure above. The loop verifies the prediction; it never flattens specificity to satisfy it.
-- **Range over point** — a point estimate invites false precision and harder anchoring.
+- **The estimate is a prediction and never a target.** The estimate predicts how much slop is there, and it is not a quota to hit. The moment you chase a percentage you start removing words to make the number, and the cheapest words to remove are the specific and essential ones (the inverse failure above). The loop verifies the prediction and never flattens specificity to satisfy it.
+- **Range over point**: a point estimate invites false precision and harder anchoring.
 
-The estimate's job is to **expose a timid cut** — and the loop is what acts on the exposure. So a shortfall is not reported and shrugged off; it is **resolved**. After each pass, measure the actual reduction against the goal:
+The estimate's job is to **expose a timid cut**, and the loop acts on the exposure. So a shortfall is not reported and shrugged off. It is **resolved**. After each pass, measure the actual reduction against the goal:
 
-- if the cut falls short and slop still remains, the prediction was right and the pass was timid — **run another pass** (SKILL.md Step 3);
-- if the cut falls short because what's left is genuinely load-bearing, the prediction was high — **revise it down and say why** ("estimated ~30%, cut 18% — the body was denser than the intro implied").
+- if the cut is short of the goal and slop still remains, the prediction was right and the pass was timid, so **run another pass** (SKILL.md Step 3);
+- if the cut is short of the goal because what's left is essential, the prediction was high, so **revise it down and say why** ("estimated ~30%, cut 18%, because the body was denser than the intro implied").
 
-That second line is the only honest way to finish under the estimate. "Estimated ~30%, cut 6%" is never a finding on its own; it is a pass you still owe.
+That second line is the only honest way to finish under the estimate. "Estimated ~30%, cut 6%" is never a finding on its own. It is a pass you still owe.
 
 ## Prose tells
 
-### Structural — the real target (high confidence)
+### Structural: the real target (high confidence)
 
-- **Low information density** — padding, throat-clearing, filler that announces instead of saying.
+Vale sees none of these. They are the reading.
+
+<!-- vale off -->
+- **Low information density** — padding, throat-clearing, filler that announces instead of saying. Vale strips the stock frames ("it's important to note that"); what the frame was wrapped around is still yours to test.
 - **Jargon standing in for information** — technical-sounding nouns stacked until the sentence looks rigorous. Dense jargon is not dense information; the test is whether a reader extracts a checkable claim, not whether every noun is doing grammatical work.
 - **Unbacked rhetorical posture** — a sentence that performs the *shape* of an argument it never makes ("the numbers don't add up," "fails at scale," "the math is clear") with no number, threshold, or mechanism behind it. A claim of rigor owes the rigor.
 - **Redundancy** — the same point restated across sentences or sections. Cheap to write, expensive to read.
 - **Hedging that never decides** — listing options and tradeoffs without committing. Slop enumerates to avoid owning a choice; authored prose decides and says why.
+<!-- vale on -->
 
-### Surface — cosmetic (low confidence, never proof)
+### Surface: Vale's job
 
-- **Generic AI vocabulary** — *delve, tapestry, realm, testament, showcase, leverage, underscore,* and friends.
-- **Em-dash overuse** — the "ChatGPT dash."
-- **Monotone cadence** — the relentless "not X, but Y" antithesis, every sentence the same shape.
-
-These are the most-memed tells and the **least reliable**: gameable in one pass, high false-positive rate (strong human writers use all of them), unmeasured, and decaying as a signal. Treat them as a light polish at the end. Never present them as evidence that something is AI-written, and never let fixing them stand in for fixing structure.
+Vocabulary, em-dash density, stock cadences, sign-offs, empty qualifiers: the `ai-tells` and `deslop` styles under `~/.claude/vale/` contain the list. Tune it there, not here. Its alerts are never evidence of authorship (strong human writers match every rule), and they are not the headline. Apply them last, in one mechanical sweep.
 
 ## Comment rubric
 
-**Default: no comment.** A comment earns its place ONLY if it does one of:
+**Default: no comment.** A comment justifies its place ONLY if it does one of:
 
-- explains **why**, not what — a decision or tradeoff the code can't show;
-- warns of a **gotcha / footgun** — a non-obvious edge or ordering constraint;
+- explains **why**, not what (a decision or tradeoff the code can't show);
+- warns of a **gotcha / footgun** (a non-obvious edge or ordering constraint);
 - documents an **invariant or precondition** not visible in the code;
-- cites an **external constraint** — a spec clause, bug id, or API quirk;
-- explains a **workaround** — with the reason, ideally a ticket.
+- cites an **external constraint** (a spec clause, bug id, or API quirk);
+- explains a **workaround**, with the reason and ideally a ticket.
 
-Everything else is cut. The clearest tell of AI over-commenting is narration: a comment that restates the line below it. Code says *what*; comments exist for *why*.
+Everything else is cut. The clearest tell of AI over-commenting is narration, a comment that restates the line below it. Code says *what*, and comments exist for *why*.
 
 ---
 
 ## Prose examples
 
+<!-- vale off -->
 Fresh and generic by design — illustrative, not drawn from any real document.
 
 **1. Padding / throat-clearing** (low information density)
@@ -93,17 +94,12 @@ The second and third clauses restate the first.
 
 Slop enumerates to avoid committing. Authored prose chooses and says why.
 
-**6. Generic AI vocabulary + inflation** (surface — cosmetic)
+**6. Vale-clean is not done** (surface → structure handoff)
 > ❌ "This release isn't just an update — it's a testament to our commitment, a rich tapestry of features that delve into what users truly need."
 > ✅ "This release adds the three features users asked for most: X, Y, and Z."
 
-Delete the style-words, but note: if the sentence still names nothing, vocabulary wasn't the problem. Naming X/Y/Z is the fix that matters.
-
-**7. Em-dash overuse + monotone cadence** (surface — cosmetic)
-> ❌ "The tool is fast — really fast — and reliable, scalable, clean — everything you'd want — not a toy, but a tool."
-> ✅ "The tool is fast, reliable, and scalable. It's built for real work."
-
-The most-memed tells and the least reliable. Light polish only; never evidence of authorship.
+Vale flags *testament, tapestry, delve* and the "isn't just X — it's Y" frame. Delete them and the sentence still names nothing; vocabulary was never the problem. Naming X/Y/Z is the fix, and only the compression test finds it.
+<!-- vale on -->
 
 ---
 
@@ -121,37 +117,37 @@ counter += 1
 # get_user(id): gets the user by id
 def get_user(id): ...
 ```
-→ delete; the signature already says it.
+→ delete, because the signature already says it.
 
 **C3. Step scaffolding → cut**
 ```
 # Step 1: loop over the items
 # Step 2: return the total
 ```
-→ delete; the code is the steps.
+→ delete, because the code is the steps.
 
 **C4. Commented-out code → cut**
 ```
 # old_total = sum(x.price for x in items)
 ```
-→ delete; git remembers.
+→ delete, because git remembers.
 
 **C5. "What" → reword to "why" (borderline)**
 ```
 # sort the list
 items.sort(key=lambda x: x.created_at)
 ```
-→ ✅ `# oldest-first: the reconciler applies events in creation order` — but only if that *why* is real; otherwise cut.
+→ ✅ `# oldest-first: the reconciler applies events in creation order`, but only if that *why* is real. Otherwise cut.
 
 **C6. Crucial "why" → keep**
 ```
 # Webhooks can arrive out of order; dedupe by event id before applying.
 # Inclusive range — the vendor API counts both endpoints (docs §4.2).
 ```
-→ keep; the code can't say this itself.
+→ keep, because the code can't say this itself.
 
 **C7. Workaround / gotcha → keep**
 ```
 # WORKAROUND: SDK <v3 throws on empty input; guard until upgrade (TICKET-123).
 ```
-→ keep; it explains a non-obvious guard and points to its end.
+→ keep, because it explains a non-obvious guard and points to its end.

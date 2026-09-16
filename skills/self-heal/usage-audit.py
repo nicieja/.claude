@@ -51,9 +51,9 @@ def new_record():
 def main():
     skills, commands, agents = inventory()
 
-    # Two evidence pools: invocations (Skill tool + slash commands, shared by
+    # The evidence pools are invocations (Skill tool + slash commands, shared by
     # skills and commands) and agents (subagent_type only). Origin of each
-    # invoked name is kept so uninventoried leftovers land in the right section.
+    # invoked name is kept so uninventoried leftovers end up in the right section.
     invoked = collections.defaultdict(new_record)
     agent_use = collections.defaultdict(new_record)
     via_skill_tool = set()

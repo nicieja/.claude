@@ -1,15 +1,15 @@
-# Risk tiers — <project>
+# Risk tiers for <project>
 
-Tier semantics are fixed; the surfaces are per-project. When work touches surfaces in
-two tiers, the higher tier wins. Unknown or unlisted surface: treat as T2 minimum.
+Tier semantics are fixed, and the surfaces are per-project. When work touches surfaces in
+two tiers, the higher tier applies. Unknown or unlisted surface: treat as T2 minimum.
 
-- **T0 — flows freely.** Docs, comments, internal tooling, test-only changes.
+- **T0 (flows freely).** Docs, comments, internal tooling, test-only changes.
   Agents proceed and report.
-- **T1 — machine-gated.** Reviewed by agents with evidence attached; the user samples.
-- **T2 — user-gated.** The user reads the evidence bundle and skims the diff before
+- **T1 (machine-gated).** Reviewed by agents with evidence attached, and the user samples.
+- **T2 (user-gated).** The user reads the evidence bundle and skims the diff before
   merge. Default tier for anything not listed.
-- **T3 — user-joined.** The user is in the loop while the work happens; never runs
-  unattended; auto-advance is off.
+- **T3 (user-joined).** The user is in the loop while the work happens. It never runs
+  unattended, and auto-advance is off.
 
 ## Surfaces
 

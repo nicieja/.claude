@@ -11,12 +11,12 @@ allowed-tools: []
 Write a quick, natural summary of what happened during the investigation so the user can drop it into Slack and people get it immediately.
 
 ## Arguments
-- `/summary` — no args; pull everything from the conversation
-- `/summary <extra context>` — weave in extra details (ticket links, user counts, timelines, etc.)
+- `/summary` with no args: pull everything from the conversation
+- `/summary <extra context>`: weave in extra details (ticket links, user counts, timelines, etc.)
 
 ## Instructions
 
-Look back through the entire conversation. Pull out what matters: what broke, why, what we did about it. Then write it up like a human would in Slack — not a report, not a template, just a clear explanation.
+Look back through the entire conversation. Pull out what matters: what broke, why, what we did about it. Then write it up like a human would in Slack, as a clear explanation rather than a report or a template.
 
 Do NOT use any tools. Everything you need is in the conversation.
 
@@ -29,31 +29,31 @@ This is the most important part. The summary should read like a real person type
 **Do this:**
 - Write in flowing prose/paragraphs, not a rigid section-by-section template
 - Use first person plural naturally ("we dug in", "turns out", "we found that", "fixed it by")
-- Let the structure emerge from the story — if the investigation was simple, the summary should be short. If it was a journey, tell that story
-- Be specific about the technical details — name the actual models, fields, values, code paths
+- Let the structure emerge from the story. If the investigation was simple, the summary should be short. If it was long and complicated, tell that story
+- Be specific about the technical details, and give the actual models, fields, values, and code paths
 - It's fine to be a little casual ("so basically", "the culprit was", "long story short")
-- Contractions are good. Sentence fragments are fine when they land.
+- Contractions are good. Sentence fragments are fine when they work.
 - If something was surprising or non-obvious, say so ("we initially thought X but it turned out to be Y")
-- Normal sentence case; the casual tone comes from word choice and rhythm.
+- Normal sentence case. The casual tone comes from word choice and rhythm.
 
-**Shape:** open with whatever a person would lead with — the punchline, the context, or "heads up, we just dealt with X" — and say what you found without the run-up. Prose carries it; a list appears where a person would reach for one. A label, when it helps, is a bold line, not a report section. An emoji or two is fine when it feels natural; zero is also fine.
+**Shape.** A person leads with the punchline, the context, or "heads up, we just dealt with X". Open the same way, and say what you found without the run-up. Most of it is prose. A list appears where a person would reach for one. A label, when it helps, is a bold line rather than a report section. An emoji or two is fine when it feels natural, and zero is also fine.
 
 **Slack formatting basics** (use Slack mrkdwn, not GitHub markdown):
 - Bold: `*text*`
 - Italic: `_text_`
 - Code: backticks
-- No `#` headers — bold lines work if you need a label
+- No `#` headers (bold lines work if you need a label)
 - Bullets: `-` when you need a list, but don't force everything into lists
 
 ---
 
 ### What to cover
 
-Don't think of these as sections to fill in. Think of them as the questions someone reading Slack would want answered:
+Don't treat these as sections to fill in. They are the questions someone reading Slack would want answered:
 
 - What was going on? (the symptom / how it was noticed)
-- What was actually wrong? (root cause — be specific)
-- How bad was it? (scope — who/what was affected)
+- What was actually wrong? (root cause, be specific)
+- How bad was it? (scope, who/what was affected)
 - What did we do? (the fix, and whether it's fully rolled out or still in progress)
 - Anything left to do? (follow-ups, only if there are any)
 

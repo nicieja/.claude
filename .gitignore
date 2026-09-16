@@ -34,7 +34,7 @@ file-history/
 telemetry/
 statsig/
 stats-cache.json
-policy-limits.json
+policy-limits.json*
 
 # Conversation transcripts (large, sensitive)
 # Un-ignore individual subpaths below if you want them tracked,
@@ -53,3 +53,8 @@ daemon.log
 .last-update-result.json
 remote-settings.json
 feedback
+
+# Vale: synced packages and the native cache are rebuilt from vale/.vale.ini
+vale/styles/*
+!vale/styles/deslop/
+vale/native/

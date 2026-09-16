@@ -1,4 +1,4 @@
-# Resolutions — <project>
+# Resolutions for <project>
 
 Remembered answers to project-skill conflicts, written by the deference protocol.
 One line per resolution. Delete a line to be asked again.

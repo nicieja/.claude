@@ -1,6 +1,6 @@
-# Escalation — <project>
+# Escalation for <project>
 
-Agents stop and surface to the user — rather than proceeding — when:
+Agents stop and surface to the user instead of proceeding when:
 
 - the work turns out to touch a T3 surface (see risk-tiers.md)
 - an instruction conflicts with observed reality (spec says X, code does Y)
@@ -11,5 +11,5 @@ Agents stop and surface to the user — rather than proceeding — when:
 ## Channels
 
 - Interactive session: say it plainly and stop.
-- Unattended run: write the item into the run report; never resolve it silently.
+- Unattended run: write the item into the run report, and never resolve it silently.
 - Paging (optional): <Slack channel / notification recipe, if configured>

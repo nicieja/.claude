@@ -1,8 +1,8 @@
-# Charter — <project>
+# Charter for <project>
 
 ## Role
 
-<One paragraph: what you own here and what "good" looks like.>
+<In one paragraph, say what you own here and what "good" looks like.>
 
 ## Primary metric
 
@@ -17,4 +17,4 @@
 
 ## Guardrails
 
-- <metric or event that must not regress; incidents that trigger escalation.md>
+- <metric or event that must not regress, and incidents that trigger escalation.md>
