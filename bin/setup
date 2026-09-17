@@ -1,0 +1,55 @@
+#!/bin/sh
+# Reports which parts of this library's machine-local setup are missing.
+# Each missing step prints the command that fixes it. The script doesn't run them.
+
+set -u
+
+repo=$(cd "$(dirname "$0")/.." && pwd)
+vale_config="$HOME/Library/Application Support/vale"
+missing=0
+
+report() {
+  if [ "$1" -eq 0 ]; then
+    printf '  ok    %s\n' "$2"
+  else
+    printf '  miss  %s\n        %s\n' "$2" "$3"
+    missing=$((missing + 1))
+  fi
+}
+
+printf 'Vale\n'
+
+command -v vale >/dev/null 2>&1
+report $? "binary" "brew install vale"
+
+grep -q '"agent-tools"' "$repo/plugins/known_marketplaces.json" 2>/dev/null
+report $? "marketplace" "claude plugin marketplace add vale-cli/agent-tools"
+
+grep -q '"vale@agent-tools"' "$repo/plugins/installed_plugins.json" 2>/dev/null
+report $? "edit hook plugin" "claude plugin install vale@agent-tools"
+
+link_fix="ln -s $repo/vale '$vale_config'"
+if [ -e "$vale_config" ]; then
+  link_fix="rm -r '$vale_config' && $link_fix"
+fi
+[ "$(readlink "$vale_config")" = "$repo/vale" ]
+report $? "config symlink" "$link_fix"
+
+[ -d "$repo/vale/styles/ai-tells" ] && [ -d "$repo/vale/styles/ai-tells-commits" ]
+report $? "style packages" "(cd $repo/vale && vale sync)"
+
+printf '\nLocal config\n'
+
+for example in "$repo/settings.json.example" "$repo/codex/config.toml.example"; do
+  live=${example%.example}
+  [ -f "$live" ]
+  report $? "${live#"$repo"/}" "cp ${example#"$repo"/} ${live#"$repo"/}"
+done
+
+if [ "$missing" -eq 0 ]; then
+  printf '\nNothing to do.\n'
+else
+  printf '\n%s step(s) left. The plugin hook starts after a session restart.\n' "$missing"
+fi
+
+exit $missing

@@ -14,6 +14,15 @@ If you don't already have a `~/.claude/`, you can clone directly:
 git clone git@github.com:nicieja/.claude.git ~/.claude
 ```
 
+A clone brings the tracked half only. The rest, such as the Vale binary, its
+plugin, its synced styles, and the machine's own config files, lives outside
+git. `bin/setup` reports what a machine is missing and prints the command for
+each gap. It runs nothing itself.
+
+```bash
+~/.claude/bin/setup
+```
+
 ## Agents
 
 An agent is a named professional with an opinion, pulled in for one question,
@@ -79,11 +88,14 @@ because a git trailer is not prose.
 Vale catches wording-level tells only. Whether a passage contains any
 information is still `/edit-deslop`'s job.
 
+`bin/setup` reports which of these steps a machine still needs.
+
 ```bash
 brew install vale
 claude plugin marketplace add vale-cli/agent-tools
 claude plugin install vale@agent-tools
-rm -r ~/Library/Application\ Support/vale && ln -s ~/.claude/vale ~/Library/Application\ Support/vale
+rm -r ~/Library/Application\ Support/vale  # only if Vale already made one
+ln -s ~/.claude/vale ~/Library/Application\ Support/vale
 (cd ~/.claude/vale && vale sync)
 ```
 
