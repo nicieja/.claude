@@ -2,13 +2,13 @@
 
 My personal [Claude Code](https://claude.com/claude-code) configuration: agents, slash commands, and skills loaded from `~/.claude/`.
 
-Open-sourced so others can crib from it. It's opinionated; most pieces here reflect how I prefer to work, not best practices for everyone. Treat it as a reference and not as a drop-in.
+Open-sourced so others can crib from it. It's opinionated: most pieces reflect how I prefer to work, not best practices. Treat it as a reference and not as a drop-in.
 
-Agents, skills, and commands are the kinds of thing here. Agents are *who* you ask. Skills are *how* the work gets run. Commands just remove typing.
+Agents, skills, and commands are the kinds of thing here. Agents are _who_ you ask. Skills are _how_ the work gets run. Commands just remove typing.
 
 ## Install
 
-If you don't already have a `~/.claude/`, you can clone directly:
+If you don't have a `~/.claude/` yet, clone it directly:
 
 ```bash
 git clone git@github.com:nicieja/.claude.git ~/.claude
@@ -16,8 +16,8 @@ git clone git@github.com:nicieja/.claude.git ~/.claude
 
 A clone brings the tracked half only. The rest, such as the Vale binary, its
 plugin, its synced styles, and the machine's own config files, lives outside
-git. `bin/setup` reports what a machine is missing and prints the command for
-each gap. It runs nothing itself.
+git. `bin/setup` reports which of them a machine is missing, and prints the fix
+for each. It runs nothing itself.
 
 ```bash
 ~/.claude/bin/setup
@@ -33,9 +33,9 @@ is useless on the decision you're about to get wrong.
 Some build a slice with taste in naming and abstraction, then clean it
 without changing behavior. Others review from one named angle, because a change
 can be wrong in ways that don't overlap; the generalist takes correctness and
-dispatches the specialists in parallel. Some are configured without write tools,
-on the theory that finding a gap and closing it are different jobs. The rest aren't
-engineering, split on purpose: one makes a proposal its strongest version, one
+dispatches the specialists in parallel. Some run read-only, on the theory that
+finding a gap and closing it are different jobs. The rest aren't engineering,
+split on purpose: one makes a proposal its strongest version, one
 works out how it gets sold, one breaks it. An agent that both strengthens and
 breaks does neither.
 
@@ -73,39 +73,28 @@ belongs on the other side of it.
 
 Vale lints the prose in this repo and the prose Claude writes anywhere else. It
 runs as a Claude Code plugin hook: after every Write or Edit to a Markdown or
-text file, Vale checks that file and any error-level alert comes back to Claude
-in the same turn. The rules are the `ai-tells` package, which flags the
-fingerprints of machine-written prose (overused vocabulary, stock openings,
-contrastive formulas, chatbot sign-offs), plus a small `deslop` style of my own
+text file, Vale checks it and returns any error-level alert to Claude in the
+same turn. The rules are the `ai-tells` package, which flags the fingerprints
+of machine-written prose (overused vocabulary, stock openings, contrastive
+formulas, chatbot sign-offs), plus a small `deslop` style of my own
 under `vale/styles/`. The config is `vale/.vale.ini`; Vale finds it because its
 user-level directory is a symlink into this repo.
 
-Every ai-tells rule comes at error level and the ini keeps it there. The hook
-relays all of them, and the prose in this repo passes the full rule set. The one exception is the commit-message section of the ini. There, the
-Co-Authored-By trailer that Claude Code requires is exempt from two rules,
-because a git trailer is not prose.
+Every ai-tells rule comes at error level, the ini keeps it there, and the prose
+in this repo passes the full rule set. The one exception is the commit-message
+section, where the Co-Authored-By trailer that Claude Code requires is exempt
+from two rules, because a git trailer is not prose.
 
 Vale catches wording-level tells only. Whether a passage contains any
 information is still `/edit-deslop`'s job.
-
-`bin/setup` reports which of these steps a machine still needs.
-
-```bash
-brew install vale
-claude plugin marketplace add vale-cli/agent-tools
-claude plugin install vale@agent-tools
-rm -r ~/Library/Application\ Support/vale  # only if Vale already made one
-ln -s ~/.claude/vale ~/Library/Application\ Support/vale
-(cd ~/.claude/vale && vale sync)
-```
 
 ## The context layer
 
 The tracked library is mechanism, and configuration is private.
 `context/<project>/` (gitignored) contains each project's charter, risk tiers,
 escalation contract, stack notes, remembered skill resolutions, and decision log.
-See `context.example/` for the format of each file. Skills read the active project's context at runtime
-and degrade gracefully when a file is missing.
+See `context.example/` for the format of each file. Skills read the active
+project's context, and keep working when a file is missing.
 
 Repos can also have their own skills, and this library defers to them. It
 detects overlap and asks once, then remembers the answer per repo. Nothing project- or
