@@ -1,5 +1,5 @@
 ---
-name: shape
+name: idea-spec
 version: 1.1.0
 description: |
   Take a half-formed task idea, research the codebase and the open web,
@@ -20,18 +20,17 @@ allowed-tools:
   - WebSearch
 ---
 
-# Shape
-
+# Spec
 Turn a half-formed idea into a refined plan. The skill researches the codebase and reads any URLs in the seed. It asks scope questions and scans the open web for prior art. It runs the proposal through the founder subagent for adversarial product review, then runs the build plan through technical specialists in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code. It ends with an explicit "build now / defer" choice.
 
 ## Arguments
-- `/shape <seed>`: shape the proposal in the seed (a sentence, a paragraph or a Slack pitch with URLs)
-- `/shape`: with no args, ask once: "What's the idea you want to shape?"
+- `/idea-spec <seed>`: shape the proposal in the seed (a sentence, a paragraph or a Slack pitch with URLs)
+- `/idea-spec`: with no args, ask once: "What's the idea you want to shape?"
 
 ## Cases for another skill
-- They want to challenge one claim rather than plan work → use `/pushback` instead
-- They want to diagnose a production issue → use `/investigate` instead
-- The Linear ticket is already shaped and ready to execute → use `/triage` instead
+- They want to challenge one claim rather than plan work → use `/idea-challenge` instead
+- They want to diagnose a production issue → use `/production-incident` instead
+- The Linear ticket is already shaped and ready to execute → use `/work-triage` instead
 
 ## Instructions
 
@@ -41,7 +40,7 @@ Follow these steps in order. A step that plainly doesn't apply is skipped, with 
 
 ### Step 0: Preflight
 
-1. **Capture the seed.** If invoked as `/shape <text>`, that's the seed. If bare, ask once: "What's the idea you want to shape?" Do not proceed without a seed.
+1. **Capture the seed.** If invoked as `/idea-spec <text>`, that's the seed. If bare, ask once: "What's the idea you want to shape?" Do not proceed without a seed.
 
 2. **Project-skill check.** Some repos have their own skill for this job. Check `~/.claude/context/<project>/resolutions.md` first (`<project>` = repo directory name): if it records a resolution for `shape`, follow it silently. Otherwise scan the project's skills (`<root>/skills/*/SKILL.md`, `<root>/.claude/skills/`, `<root>/.agents/skills/`, plus any project-scoped entries already in the available-skills listing) for one whose *output* covers turning an idea into a shaped plan or brief. No overlap → proceed. Overlap → ask via AskUserQuestion, one question:
 
@@ -150,7 +149,7 @@ This is groundwork. Do not write any plan section yet.
 - Existing patterns to extend or replace
 - Where the change boundary likely sits
 
-Mirror the lightness of shaping work. Do not map every callback, scope, or association. That's `/investigate`'s job.
+Mirror the lightness of shaping work. Do not map every callback, scope, or association. That's `/production-incident`'s job.
 
 **URL reading.** For each URL queued in Step 0, WebFetch it. Capture 2-3 sentences per URL: what it is, what's relevant. Don't paste full pages anywhere.
 
@@ -241,21 +240,21 @@ Someone reading the plan a month later should see the **thought process**, writt
 
 Some surviving concerns from Step 5 (and sometimes claims already written into Context from Step 3) rest on the current state of production data rather than on what the code or schema suggests. Examples are schema reality, row distributions, query plans, lock behavior, and whether the bad combination of states already exists in the wild. Code reading tells you what *could* happen, while production data tells you what *did*. Ratify those claims before they are written into `Implementation`.
 
-For each surviving claim of this kind, invoke `/query` with the narrowest assertion that, if confirmed or refuted, moves the plan forward. Examples:
+For each surviving claim of this kind, invoke `/production-query` with the narrowest assertion that, if confirmed or refuted, moves the plan forward. Examples:
 
-- `/query "no Account record has a NULL primary_subscription_id"`
-- `/query "the existing index_accounts_on_user_id is used by the proposed query plan"`
-- `/query "rows where status='active' AND archived_at IS NOT NULL exist"`
+- `/production-query "no Account record has a NULL primary_subscription_id"`
+- `/production-query "the existing index_accounts_on_user_id is used by the proposed query plan"`
+- `/production-query "rows where status='active' AND archived_at IS NOT NULL exist"`
 
-`/query` writes the script, the user runs it, and returns one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence. Use the verdicts to:
+`/production-query` writes the script, the user runs it, and returns one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence. Use the verdicts to:
 
 - **`Confirmed`**: the assumption is true. Carry it into Step 6.
 - **`Refuted`**: the design rested on a wrong premise. Loop back to Step 5 (re-brainstorm with the new information) or Step 3 (revise Context). Do not write `Implementation` on a refuted assumption.
 - **`Inconclusive`**: record it in Step 8's `## Open questions` with the specific query, count, or plan that would resolve it. `Implementation` can proceed, and the gap is stated so the next reader sees it.
 
-**When to skip.** Skip when no surviving claim concerns current data state, as with pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those belong to `/pushback` and the founder interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
+**When to skip.** Skip when no surviving claim concerns current data state, as with pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those belong to `/idea-challenge` and the founder interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
 
-**Hide the machinery.** Like Step 5, the verification itself doesn't show up in the plan file as scaffolding. Confirmed findings fold into Considerations or `Implementation` as if the writer just knew them. Refuted claims become dropped (or reshaped) plan items rather than "we asked `/query` and it said no" call-outs. Write in one voice without a transcript, the same rule as Step 5 and Step 8.1.
+**Hide the machinery.** Like Step 5, the verification itself doesn't show up in the plan file as scaffolding. Confirmed findings fold into Considerations or `Implementation` as if the writer just knew them. Refuted claims become dropped (or reshaped) plan items rather than "we asked `/production-query` and it said no" call-outs. Write in one voice without a transcript, the same rule as Step 5 and Step 8.1.
 
 ---
 
@@ -298,7 +297,7 @@ If "Add or remove": let the user write a freehand response listing which to drop
 - The Research summary
 - The full `Implementation` section
 - An explicit instruction:
-  > "Apply the `/pushback` skill: challenge this plan, don't validate it. Return blocking issues, should-fix items, and a one-line verdict. Use the smart-routing rules in `/pushback` to choose the questions that matter for this stage (designing / pre-build)."
+  > "Apply the `/idea-challenge` skill: challenge this plan, don't validate it. Return blocking issues, should-fix items, and a one-line verdict. Use the smart-routing rules in `/idea-challenge` to choose the questions that matter for this stage (designing / pre-build)."
 
 Wait for **all** specialists to return before writing.
 
@@ -331,7 +330,7 @@ Wait for **all** specialists to return before writing.
    Tell the user: *"Self-audit found N gaps, addressed them in the plan."* or *"Self-audit clean."* Use one short line without a list. The user can read the diff if they want details.
 
 7. **Final ask.** Show the plan path and use AskUserQuestion:
-   - **Build now**: confirm the path. The user is expected to start the build separately (e.g., `/triage` for ticket-driven work, or just `implement this plan`). The skill exits cleanly.
+   - **Build now**: confirm the path. The user is expected to start the build separately (e.g., `/work-triage` for ticket-driven work, or just `implement this plan`). The skill exits cleanly.
    - **Edit plan**: user wants to revise. Loop back to Step 6 (re-plan) or Step 7 (re-review).
    - **Defer**: leave the plan in the repo. The skill exits.
 
@@ -356,5 +355,5 @@ Wait for **all** specialists to return before writing.
 13. **External research is best-effort.** If WebSearch and WebFetch return nothing useful, say so in the Research section. Don't pad with weak sources.
 14. **The plan should read as a thought process rather than a conclusion.** Considerations captures what was challenged and how it changed the proposal, synthesized in one voice rather than transcribed as a back-and-forth. That's what makes the plan reviewable later.
 15. **Self-audit before final ask.** A plan built section by section under different lenses drifts. The audit (Step 8.6) re-reads the whole plan and catches coverage gaps between Context and `Implementation`, unanswered Considerations, Verification that doesn't match the success criteria, and contradictions between sections. Edit in place and never expose the audit as scaffolding in the plan file.
-16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/query` for any surviving claim about the current state of data, such as schema reality, row distributions, query plans, lock behavior, or status combinations. Refuted claims rewrite the plan, and inconclusive ones are recorded in Open questions. `/query` is for the current state of production rather than for its future state. Demand and behavior belong to `/pushback` and the founder.
+16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/production-query` for any surviving claim about the current state of data, such as schema reality, row distributions, query plans, lock behavior, or status combinations. Refuted claims rewrite the plan, and inconclusive ones are recorded in Open questions. `/production-query` is for the current state of production rather than for its future state. Demand and behavior belong to `/idea-challenge` and the founder.
 17. **The publishability test extends "roles instead of names" to domains.** This library is public: plans may contain project specifics (they're gitignored), but nothing written back into skills, commands, or agents may mention an employer, product, customer, internal service, or industry domain. Examples in prompt files use neutral SaaS vocabulary (orders, accounts, subscriptions, webhooks).

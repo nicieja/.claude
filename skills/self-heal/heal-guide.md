@@ -6,7 +6,7 @@ The reference `self-heal` loads every run. It defines what accretion debt is and
 
 Prompt files are built iteratively. When something needs adjusting, the cheapest edit is to staple the new instruction into a convenient spot (an extra bullet, another Key Rule, a parenthetical). Each addition is locally sensible. Across many sessions the file stops reading like one authored prompt and becomes a **changelog**. The same point is made in three places, text is bolted on with visible seams, rules are near-duplicates, cross-references exist only because content was added somewhere else, and sections drift in tone because different sittings wrote them.
 
-This is **not slop.** Slop is empty, form without substance. An accreted file is usually the opposite: every line has a purpose, and the content was just badly *arranged* and never re-integrated. So the fix is different from cutting emptiness (that's `/deslop`). The fix is to **re-integrate**, which means to say everything the file already says, once, in its right place, in one voice, while losing none of it. The danger here is the inverse of slop's: instead of keeping fluff, you might **drop a hard-won rule** while tidying. Remove the patchwork and keep the lesson.
+This is **not slop.** Slop is empty, form without substance. An accreted file is usually the opposite: every line has a purpose, and the content was just badly *arranged* and never re-integrated. So the fix is different from cutting emptiness (that's `/edit-deslop`). The fix is to **re-integrate**, which means to say everything the file already says, once, in its right place, in one voice, while losing none of it. The danger here is the inverse of slop's: instead of keeping fluff, you might **drop a hard-won rule** while tidying. Remove the patchwork and keep the lesson.
 
 ## Symptom taxonomy
 
@@ -90,7 +90,7 @@ Ledger check: the commitment is preserved. ✅ Four mentions → two, zero behav
 
 ## Estimating the heal
 
-You may predict the consolidation up front. An example is "this looks ~40% shorter, mostly the Instructions". Treat it exactly as `/deslop` treats its cut estimate: a **prediction and never a target.** The moment you cut to hit a number, you start dropping content. Here that means dropping a ledger commitment, which is the one thing the skill exists to prevent. Prefer a range over a point estimate. Judgment decides every tie. Report the actual change against the estimate as a finding and never as a miss.
+You may predict the consolidation up front. An example is "this looks ~40% shorter, mostly the Instructions". Treat it exactly as `/edit-deslop` treats its cut estimate: a **prediction and never a target.** The moment you cut to hit a number, you start dropping content. Here that means dropping a ledger commitment, which is the one thing the skill exists to prevent. Prefer a range over a point estimate. Judgment decides every tie. Report the actual change against the estimate as a finding and never as a miss.
 
 ## Examples
 

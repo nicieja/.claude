@@ -1,5 +1,5 @@
 ---
-name: learn
+name: self-improve
 version: 2.0.0
 description: |
   Turn the current session into durable harness improvements. Harvest
@@ -19,8 +19,7 @@ allowed-tools:
   - Skill
 ---
 
-# Learn
-
+# Self-improve
 Extract what this session should change about future sessions, and install it. The
 output is harness patches, not a summary: a future agent should need fewer
 corrections because of what this run writes. Lessons that don't survive
@@ -28,12 +27,12 @@ generalization become nothing. An honest "no durable learning" is a valid result
 
 ## Arguments
 
-- `/learn`: harvest the current session.
-- `/learn <hint>`: focus the harvest on one thread of the session.
+- `/self-improve`: harvest the current session.
+- `/self-improve <hint>`: focus the harvest on one thread of the session.
 
 ## Cases for another skill
 
-- Reflecting on a finished piece of work (PR, issue) rather than this session → `/retro`
+- Reflecting on a finished piece of work (PR, issue) rather than this session → `/work-retrospective`
 - Repairing accretion in the prompt library → `/self-heal`
 - The repo has its own session-learning skill and the lesson is repo-owned → this
   skill detects that and routes to it (Step 3). Invoking it directly is also fine.

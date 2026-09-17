@@ -1,5 +1,5 @@
 ---
-name: review-pr
+name: pr-review
 version: 1.2.0
 description: |
   Differential PR review: baseline what any bot would say, absorb what human
@@ -21,7 +21,7 @@ allowed-tools:
 
 ## Arguments
 
-The skill may be invoked as `/review-pr <PR-number | branch | URL>` or bare `/review-pr`. Consume flag tokens before resolving the ref. `--unattended` switches to Unattended mode (section below), and `refresh-focus` (accept `--refresh-focus` too) forces focus-map regeneration in Step 7. Whatever token remains is the ref; if none remains, fall back to the current branch (`git branch --show-current`).
+The skill may be invoked as `/pr-review <PR-number | branch | URL>` or bare `/pr-review`. Consume flag tokens before resolving the ref. `--unattended` switches to Unattended mode (section below), and `refresh-focus` (accept `--refresh-focus` too) forces focus-map regeneration in Step 7. Whatever token remains is the ref; if none remains, fall back to the current branch (`git branch --show-current`).
 
 ## Your task
 
@@ -251,7 +251,7 @@ Single dispatch (`subagent_type: "code-reviewer"`). No simplifier, because style
 
 - The closing scope instruction (literal):
 
-  > "The total diff is ~`<N>` LoC, but ~`<M>` LoC of that is mechanical/generated across these paths: `<list>`. Those don't need line-by-line review. Focus on the critical-path files above, plus their tests. **Do not refuse to review based on total LoC. The review area is already scoped for you.** Apply your usual Blocking / Should fix / Suggestion / Praise bucketing with `file:line` references. For each finding, give your recommended remedy **plus 1-2 alternatives at different cost/risk levels** (a narrow local patch, a root-cause fix, or defer-with-a-guard). For each, one line on what it changes, what it costs, and what it leaves unfixed. Say plainly when there is only one sane fix, and do not invent alternatives to fill a slot. Apply `/pushback` framing: challenge rather than validate. Report only, and do not post anything to GitHub."
+  > "The total diff is ~`<N>` LoC, but ~`<M>` LoC of that is mechanical/generated across these paths: `<list>`. Those don't need line-by-line review. Focus on the critical-path files above, plus their tests. **Do not refuse to review based on total LoC. The review area is already scoped for you.** Apply your usual Blocking / Should fix / Suggestion / Praise bucketing with `file:line` references. For each finding, give your recommended remedy **plus 1-2 alternatives at different cost/risk levels** (a narrow local patch, a root-cause fix, or defer-with-a-guard). For each, one line on what it changes, what it costs, and what it leaves unfixed. Say plainly when there is only one sane fix, and do not invent alternatives to fill a slot. Apply `/idea-challenge` framing: challenge rather than validate. Report only, and do not post anything to GitHub."
 
 ---
 
@@ -267,7 +267,7 @@ Classify every finding `code-reviewer` returned, in this order. Matching is sema
 
 Sort novel by severity (Blocking > Should fix > Suggestion), and fold at most one Praise into the eventual review body. Cap the per-issue Q&A at **5 novel findings**. Endorsements and refutations always ride the one grouped question in Step 12(d). The remainder gets one named line each in chat and stays out of the posted review unless the user promotes one.
 
-Validate every candidate's anchor now with `python3 ~/.claude/skills/review-pr/validate-anchors.py <scratchpad>/pr-files.json`, feeding it one `{"path": …, "line": N, "side": "RIGHT" | "LEFT"}` JSON object per line on stdin. It applies the hunk-range rule (a `RIGHT` anchor must fall inside a `+c,d` range for that file and a `LEFT` anchor inside `-a,b`, where context lines count). For each invalid anchor it prints the nearest changed line on that side. Fallback chain: that nearest changed line (re-point the comment text to match) → the review body. Record the differential counts: found F / dropped-as-known D / novel K / endorsements E / refutations R.
+Validate every candidate's anchor now with `python3 ~/.claude/skills/pr-review/validate-anchors.py <scratchpad>/pr-files.json`, feeding it one `{"path": …, "line": N, "side": "RIGHT" | "LEFT"}` JSON object per line on stdin. It applies the hunk-range rule (a `RIGHT` anchor must fall inside a `+c,d` range for that file and a `LEFT` anchor inside `-a,b`, where context lines count). For each invalid anchor it prints the nearest changed line on that side. Fallback chain: that nearest changed line (re-point the comment text to match) → the review body. Record the differential counts: found F / dropped-as-known D / novel K / endorsements E / refutations R.
 
 **K + E + R = 0 → the nothing-novel path.** The reveal still runs (sentence, paragraph), then concludes: *"Nothing to add beyond the existing review. Recommend approve (or don't post)."* Step 14 offers only **Post (approve) / Don't post**.
 
@@ -317,7 +317,7 @@ Assemble three parts:
 - **Inline comments**: every anchored finding the user kept, each with its `{path, line, side}`. The suggested fix in each comment is **the remedy the user chose**, not the reviewer's default; where they answered in free text, the comment gives their fix in their words. Never list the alternatives they passed over.
 - **Endorsement/refutation replies**: one short reply per target thread (from the endorsement-target table). If `viewer_is_author`, reword replies as acknowledgements (*"Confirmed, will fix"*), not +1s.
 
-Then the **slop pass** (literal). Read `~/.claude/skills/deslop/slop-guide.md` in full, every run and not from memory, because it is tuned over time. Tighten every body just assembled (review body, inline comments, replies) against it. These are engineering comments rather than stories. Then pipe each body through `vale --no-exit --ext=.md` and fix its error-level alerts; these bodies post via `gh`, so the edit hook never sees them. Do NOT invoke the deslop skill. The meaning, the severity, and every `file:line` reference do not change.
+Then the **slop pass** (literal). Read `~/.claude/skills/edit-deslop/slop-guide.md` in full, every run and not from memory, because it is tuned over time. Tighten every body just assembled (review body, inline comments, replies) against it. These are engineering comments rather than stories. Then pipe each body through `vale --no-exit --ext=.md` and fix its error-level alerts; these bodies post via `gh`, so the edit hook never sees them. Do NOT invoke the deslop skill. The meaning, the severity, and every `file:line` reference do not change.
 
 Print the full draft. Start with the body, then each inline comment under its `path:line` anchor, then each reply under its target thread. **This printed text is exactly what posts.**
 
@@ -366,7 +366,7 @@ On post:
 
 ## Unattended mode
 
-`/review-pr --unattended <ref>` is the headless form. Differences from the interactive flow, all non-negotiable:
+`/pr-review --unattended <ref>` is the headless form. Differences from the interactive flow, all non-negotiable:
 
 - **Never asks.** No AskUserQuestion anywhere. Anything that would have been a question becomes a skip or a run-report item.
 - **>10k LoC** → stop with a run report instead of asking.

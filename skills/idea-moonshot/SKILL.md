@@ -1,5 +1,5 @@
 ---
-name: 10x
+name: idea-moonshot
 version: 1.1.0
 description: |
   Generate the 10x version of a plan, spec, PR, ticket, UX flow,
@@ -13,25 +13,24 @@ allowed-tools:
   - Bash
 ---
 
-# 10x
-
+# Moonshot
 Imagine the platonic ideal on one artifact. The output is two short pieces of prose and a list of differences. The prose covers where the artifact sits today and what 10x of it would look like, and the list covers the gap between them. The skill paints the picture and stops. What to do with the gap is the user's call.
 
-This skill is *generative*. It does not grill or challenge, and it does not tell the user they're settling. The adversarial register belongs to `founder` and `/pushback`. The planning register belongs to `/shape`. `/10x` is for one move: vivid possibility-painting.
+This skill is *generative*. It does not grill or challenge, and it does not tell the user they're settling. The adversarial register belongs to `founder` and `/idea-challenge`. The planning register belongs to `/idea-spec`. `/idea-moonshot` is for one move: vivid possibility-painting.
 
 ## Arguments
 
-- `/10x <path>`: a file path (a `/shape` plan, spec, design doc, PR description saved locally)
-- `/10x <ticket-id>`: a Linear ticket ID matching `[A-Z]+-\d+` (e.g., `ENG-1234`)
-- `/10x <url>`: a Linear URL or GitHub PR URL
-- `/10x <text>`: freeform description of what to stretch, in quotes or unquoted
-- `/10x` with no args: ask once, "What should I stretch?" and wait
+- `/idea-moonshot <path>`: a file path (a `/idea-spec` plan, spec, design doc, PR description saved locally)
+- `/idea-moonshot <ticket-id>`: a Linear ticket ID matching `[A-Z]+-\d+` (e.g., `ENG-1234`)
+- `/idea-moonshot <url>`: a Linear URL or GitHub PR URL
+- `/idea-moonshot <text>`: freeform description of what to stretch, in quotes or unquoted
+- `/idea-moonshot` with no args: ask once, "What should I stretch?" and wait
 
 ## Cases for another skill
 
-- They want to *challenge* a claim or proposal → use `/pushback` or the `founder` subagent
-- They want to *refine into a plan* → use `/shape`
-- They're diagnosing a bug or production issue → use `/investigate`
+- They want to *challenge* a claim or proposal → use `/idea-challenge` or the `founder` subagent
+- They want to *refine into a plan* → use `/idea-spec`
+- They're diagnosing a bug or production issue → use `/production-incident`
 - They want the full 1→11 ladder, not just the apex → not this skill (apex-only by design)
 - They want the "practical adjacent step" to take after the absurd top. That is also not this skill. Surface the gap and stop. The user picks the move.
 

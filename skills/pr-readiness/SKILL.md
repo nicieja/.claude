@@ -1,5 +1,5 @@
 ---
-name: quiz
+name: pr-readiness
 version: 1.0.0
 description: |
   Quiz the human on the key decisions, tradeoffs, and pain points behind a
@@ -16,25 +16,24 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# Quiz
-
+# PR readiness
 The guiding principle is that **you must be able to defend every idea in your PRs and docs.** When AI did much of the work, the person releasing it can hold an artifact whose key calls they cannot defend. Self-report is not a gate, because feeling ready and being ready diverge hardest exactly when the AI did the reasoning. This skill checks the gap cheaply, with a short quiz on the decisions that matter. The quiz is asked before a reviewer asks the same questions, and it is asked by a colleague rather than an examiner. A wrong answer here is a feature. This is the one place where a wrong answer does not cost anything and shows the mechanism.
 
 The quiz is never a trivia sweep. It has between five and seven questions, one per key decision. Each one is a question a skeptical reviewer would actually ask. Everything else about the machinery (how decisions are ranked, how questions are screened, and how answers are graded) is in the guide and is never shown to the user.
 
 ## Arguments
 
-- `/quiz`: quiz on the work done in this session, mined from the conversation and cross-checked against the actual diff or doc. If nothing is obviously in flight, ask once, *"What should I quiz you on?"*, and wait.
-- `/quiz <PR number | url | branch>`: quiz on that PR. Fetch with `gh pr view` / `gh pr diff`, then reconstruct the decision points from the artifact and commit messages (artifact-only mode).
-- `/quiz <file path>`: quiz on a doc or file. Its decisions are its claims, recommendations, structure, and deliberate omissions.
+- `/pr-readiness`: quiz on the work done in this session, mined from the conversation and cross-checked against the actual diff or doc. If nothing is obviously in flight, ask once, *"What should I quiz you on?"*, and wait.
+- `/pr-readiness <PR number | url | branch>`: quiz on that PR. Fetch with `gh pr view` / `gh pr diff`, then reconstruct the decision points from the artifact and commit messages (artifact-only mode).
+- `/pr-readiness <file path>`: quiz on a doc or file. Its decisions are its claims, recommendations, structure, and deliberate omissions.
 - Steers in plain words: `--short` / "just the big ones" gives the top 2 to 3 decisions only.
 
 ## Cases for another skill
 
-- They want a *claim or proposal* grilled with evidence-forcing questions → `/pushback`. Pushback interrogates an idea before it's built. Quiz verifies that the human can defend a finished artifact.
-- Post-release reflection (waste, lessons, debt) → `/retro`.
-- Harvesting session corrections into harness improvements → `/learn`.
-- Reviewing *someone else's* PR → `/review-pr`. Quiz is for work the user is about to put their own name on.
+- They want a *claim or proposal* grilled with evidence-forcing questions → `/idea-challenge`. Pushback interrogates an idea before it's built. Quiz verifies that the human can defend a finished artifact.
+- Post-release reflection (waste, lessons, debt) → `/work-retrospective`.
+- Harvesting session corrections into harness improvements → `/self-improve`.
+- Reviewing *someone else's* PR → `/pr-review`. Quiz is for work the user is about to put their own name on.
 
 ## Instructions
 
@@ -52,7 +51,7 @@ In artifact-only mode there is no conversation to mine. You must **infer** each 
 
 ### Step 1: Load the guide
 
-Read `~/.claude/skills/quiz/quiz-guide.md` in full **before mining**. It contains the decision definition, the priority scoring, the stem families, the distractor and flaw rubrics, the grading ladder, and the verdict language. Load it every run, because it is the file tuned over time. Do not work from memory.
+Read `~/.claude/skills/pr-readiness/quiz-guide.md` in full **before mining**. It contains the decision definition, the priority scoring, the stem families, the distractor and flaw rubrics, the grading ladder, and the verdict language. Load it every run, because it is the file tuned over time. Do not work from memory.
 
 ### Step 2: Mine the decisions
 

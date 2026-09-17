@@ -77,7 +77,7 @@ Co-Authored-By trailer that Claude Code requires is exempt from two rules,
 because a git trailer is not prose.
 
 Vale catches wording-level tells only. Whether a passage contains any
-information is still `/deslop`'s job.
+information is still `/edit-deslop`'s job.
 
 ```bash
 brew install vale

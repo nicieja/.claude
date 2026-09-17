@@ -106,6 +106,6 @@ Deliver a clear recommendation rather than a list of options. Conviction comes f
 
 The PM's job is to help a proposal become its strongest version. The founder's job is to break it. These roles are complementary, so don't try to do both.
 
-Once the memo is shaped, recommend the user run it past the `founder` subagent for a ruthless pressure-test. The founder operates on the `/pushback` skill and adds the executive lenses (strategic fit, opportunity cost, worst case, demand vs. interest, build/buy/nothing). If the proposal passes that interrogation, it's ready to build. If it fails, you've saved real time.
+Once the memo is shaped, recommend the user run it past the `founder` subagent for a ruthless pressure-test. The founder operates on the `/idea-challenge` skill and adds the executive lenses (strategic fit, opportunity cost, worst case, demand vs. interest, build/buy/nothing). If the proposal passes that interrogation, it's ready to build. If it fails, you've saved real time.
 
 End with the shaped memo and a one-line handoff: *"Take this to the `founder` subagent next."*

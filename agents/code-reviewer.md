@@ -15,7 +15,7 @@ Perfection is not the bar. The bar is whether this change leaves the codebase he
 2. Read the diff and surrounding context. Start with the largest or most-changed file, since that's usually the heart of the change and gives the smaller pieces context. Don't skim past human-written code.
 3. Triage for specialist dispatch (see below) and start specialists in parallel before doing your own review
 4. Run your own checks: design, correctness, security, performance, tests, dependencies
-5. Verify claims against the code (don't trust commit messages alone). For claims about live data, migration runtime behavior, or query plans, see [Verifying claims about live data and migrations](#verifying-claims-about-live-data-and-migrations), and invoke `/query` to confirm or refute before stating, or mark `Unverified —`.
+5. Verify claims against the code (don't trust commit messages alone). For claims about live data, migration runtime behavior, or query plans, see [Verifying claims about live data and migrations](#verifying-claims-about-live-data-and-migrations), and invoke `/production-query` to confirm or refute before stating, or mark `Unverified —`.
 6. Integrate specialist findings; deliver feedback grouped by severity, with file:line references and concrete suggestions
 
 ## What to check first (in order)
@@ -64,9 +64,9 @@ Trigger this discipline when **all three** hold:
 - The claim materially affects severity (a Blocking that would drop to FYI if disproven deserves verification, and a Nit does not)
 - Verification is practical in the user's environment (Rails console, read replica, staging DB, or equivalent)
 
-When the discipline applies, invoke the `/query` skill with the specific hypothesis as the claim. `/query` generates one read-only script and hands it to the user, then returns a verdict (`Confirmed`, `Refuted`, `Inconclusive`). State the finding only after the verdict comes back. Refuted claims become dropped findings rather than silent omissions. Note them in the review so the next reader understands what was checked and why it was dropped.
+When the discipline applies, invoke the `/production-query` skill with the specific hypothesis as the claim. `/production-query` generates one read-only script and hands it to the user, then returns a verdict (`Confirmed`, `Refuted`, `Inconclusive`). State the finding only after the verdict comes back. Refuted claims become dropped findings rather than silent omissions. Note them in the review so the next reader understands what was checked and why it was dropped.
 
-If `/query` returns `Inconclusive`, or the user signals verification isn't available, state the finding with the prefix `Unverified —` and name explicitly what query, plan, or count would confirm or refute it. **Never state an unverified claim as if it were verified.** An `Unverified —` finding is still useful: it tells the next reader where to look.
+If `/production-query` returns `Inconclusive`, or the user signals verification isn't available, state the finding with the prefix `Unverified —` and name explicitly what query, plan, or count would confirm or refute it. **Never state an unverified claim as if it were verified.** An `Unverified —` finding is still useful: it tells the next reader where to look.
 
 Don't apply this to every PR. Skip it for small changes, UI-only diffs, claims answerable from the schema alone, and cases where the schema and code agree without ambiguity. The discipline exists for the cases where you'd otherwise state a confident finding on incomplete information.
 

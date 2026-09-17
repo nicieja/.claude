@@ -1,5 +1,5 @@
 ---
-name: query
+name: production-query
 version: 1.2.0
 description: |
   Generate one read-only diagnostic script (Rails console, SQL,
@@ -14,20 +14,20 @@ description: |
 
 Verify one claim about runtime state. The artifact is a verdict (`Confirmed`, `Refuted`, or `Inconclusive`) with the cited evidence from the query output. When the project's `stack.md` is present, it defines the execution channel: a confirmed query MCP the skill drives itself, or a console script the user runs by hand and pastes back. The default, absent any confirmed MCP, is the hand-run Rails console.
 
-This skill is **one-shot**. It does not iterate or chain follow-ups, and it does not generate fix scripts. Multi-round diagnostic chains belong in `/investigate`. Data mutations belong in `/investigate` Step 4. `/query` produces exactly one script and one verdict.
+This skill is **one-shot**. It does not iterate or chain follow-ups, and it does not generate fix scripts. Multi-round diagnostic chains belong in `/production-incident`. Data mutations belong in `/production-incident` Step 4. `/production-query` produces exactly one script and one verdict.
 
 ## Arguments
 
-- `/query <claim>`: the specific claim to verify. Examples:
-  - `/query "rows in status 'pending' older than 7 days exist"`
-  - `/query "the new query plan does a sequential scan on accounts"`
-  - `/query "no Account record has a NULL email"`
-- `/query` with no args: ask once, "What claim do you want to verify?"
+- `/production-query <claim>`: the specific claim to verify. Examples:
+  - `/production-query "rows in status 'pending' older than 7 days exist"`
+  - `/production-query "the new query plan does a sequential scan on accounts"`
+  - `/production-query "no Account record has a NULL email"`
+- `/production-query` with no args: ask once, "What claim do you want to verify?"
 
 ## Cases for another skill
 
-- Multi-round diagnostic chains (a hypothesis, a query, a refinement, another query, and so on) → use `/investigate`
-- Generating a fix or any mutation → never use `/query`; that's `/investigate` Step 4
+- Multi-round diagnostic chains (a hypothesis, a query, a refinement, another query, and so on) → use `/production-incident`
+- Generating a fix or any mutation → never use `/production-query`; that's `/production-incident` Step 4
 - Free-form exploration ("what does the data look like?") → that's exploration, not a claim. Refine to a claim first.
 
 ## Instructions
@@ -165,17 +165,17 @@ Output format:
 [For Inconclusive only: one-line suggestion for the next narrowest query]
 ```
 
-For `Inconclusive`, suggest a next-narrowest query but **do not auto-iterate**. Return control to the caller. They can invoke `/query` again with a refined claim or hand the chain to `/investigate`. They can also accept the inconclusive verdict.
+For `Inconclusive`, suggest a next-narrowest query but **do not auto-iterate**. Return control to the caller. They can invoke `/production-query` again with a refined claim or hand the chain to `/production-incident`. They can also accept the inconclusive verdict.
 
 ---
 
 ## Key Rules
 
-1. **One claim per invocation.** Two claims = two invocations, or use `/investigate` for a chain.
-2. **Read-only, always.** Mutations belong in `/investigate` Step 4, with no exceptions.
+1. **One claim per invocation.** Two claims = two invocations, or use `/production-incident` for a chain.
+2. **Read-only, always.** Mutations belong in `/production-incident` Step 4, with no exceptions.
 3. **Schema check before script.** Step 1 is mandatory whenever column names appear, with one carve-out for `EXPLAIN` over verbatim SQL.
 4. **Verdict is one label.** `Confirmed`, `Refuted`, or `Inconclusive`. Do not hedge with "probably". If it's inconclusive, say so and state what's missing.
 5. **Don't auto-iterate.** Each run produces a script, an output, and a verdict, once. The caller drives any follow-up.
 6. **Diagnostics only, without code edits or fix scripts.** This skill produces a diagnostic and a verdict. Anything that touches data belongs in another skill.
-7. **Direct execution is read-only execution.** A query MCP is never used for mutations, regardless of what it's capable of. Anything that writes goes through a human-run fix script in `/investigate` Step 4.
+7. **Direct execution is read-only execution.** A query MCP is never used for mutations, regardless of what it's capable of. Anything that writes goes through a human-run fix script in `/production-incident` Step 4.
 8. **The user confirms the channel.** Never start querying production through a connector the user hasn't confirmed for this project, either in this session or recorded in stack.md.

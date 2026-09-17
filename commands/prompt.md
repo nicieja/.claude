@@ -19,7 +19,7 @@ The output is instructions to an executor, not the plan. The plan already exists
 
 **Resolve the arguments.** Each whitespace-separated token is either a file or a branch. Check with `test -f` and `git rev-parse --verify`. A file is the plan, and a branch is the base to stack on. Zero, one, or both may be present.
 
-- No plan file → the plan is the one written in this session (a plan-mode plan, a `/shape` output, or the plan you last stated). If there is none, say so and stop.
+- No plan file → the plan is the one written in this session (a plan-mode plan, a `/idea-spec` output, or the plan you last stated). If there is none, say so and stop.
 - No base branch → the base is the current branch.
 - A token that is neither → say which token, and stop.
 

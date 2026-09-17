@@ -1,5 +1,5 @@
 ---
-name: investigate
+name: production-incident
 version: 1.2.0
 description: |
   Investigate production issues by exploring the codebase and generating
@@ -16,8 +16,8 @@ description: |
 Diagnose and fix production issues through read-only diagnostics and human-run fix scripts (Rails console by default, see the project-context step below). You explore the codebase and generate read-only diagnostic queries. The queries are executed through a confirmed query MCP when one exists, and handed to the user to run otherwise. You then analyze the output and iterate until the root cause is found and fixed.
 
 ## Arguments
-- `/investigate <description>` takes an issue description, ticket URL, or bug report
-- `/investigate` with no args: ask the user to describe the issue
+- `/production-incident <description>` takes an issue description, ticket URL, or bug report
+- `/production-incident` with no args: ask the user to describe the issue
 
 ## Instructions
 
@@ -55,8 +55,8 @@ the architecture reading order. If the file is missing, ask once whether to scaf
 it from `context.example/stack.md`, then proceed with the defaults (Rails console, human
 runs scripts and pastes output, schema discovered by glob).
 
-Channel detection and confirmation happen in `/query` (its Step 0.5), not here. When no
-channel is recorded, the first `/query` invocation detects candidate MCPs and asks the
+Channel detection and confirmation happen in `/production-query` (its Step 0.5), not here. When no
+channel is recorded, the first `/production-query` invocation detects candidate MCPs and asks the
 user once, then records the answer in stack.md. Every later invocation in this
 investigation reuses it silently.
 
@@ -102,28 +102,28 @@ Treat these as **hypotheses**, and do not present them as conclusions. Code read
 
 ---
 
-### Step 2: Generate Diagnostic Script via `/query`
+### Step 2: Generate Diagnostic Script via `/production-query`
 
-Pick the claim to verify in this round and invoke `/query` with it as the argument. `/query` handles schema verification, script generation, execution (direct through the confirmed query MCP, or handed to the user to run), and verdict parsing. Its single artifact is one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence.
+Pick the claim to verify in this round and invoke `/production-query` with it as the argument. `/production-query` handles schema verification, script generation, execution (direct through the confirmed query MCP, or handed to the user to run), and verdict parsing. Its single artifact is one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence.
 
 **First script priority: verify the reported symptoms.**
-A bug report is a claim that still needs proof. Before investigating *why* something is broken, confirm *that* it is broken and *how*. The first invocation of `/query` should target the reported symptoms against the actual records mentioned in the report. The investigation changes direction entirely when the reported symptoms don't match reality.
+A bug report is a claim that still needs proof. Before investigating *why* something is broken, confirm *that* it is broken and *how*. The first invocation of `/production-query` should target the reported symptoms against the actual records mentioned in the report. The investigation changes direction entirely when the reported symptoms don't match reality.
 
 **On each iteration, pick one claim**: the narrowest assertion that moves the investigation forward once it is confirmed or refuted. Examples:
 
-- `/query "account 'acme' has status 'suspended' and updated_at < 2026-01-01"`
-- `/query "Subscription has rows where account_id is NULL"`
-- `/query "the index `index_payments_on_account_id_and_status` is being used by the new query"`
+- `/production-query "account 'acme' has status 'suspended' and updated_at < 2026-01-01"`
+- `/production-query "Subscription has rows where account_id is NULL"`
+- `/production-query "the index `index_payments_on_account_id_and_status` is being used by the new query"`
 
-Subsequent iterations refine the hypothesis based on Step 3 analysis. Do not invoke `/query` with the same claim twice. Refine the claim first.
+Subsequent iterations refine the hypothesis based on Step 3 analysis. Do not invoke `/production-query` with the same claim twice. Refine the claim first.
 
-**What `/query` returns:**
+**What `/production-query` returns:**
 
 - **`Confirmed`**: the hypothesis under test is now a fact. Carry it into Step 3 and decide the next hypothesis.
 - **`Refuted`**: the hypothesis was wrong. Carry that into Step 3 and re-orient.
-- **`Inconclusive — <reason>`**: the decision belongs to Step 3. There, choose whether to invoke `/query` again with a refined claim, expand to multi-claim exploration outside `/query`'s one-shot remit, or escalate.
+- **`Inconclusive — <reason>`**: the decision belongs to Step 3. There, choose whether to invoke `/production-query` again with a refined claim, expand to multi-claim exploration outside `/production-query`'s one-shot remit, or escalate.
 
-`/query` enforces the script-craft rules (read-only, schema-checked, copy-paste-ready) so this step stays focused on hypothesis selection. The full script-writing rules live in `~/.claude/skills/query/SKILL.md`.
+`/production-query` enforces the script-craft rules (read-only, schema-checked, copy-paste-ready) so this step stays focused on hypothesis selection. The full script-writing rules live in `~/.claude/skills/production-query/SKILL.md`.
 
 ---
 

@@ -32,7 +32,7 @@ This is the prompt-library analog of `code-simplifier`, run as periodic maintena
 ## Arguments
 
 - `/self-heal` (bare): sweep the whole library (every `skills/*/SKILL.md` and its companions, `commands/*.md`, `agents/*.md`) and rank by accretion debt. Report the ranking. You pick what to heal. **Includes self-heal's own files.**
-- `/self-heal <name | path>`: focus one artifact. The target is a skill name (`deslop`), a command, an agent, or a path. Skip the ranking and go straight to diagnose → heal.
+- `/self-heal <name | path>`: focus one artifact. The target is a skill name (`edit-deslop`), a command, an agent, or a path. Skip the ranking and go straight to diagnose → heal.
 - `/self-heal skills | commands | agents`: sweep one type only.
 - `/self-heal audit`: run the usage audit (Step 1) alone, then stop. It does not inspect or heal.
 - Steers in plain words: `--report-only` / "just rank them" ranks without healing. "Be aggressive" / "be conservative" moves the threshold for what deserves a rewrite. "Skip the audit" goes straight from scope to inspection.
@@ -41,9 +41,9 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 
 ## Cases for another skill
 
-- Stripping AI-slop from arbitrary prose or code → `/deslop`. self-heal repairs *structural accretion in the prompt library*, not emptiness in any text.
+- Stripping AI-slop from arbitrary prose or code → `/edit-deslop`. self-heal repairs *structural accretion in the prompt library*, not emptiness in any text.
 - Restructuring working *code*, or reviewing a code diff → `code-simplifier` / `code-reviewer`. self-heal only touches prompt markdown. It never reads source for logic.
-- It composes with `/deslop` (a heal may tighten sloppy prose inside a file as it goes), but self-heal is the one that sweeps the whole library. It also knows each artifact type's healthy-shape template and preserves a coverage ledger across a from-scratch rewrite.
+- It composes with `/edit-deslop` (a heal may tighten sloppy prose inside a file as it goes), but self-heal is the one that sweeps the whole library. It also knows each artifact type's healthy-shape template and preserves a coverage ledger across a from-scratch rewrite.
 
 ## Instructions
 
@@ -65,7 +65,7 @@ Identify dead weight before polishing it. This step runs on bare and type sweeps
 
 1. Run `python3 ~/.claude/skills/self-heal/usage-audit.py` with Bash. It scans every transcript under `~/.claude/projects/` (subagent transcripts included) for the three invocation signals (Skill tool calls, typed slash commands, and agent dispatches) and prints, per inventory item: sessions, calls, last-used date, a `DEAD` marker at zero use, and the window start date.
 2. For each zero-use item, Grep the library for references from *other* files. An item that live files read or dispatch (an agent that loads a skill's SKILL.md as its spec, a skill whose dispatch prompts invoke it) is **indirect use: keep or consolidate**, never dead.
-3. Present the verdicts (dead / dormant / alive) with two caveats stated plainly. The window is bounded by transcript retention (~30 days by default). Cadence-based skills (`/retro` after a completed piece of work, self-heal itself as periodic maintenance) can legitimately sit quiet longer than the window.
+3. Present the verdicts (dead / dormant / alive) with two caveats stated plainly. The window is bounded by transcript retention (~30 days by default). Cadence-based skills (`/work-retrospective` after a completed piece of work, self-heal itself as periodic maintenance) can legitimately sit quiet longer than the window.
 4. **Ask which to remove** via AskUserQuestion. Use multiSelect, one question per type (skills / commands / agents), in rounds when a type has more than 4 candidates. Selecting nothing is a valid outcome, and then nothing is removed.
 5. For each pick: `git rm` its files (a skill's directory, a command's file, an agent's file), then Grep the surviving library for dangling references to it and surgically clean those pointer lines. Never commit. The user commits.
 6. Drop removed items from the sweep scope and continue.
@@ -105,7 +105,7 @@ Rewrite the file toward its type's healthy-shape template (skill / command / age
 
 - **Unit.** Whole-file re-integration when debt is pervasive (seams throughout, rules repeated across sections, tone drifting). Surgical when debt is localized to a section or two and the rest is clean. But if rewriting one section leaves a visible mismatch against the untouched ones, widen the rewrite.
 - **Moves.** Fold each repeated instruction into one statement in its right home. Dissolve bolt-on parentheticals into the prose. Merge near-duplicate rules. Inline the content a cross-reference points at. Even out tonal seams and cut bloat.
-- **Goal.** The result should be simpler and natural, so it reads like one sitting. Shorter is the usual result and **never a target**. Do not drop content to shrink a file (the Goodhart trap `/deslop` warns about).
+- **Goal.** The result should be simpler and natural, so it reads like one sitting. Shorter is the usual result and **never a target**. Do not drop content to shrink a file (the Goodhart trap `/edit-deslop` warns about).
 - **Never regress.** Preserve each ledger item. A rule that looks obsolete or self-contradictory is **flagged for the user as a question and never silently dropped.**
 
 ### Step 7: Verify against the ledger

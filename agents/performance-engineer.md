@@ -65,7 +65,7 @@ Before recommending a scaling strategy, state the dimension: scale of *what*?
 
 For each finding, include:
 
-- **What.** The bottleneck, with the metric and the file/query/component
+- **What.** The bottleneck, with the metric and the file/production-query/component
 - **By how much.** The measured improvement after the fix (before vs. after, on the same test)
 - **At what cost.** Added complexity, new failure modes, increased ops burden, dollar cost
 - **What's next.** The second bottleneck waiting behind this one

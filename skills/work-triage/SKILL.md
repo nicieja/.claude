@@ -1,5 +1,5 @@
 ---
-name: triage
+name: work-triage
 version: 1.2.0
 description: |
   Fetch Linear issues with no PR attached, orchestrate parallel subagents
@@ -23,10 +23,10 @@ allowed-tools:
 Fetch issues assigned to you in Linear that have no PR attached. Dispatch specialized subagents to work on each in parallel, and push draft PRs when done.
 
 ## Arguments
-- `/triage`: fetch and work on all eligible issues
-- `/triage ENG-123`: work on one specific issue
-- `/triage ENG-123 ENG-456`: work on specific issues
-- `/triage --unattended` (optionally with issue IDs): non-interactive run for schedules. See Unattended mode.
+- `/work-triage`: fetch and work on all eligible issues
+- `/work-triage ENG-123`: work on one specific issue
+- `/work-triage ENG-123 ENG-456`: work on specific issues
+- `/work-triage --unattended` (optionally with issue IDs): non-interactive run for schedules. See Unattended mode.
 
 ## Linear access
 
@@ -365,7 +365,7 @@ When all issues are processed or the user says Done, show a final table:
 
 ## Unattended mode
 
-`/triage --unattended` is the scheduled/headless form. Differences from the
+`/work-triage --unattended` is the scheduled/headless form. Differences from the
 interactive flow, all non-negotiable:
 
 - **Never asks.** No AskUserQuestion anywhere. Anything that would have been a

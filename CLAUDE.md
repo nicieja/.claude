@@ -8,8 +8,8 @@ I have a small library of skills, commands, and subagents. They only help if I r
 
 ### How to suggest
 
-- **One line, at most two.** *"This sounds like `/shape` territory. Want me to run it?"* Not a menu.
-- **Suggest, do not invoke.** Wait for me to say yes (or to type the slash myself). The exception is when I've already implied the workflow (e.g. *"diagnose this prod issue"* → just run `/investigate`).
+- **One line, at most two.** *"This sounds like `/idea-spec` territory. Want me to run it?"* Not a menu.
+- **Suggest, do not invoke.** Wait for me to say yes (or to type the slash myself). The exception is when I've already implied the workflow (e.g. *"diagnose this prod issue"* → just run `/production-incident`).
 - **At most one suggestion per turn.** If two fit, pick the better one. Stacking suggestions is noise.
 - **Skip when I'm clearly mid-task in a different direction**, when a skill is already running, or when the suggestion would just restate what I asked for.
 - **Don't suggest the same skill twice in a row** if I declined or ignored it the first time.
@@ -22,21 +22,19 @@ I have a small library of skills, commands, and subagents. They only help if I r
 
 | If the conversation involves… | Suggest |
 |---|---|
-| A half-formed task idea, "how should we approach X", refining scope before coding | `/shape` |
-| Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/triage` |
-| An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling | `/pushback` |
-| "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/10x` |
-| Reviewing a PR assigned to me that already has bot/human feedback, then deciding what I can add and posting my review | `/review-pr` |
-| Looking back on a completed PR/commit/issue, lessons learned, waste, debt | `/retro` |
-| Work built with AI is about to go out, checking I can defend every decision in the PR/doc before review | `/quiz` |
-| A production issue that needs diagnosing: errors, a stuck job, data that looks wrong | `/investigate` |
-| One claim about live runtime state to verify, such as a count, a flag, or whether a row exists | `/query` |
-| Writing up findings for Slack after an investigation | `/summary` |
-| Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden), or a PR/code stuffed with obvious comments | `/deslop` |
-| Code that guards states that can't happen: needless rescues, fallbacks, retries, armor I didn't ask for | `/unguard` |
-| Posting investigation findings as a Linear comment | `/comment` |
-| Drafting a Linear title/description from the current diff | `/linear` |
-| Self-improvement, "what did we learn this session, update the skills" | `/learn` |
+| A half-formed task idea, "how should we approach X", refining scope before coding | `/idea-spec` |
+| Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/work-triage` |
+| An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling | `/idea-challenge` |
+| "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/idea-moonshot` |
+| Reviewing a PR assigned to me that already has bot/human feedback, then deciding what I can add and posting my review | `/pr-review` |
+| Looking back on a completed PR/commit/issue, lessons learned, waste, debt | `/work-retrospective` |
+| Work built with AI is about to go out, checking I can defend every decision in the PR/doc before review | `/pr-readiness` |
+| A production issue that needs diagnosing: errors, a stuck job, data that looks wrong | `/production-incident` |
+| One claim about live runtime state to verify, such as a count, a flag, or whether a row exists | `/production-query` |
+| Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden), or a PR/code stuffed with obvious comments | `/edit-deslop` |
+| Code that guards states that can't happen: needless rescues, fallbacks, retries, armor I didn't ask for | `/edit-unguard` |
+| Posting investigation findings as a Linear comment | `/linear-comment` |
+| Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
 | Committing / pushing / opening a PR | `/commit`, `/push` |
 
@@ -83,7 +81,7 @@ When you're writing a plan in native Plan mode **and the plan involves writing o
 - **Shape is your call.** There is no mandated section name or template. Pick what reads best for that plan, such as a dedicated section, a line at the end of Verification, or an inline note in the build steps.
 - **Skip when there's nothing to build.** Pure research, investigation, retro, doc-only, or prompt-engineering plans don't need the handoff at all.
 - **Stage 2 is optional on thin surface area.** If there's not enough code to clean up, drop the simplifier. Decide this case by case. There is no fixed rule.
-- **Native Plan mode only.** `/shape` runs its own workflow and is unaffected.
+- **Native Plan mode only.** `/idea-spec` runs its own workflow and is unaffected.
 
 # Don't defend against what can't happen
 

@@ -143,7 +143,7 @@ Deliver one recommendation rather than a menu of options.
 
 ## Hand off
 
-The pitch you shape needs breaking before anyone outside sees it. Send it to the `founder` subagent for the pressure-test on strategic fit, opportunity cost, demand versus interest, and worst case. Run every draft through `/deslop` before it goes out. If the answer turns out to be "build something different," that's the `product-manager`'s call, not yours.
+The pitch you shape needs breaking before anyone outside sees it. Send it to the `founder` subagent for the pressure-test on strategic fit, opportunity cost, demand versus interest, and worst case. Run every draft through `/edit-deslop` before it goes out. If the answer turns out to be "build something different," that's the `product-manager`'s call, not yours.
 
 ## Hard rules
 

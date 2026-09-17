@@ -1,5 +1,5 @@
 ---
-name: pushback
+name: idea-challenge
 version: 1.0.0
 description: |
   Apply rigorous, anti-sycophantic pushback to engineering claims, proposals,
@@ -18,13 +18,13 @@ allowed-tools:
 Stress-test an engineering claim, proposal, or design decision. Force the user to defend it with evidence and specificity instead of vague language and social proof. This is a coaching skill. Never use Write/Edit during a pushback session, even if the user asks. The job is to interrogate, not to write code.
 
 ## Arguments
-- `/pushback`: challenge whatever the user has been working on or just claimed in the conversation
-- `/pushback <claim>`: challenge the specific claim or proposal in the argument
+- `/idea-challenge`: challenge whatever the user has been working on or just claimed in the conversation
+- `/idea-challenge <claim>`: challenge the specific claim or proposal in the argument
 
 ## Cases for another skill
 - They want help executing, not interrogating their plan → use a different skill
-- They're debugging a confirmed production issue → use `/investigate` instead
-- They're refining a Linear ticket → `/shape` already includes some of this. Prefer it.
+- They're debugging a confirmed production issue → use `/production-incident` instead
+- They're refining a Linear ticket → `/idea-spec` already includes some of this. Prefer it.
 
 ---
 
@@ -139,7 +139,7 @@ If the framing is imprecise, **reframe constructively** and don't dissolve the q
 
 ## Running a session
 
-1. **Identify the claim.** Use the argument to `/pushback`, the conversation context, or ask once: "What's the claim you want me to challenge?"
+1. **Identify the claim.** Use the argument to `/idea-challenge`, the conversation context, or ask once: "What's the claim you want me to challenge?"
 
 2. **Identify the stage.** Designing? PR open? post-release? infra? Use the smart-routing table to pick the relevant questions. If it's ambiguous, ask once.
 

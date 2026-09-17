@@ -1,10 +1,10 @@
 ---
-name: comment
+name: linear-comment
 version: 1.1.0
 description: |
   Post a markdown comment on a Linear issue via the Linear MCP tools. Pulls
   material from the current conversation (typically findings from an
-  /investigate run) and formats it as engineering-grade markdown.
+  /production-incident run) and formats it as engineering-grade markdown.
 allowed-tools: []
 ---
 
@@ -13,8 +13,8 @@ allowed-tools: []
 Post a markdown comment on a Linear issue, drawing the body from the conversation context.
 
 ## Arguments
-- `/comment <issue-id-or-url>`: required. The Linear identifier (e.g. `ENG-2217`) or full Linear URL
-- `/comment <issue-id-or-url> <extra context>`: fold extra context into the comment alongside what's already in the conversation
+- `/linear-comment <issue-id-or-url>`: required. The Linear identifier (e.g. `ENG-2217`) or full Linear URL
+- `/linear-comment <issue-id-or-url> <extra context>`: fold extra context into the comment alongside what's already in the conversation
 
 ## Linear access
 
@@ -37,7 +37,7 @@ Extract the `[A-Z]+-\d+` identifier. If the input has no recognizable identifier
 
 ### Step 2: Compose the comment body
 
-Source material is the **current conversation** plus any extra context the user passed in args. Typical use is right after an `/investigate` run. The comment should capture the findings the way they were just stated to the user, lightly tightened for a written ticket.
+Source material is the **current conversation** plus any extra context the user passed in args. Typical use is right after an `/production-incident` run. The comment should capture the findings the way they were just stated to the user, lightly tightened for a written ticket.
 
 Write GitHub-flavored markdown (Linear renders it). Headings, lists, code spans, and links are all fine.
 

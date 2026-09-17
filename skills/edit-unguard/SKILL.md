@@ -1,5 +1,5 @@
 ---
-name: unguard
+name: edit-unguard
 version: 2.0.0
 description: |
   Cut over-defensive code, such as a guard for a state no caller can produce, a
@@ -108,10 +108,10 @@ into the Keep column as if it had been examined.
 
 ## Arguments
 
-- `/unguard` (bare): the current diff, `git diff HEAD`. If the tree is clean, the file
+- `/edit-unguard` (bare): the current diff, `git diff HEAD`. If the tree is clean, the file
   under discussion. If neither, ask once: "What should I unguard?"
-- `/unguard <file path>`: read the file and audit all of it.
-- `/unguard <PR number | url | branch>`: fetch with `gh` and audit what the diff **adds**.
+- `/edit-unguard <file path>`: read the file and audit all of it.
+- `/edit-unguard <PR number | url | branch>`: fetch with `gh` and audit what the diff **adds**.
   Whether the branch is the current checkout decides edit or report.
 - Steers in plain words: `--report` / "just tell me" (rule and stop, and do not write
   anything), `--deep` / "the whole file" (on a diff target, audit the surrounding file
@@ -121,7 +121,7 @@ into the Keep column as if it had been examined.
 
 - Code read for **bugs or correctness** → `code-reviewer` or `/code-review`.
 - Code **restructured**, dead functions removed → `code-simplifier` or `/simplify`.
-- **Comments or prose** → `/deslop`.
+- **Comments or prose** → `/edit-deslop`.
 - A **missing** guard on a boundary → `code-reviewer`, or `security-auditor` when the
   boundary is a security one.
 
@@ -135,7 +135,7 @@ and `gh pr diff`, read-only. State the target and its size in one line.
 
 ### Step 1: Load the guide
 
-Read `~/.claude/skills/unguard/guard-guide.md` in full **before ruling on anything**, and
+Read `~/.claude/skills/edit-unguard/guard-guide.md` in full **before ruling on anything**, and
 read it every run. It contains the pattern taxonomy, the boundary rules, the per-language
 searches, and the worked Convert examples.
 

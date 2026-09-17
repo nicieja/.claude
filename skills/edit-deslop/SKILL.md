@@ -1,5 +1,5 @@
 ---
-name: deslop
+name: edit-deslop
 version: 1.0.0
 description: |
   Strip AI-slop from prose and code comments, restoring information density and
@@ -32,17 +32,17 @@ The method uses the compression test and the convergence loop. The **compression
 
 ## Arguments
 
-- `/deslop <text>`: deslop the pasted text (prose).
-- `/deslop <file path>`: read the file and deslop it. A prose file gets the prose treatment, and a code file gets the comment treatment. **Diagnose first, and write back only after the checkpoint** (Step 2).
-- `/deslop <PR number | url | branch>`: fetch the PR with `gh`, then deslop the description (prose) and rank the comments the diff **adds**. Read-only by default. Never push or post without an explicit ask.
-- `/deslop` (bare): deslop the text or file under discussion. If there's nothing obvious, ask once: "What should I deslop?"
+- `/edit-deslop <text>`: deslop the pasted text (prose).
+- `/edit-deslop <file path>`: read the file and deslop it. A prose file gets the prose treatment, and a code file gets the comment treatment. **Diagnose first, and write back only after the checkpoint** (Step 2).
+- `/edit-deslop <PR number | url | branch>`: fetch the PR with `gh`, then deslop the description (prose) and rank the comments the diff **adds**. Read-only by default. Never push or post without an explicit ask.
+- `/edit-deslop` (bare): deslop the text or file under discussion. If there's nothing obvious, ask once: "What should I deslop?"
 - Steers in plain words. `--surface` / "just the tells" means Vale only: run it and show the alerts, then apply them on the go-ahead and stop. Skip the estimate and the loop. `--deep` / "go hard" means aggressive structural rework.
 
 If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails with a permission error, tell the user that the iCloud path is blocked by macOS privacy controls. Ask them to paste the text or point at a non-iCloud copy (e.g. under `~/Documents/…`).
 
 ## Cases for another skill
 
-- They want a *claim, proposal, or design* grilled, not the prose edited → `/pushback`.
+- They want a *claim, proposal, or design* grilled, not the prose edited → `/idea-challenge`.
 - They want code reviewed for **bugs or correctness** → `code-reviewer`. Deslop never reads for logic.
 - They want code **restructured** or dead code removed → `code-simplifier` / `/simplify`. Deslop prunes comments and prose without refactoring.
 
@@ -60,7 +60,7 @@ Resolve per **Arguments**: text, file, PR, or bare.
 
 ### Step 1: Load the guide
 
-Read `~/.claude/skills/deslop/slop-guide.md` in full **before diagnosing**. It contains the marker taxonomy, the comment rubric, and the worked before/after examples. Load it every run, because it is the file tuned over time. Don't work from memory.
+Read `~/.claude/skills/edit-deslop/slop-guide.md` in full **before diagnosing**. It contains the marker taxonomy, the comment rubric, and the worked before/after examples. Load it every run, because it is the file tuned over time. Don't work from memory.
 
 ### Step 2: Declare the goal and diagnose, then stop
 

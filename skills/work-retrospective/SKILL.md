@@ -1,5 +1,5 @@
 ---
-name: retro
+name: work-retrospective
 version: 1.1.0
 description: |
   Run a retrospective on a PR, commit, Linear issue, or freeform piece of
@@ -16,22 +16,20 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# Retro
-
+# Retrospective
 Take a piece of completed work and extract the learning. Read the PR/commit/Linear data and anything it cross-references, apply the retro lenses, and produce a copy-paste-ready document with tasked-out improvements. The artifact is the message. It is not written to a file.
 
 ## Arguments
-- `/retro <PR URL>`: retro a GitHub pull request
-- `/retro <commit SHA>`: retro one commit (7+ hex chars)
-- `/retro <Linear ID>`: retro a Linear issue (e.g. `ENG-1234`) or `linear.app/...` URL
-- `/retro <description>`: retro a freeform piece of work
-- `/retro`: bare. Ask once "What work do you want to retro?"
+- `/work-retrospective <PR URL>`: retro a GitHub pull request
+- `/work-retrospective <commit SHA>`: retro one commit (7+ hex chars)
+- `/work-retrospective <Linear ID>`: retro a Linear issue (e.g. `ENG-1234`) or `linear.app/...` URL
+- `/work-retrospective <description>`: retro a freeform piece of work
+- `/work-retrospective`: bare. Ask once "What work do you want to retro?"
 
 ## Cases for another skill
-- Writing a humanized Slack update on an investigation → `/summary`
-- Planning future work, not reflecting on past work → `/shape`
-- Challenging one claim, not extracting learning → `/pushback`
-- Diagnosing an active production issue → `/investigate`
+- Planning future work, not reflecting on past work → `/idea-spec`
+- Challenging one claim, not extracting learning → `/idea-challenge`
+- Diagnosing an active production issue → `/production-incident`
 
 ## Instructions
 
@@ -41,7 +39,7 @@ Follow these steps in order. When a step is not relevant, skip it, but never sil
 
 ### Step 0: Preflight
 
-1. **Capture input.** If invoked as `/retro <text>`, that's the input. If bare, ask once: *"What work do you want to retro?"* Don't proceed without input.
+1. **Capture input.** If invoked as `/work-retrospective <text>`, that's the input. If bare, ask once: *"What work do you want to retro?"* Don't proceed without input.
 
 2. **Detect input type** by format:
    - `https://github.com/.../pull/N` → **PR**
@@ -80,7 +78,7 @@ Read the diff and the message.
 
 **For a freeform description:** there is nothing to fetch, so work from the description plus the user's answers in Step 2.
 
-**Light codebase exploration is OK** to verify a claim (Read, Glob, Grep). Don't dive deep, because that's `/investigate`'s job.
+**Light codebase exploration is OK** to verify a claim (Read, Glob, Grep). Don't dive deep, because that's `/production-incident`'s job.
 
 Don't write the retro yet. Hold the facts in mind.
 
@@ -134,7 +132,7 @@ Each improvement is written as a task:
 - **Effort**: rough estimate (h / d / w)
 - **When**: set *Now* if it's a tweak to agentic config (a new skill, hook, agent definition, settings change) or any other low-cost change the user could make today; *Queued* otherwise.
 
-Source principle: *"Improvements that can be made to agentic work should be proposed immediately."* For *Now* items, end the retro with a one-line nudge to act on them right after this conversation. `/retro` itself remains read-only, but it should hand the user a clear next move.
+Source principle: *"Improvements that can be made to agentic work should be proposed immediately."* For *Now* items, end the retro with a one-line nudge to act on them right after this conversation. `/work-retrospective` itself remains read-only, but it should hand the user a clear next move.
 
 Aim for about three sharp improvements, which beat ten weak ones. *"We should think about..."* is not an improvement. Either it states an action or it's not on the list.
 
