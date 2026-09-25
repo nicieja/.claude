@@ -123,6 +123,7 @@ into the Keep column as if it had been examined.
 - Code **restructured**, dead functions removed → `code-simplifier` or `/simplify`.
 - A **restructure across many files**, run as a checklist of slices → `/code-refactor`.
 - **Comments or prose** → `/edit-deslop`.
+- **Tests** a slice added past what its behavior needs → `/prune-tests`.
 - A **missing** guard on a boundary → `code-reviewer`, or `security-auditor` when the
   boundary is a security one.
 

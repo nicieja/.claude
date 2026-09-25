@@ -33,6 +33,7 @@ I have a small library of skills, commands, and subagents. They only help if I r
 | One claim about live runtime state to verify, such as a count, a flag, or whether a row exists | `/production-query` |
 | Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden), or a PR/code stuffed with obvious comments | `/edit-deslop` |
 | Code that guards states that can't happen: needless rescues, fallbacks, retries, armor I didn't ask for | `/code-unguard` |
+| Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/prune-tests` |
 | Code that grew by iteration and needs a cleanup too big for one pass, run as a checklist of slices | `/code-refactor` |
 | Posting investigation findings as a Linear comment | `/linear-comment` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
