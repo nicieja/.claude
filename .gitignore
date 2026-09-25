@@ -54,6 +54,7 @@ daemon.log
 .last-update-result.json
 remote-settings.json
 feedback
+state
 
 # Vale: synced packages and the native cache are rebuilt from vale/.vale.ini
 vale/styles/*
