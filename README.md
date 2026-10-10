@@ -2,10 +2,6 @@
 
 My personal [Claude Code](https://claude.com/claude-code) configuration: agents, slash commands, and skills loaded from `~/.claude/`.
 
-Open-sourced so others can crib from it. It's opinionated: most pieces reflect how I prefer to work, not best practices. Treat it as a reference and not as a drop-in.
-
-Skills, commands, and two agents are the kinds of thing here. Skills are _how_ the work gets run, and commands just remove typing. An agent gives a skill a context of its own.
-
 ## Install
 
 If you don't have a `~/.claude/` yet, clone it directly:
@@ -23,68 +19,6 @@ fix for each. It runs nothing itself.
 ```bash
 ~/.claude/bin/setup
 ```
-
-## Agents
-
-There are three agents, and each exists because a skill needs a context smaller
-than the conversation's.
-
-`persona` plays one buyer for `/market-rehearse`. It has no tools and knows only
-its brief. A buyer who could read the repo would hand your own value
-proposition back to you as a discovery.
-
-`reviewer` takes a brief from a skill and applies the skill that the brief
-points to, such as `/idea-challenge` or `/pr-critique`. It can read code and run
-tests, and it can't change a file. It never sees the reasoning that produced the
-work, so its challenge or review is independent.
-
-`comment-editor` deletes comments for `/code-uncomment`, and it's the one agent
-that edits files. It may delete a comment or a lint suppression, and nothing
-else. The skill then audits its diff and reverts anything that isn't a deleted
-comment.
-
-The expertise is in the skills, and the agents add only the isolation. Any
-tool that reads skills can run them. A tool without subagents runs the same
-skill inline, with a weaker check.
-
-## Skills
-
-A skill is a workflow I don't trust myself to improvise, usually because the
-moment it runs is the moment I'm in a hurry. Each is multi-step, and each is
-allowed to come back with nothing. A skill acts on what it finds, then reports
-what changed, what to check, and the command that undoes it. It waits for me
-only when the undo would cost real work, or before a post or a push outside my
-own PRs and issues. Its comments under my account are signed as the agent's.
-`AGENTS.md` has the rule, under "When to act and when to confirm".
-
-Together they cover the arc of a piece of work: refining an idea and grilling it
-while it's still cheap to change, then dispatching and diagnosing once it's
-underway. Later they hunt what the bots and earlier reviewers missed before it
-goes out and write it up for whoever needs it. At the end, the corrections turn
-into changes to the harness itself, this library included.
-
-A few rules matter more than any step. Numbers are not invented: a figure that
-can't be computed appears as a named gap and never as an estimate presented as
-a measurement. Where production is involved, everything is read-only. An agent
-writes the script and a human runs it. The output comes back as a paste. And an
-honest "nothing here" is a finished result, without a lesson, a finding, or a
-cut left to make. It is said plainly instead of padded into something that looks
-like work.
-
-## Commands
-
-Commands are the opposite, without a workflow, a checkpoint, or judgment. Each
-runs a few shell commands and drops the output into the prompt, then asks for
-one piece of writing I'd otherwise type from scratch. They save the paste.
-
-The line between the two is judgment. Anything that has to stop and ask, or
-has to decide what to keep and what to cut, belongs on the other side of it.
-
-`/conversation` is different, because it changes how the session talks.
-Running it once turns on short, chat-like replies, and running it again turns
-them off. A hook in `bin/hooks/conversation_mode.py` repeats the rules on
-every prompt while the mode is on, so they still apply after `/compact`. It
-works in Claude Code only.
 
 ## Prose linting
 
@@ -145,5 +79,6 @@ effort, approvals reviewer) and `rules/default.rules` (approval prefix rules).
 It also holds `hooks.json`, which runs the outward guard. `~/.codex/hooks.json`
 is a symlink to it, and Codex runs it only after you trust it once with
 `/hooks`. Cursor has no equivalent hook yet.
+
 Codex does not load the agents, skills, or commands from this repo. Per-machine
 project trust entries stay out. Codex adds them to the live file itself.
