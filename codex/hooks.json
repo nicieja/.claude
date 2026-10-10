@@ -1,5 +1,5 @@
 {
-  "description": "Signature and always-OK guard for posts made under Kamil's account. See ~/.claude/AGENTS.md.",
+  "description": "Signature and always-OK guard for posts made under the user's account. See ~/.claude/AGENTS.md.",
   "hooks": {
     "PreToolUse": [
       {

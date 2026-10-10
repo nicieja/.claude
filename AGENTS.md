@@ -94,7 +94,7 @@ A skill's own report sections can serve as the Changed part. Check and Undo alwa
 - **Ask first:** pushing my branch or opening a draft PR. Posts anywhere else need my OK too, like a comment on a teammate's PR or a Slack message.
 - **Always my OK:** merges, deploys, force pushes, Approve or Request changes on a teammate's PR, customer messages, and production mutations. Fix scripts are human-run.
 
-Every comment or message posted under my account ends with this line, on its own: `Posted by <agent> on Kamil's behalf`. `<agent>` is Claude, Codex, or Cursor, whichever wrote it. A post from an agent's own account, such as Cursor's app user in Linear, doesn't need it. PR descriptions and commit messages keep their attribution lines instead.
+Every comment or message posted under my account ends with this line, on its own: `Posted by <agent> on <name>'s behalf`. `<agent>` is Claude, Codex, or Cursor, whichever wrote it, and `<name>` is the first word of `git config --global user.name`. A post from an agent's own account, such as Cursor's app user in Linear, doesn't need it. PR descriptions and commit messages keep their attribution lines instead.
 
 A project can widen or narrow these lists in `context/<project>/escalation.md`. `/work-triage` is an exception, and it creates draft PRs when its own risk tiers allow it.
 

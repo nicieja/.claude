@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Pre-tool hook for posts made under Kamil's account.
+"""Pre-tool hook for posts made under the user's account.
 
 It denies two kinds of call:
 
 - A comment or message with no signature. Its body must end with the line
-  "Posted by <Agent> on Kamil's behalf", where <Agent> comes from --agent.
-- An action that always needs Kamil's OK: a merge, an approving or
+  "Posted by <Agent> on <Name>'s behalf", where <Agent> comes from --agent
+  and <Name> is the first word of `git config --global user.name`.
+- An action that always needs the user's OK: a merge, an approving or
   change-requesting review, a force push, and Linear's merge_diff and
-  submit_diff_review. He can run those himself with `! <command>`.
+  submit_diff_review. They can run those themselves with `! <command>`.
 
 Every other call passes with no output. The rules are in AGENTS.md ("When to
 act and when to confirm"). Claude Code and Codex send the same PreToolUse JSON
@@ -19,7 +20,9 @@ import json
 import os
 import re
 import shlex
+import subprocess
 import sys
+from functools import cache
 
 AGENTS = {"claude": "Claude", "codex": "Codex"}
 
@@ -50,8 +53,14 @@ class Deny(Exception):
     pass
 
 
+@cache
 def signature(agent):
-    return f"Posted by {agent} on Kamil's behalf"
+    name = subprocess.run(["git", "config", "--global", "user.name"],
+                          capture_output=True, text=True).stdout.split()
+    if not name:
+        raise Deny("The signature names the user from `git config --global user.name`, "
+                   "which is empty. Ask them to set it.")
+    return f"Posted by {agent} on {name[0]}'s behalf"
 
 
 def signed(body, agent):
@@ -69,8 +78,8 @@ def require_signature(body, agent, where):
 
 
 def needs_ok(what):
-    raise Deny(f"{what} needs Kamil's OK (AGENTS.md, \"Always my OK\"). Ask him. "
-               "He can run it himself with `! <command>`.")
+    raise Deny(f"{what} needs the user's OK (AGENTS.md, \"Always my OK\"). Ask them. "
+               "They can run it themselves with `! <command>`.")
 
 
 def read_file(path, cwd):
