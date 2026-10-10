@@ -45,10 +45,11 @@ projects/
 downloads/
 plugins/
 skills/synced/
+skills/.trash
 chrome/
 jobs/
 daemon/
-daemon.log
+daemon*
 .claude
 .last-cleanup
 .last-update-result.json
