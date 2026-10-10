@@ -80,6 +80,12 @@ one piece of writing I'd otherwise type from scratch. They save the paste.
 The line between the two is judgment. Anything that has to stop and ask, or
 has to decide what to keep and what to cut, belongs on the other side of it.
 
+`/conversation` is different, because it changes how the session talks.
+Running it once turns on short, chat-like replies, and running it again turns
+them off. A hook in `bin/hooks/conversation_mode.py` repeats the rules on
+every prompt while the mode is on, so they still apply after `/compact`. It
+works in Claude Code only.
+
 ## Prose linting
 
 Vale lints the prose in this repo and the prose Claude writes anywhere else. It

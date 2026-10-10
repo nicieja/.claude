@@ -38,13 +38,16 @@ report $? "config symlink" "$link_fix"
 [ -d "$repo/vale/styles/ai-tells" ] && [ -d "$repo/vale/styles/ai-tells-commits" ]
 report $? "style packages" "(cd $repo/vale && vale sync)"
 
-printf '\nGuards\n'
+printf '\nHooks\n'
 
 [ "$(git -C "$repo" config --get core.hooksPath)" = ".githooks" ]
 report $? "git hooks (bin/check, Vale)" "git -C $repo config core.hooksPath .githooks"
 
 grep -q 'outward_guard' "$repo/settings.json" 2>/dev/null
 report $? "Claude Code outward guard" "copy the \"hooks\" block from settings.json.example into settings.json"
+
+grep -q 'conversation_mode' "$repo/settings.json" 2>/dev/null
+report $? "Claude Code conversation mode" "copy the \"hooks\" block from settings.json.example into settings.json"
 
 if [ -d "$HOME/.codex" ]; then
   printf '\nCodex\n'

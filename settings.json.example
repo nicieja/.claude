@@ -50,6 +50,27 @@
           }
         ]
       }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "conversation",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME\"/.claude/bin/hooks/conversation_mode.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME\"/.claude/bin/hooks/conversation_mode.py"
+          }
+        ]
+      }
     ]
   }
 }
