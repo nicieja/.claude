@@ -39,7 +39,6 @@ I have a small library of skills and commands. They only help if I remember they
 | Working but tangled code that needs one cleanup pass | `/simplify` |
 | Code that grew by iteration and needs a cleanup too big for one pass, run as a checklist of slices | `/code-refactor` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
-| Posting investigation findings as a Linear comment | `/linear-comment` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
 

@@ -40,7 +40,6 @@ Pair with the engineer on this week's firefighting rotation, a human who has pro
 - One production issue to diagnose, outside a rotation → `/production-incident`.
 - One claim about live state to verify → `/production-query`.
 - An issue that needs scoping before work begins → `/idea-spec`.
-- Investigation findings to post on a Linear issue → `/linear-comment`.
 
 ## Instructions
 
