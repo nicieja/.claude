@@ -38,7 +38,7 @@ Read `pitch-guide.md` in this directory at the start of every run. It contains t
 - A draft that needs pressure-testing on a simulated buyer → `/market-rehearse`.
 - A pitch that needs breaking on strategic fit, opportunity cost, demand versus interest, and worst case → `/idea-challenge`.
 - An answer of "build something different" → `/idea-slice`.
-- Prose cleanup on a finished draft → `/edit-deslop`.
+- Prose cleanup on a finished draft → `/code-deslop`.
 
 ## Instructions
 
@@ -102,7 +102,7 @@ When the work turns on a persona, offer `/market-rehearse` before the draft meet
 
 ### Step 7: Break it before it goes out
 
-Run every draft through `/edit-deslop` before it goes out. The pitch needs breaking before anyone outside sees it, and this step is required. Dispatch the `reviewer` agent (`subagent_type: "reviewer"`). Its brief contains the frame and the draft, and tells it to load `idea-challenge` in brief mode on the product or go-to-market route. That route runs the executive concerns, such as strategic fit, opportunity cost, demand versus interest, and the worst case. In a tool without subagents, run `/idea-challenge` on the frame and the draft. Fix what the verdict breaks, and put the verdict in the delivery.
+Run every draft through `/code-deslop` before it goes out. The pitch needs breaking before anyone outside sees it, and this step is required. Dispatch the `reviewer` agent (`subagent_type: "reviewer"`). Its brief contains the frame and the draft, and tells it to load `idea-challenge` in brief mode on the product or go-to-market route. That route runs the executive concerns, such as strategic fit, opportunity cost, demand versus interest, and the worst case. In a tool without subagents, run `/idea-challenge` on the frame and the draft. Fix what the verdict breaks, and put the verdict in the delivery.
 
 ---
 

@@ -122,7 +122,7 @@ into the Keep column as if it had been examined.
 - Code read for **bugs or correctness** → `/pr-critique` or `/code-review`.
 - Code **restructured**, dead functions removed → `/simplify`.
 - A **restructure across many files**, run as a checklist of slices → `/code-refactor`.
-- **Comments or prose** → `/edit-deslop`.
+- **Comments or prose** → `/code-deslop`.
 - **Tests** a slice added past what its behavior needs → `/prune-tests`.
 - A **missing** guard on a boundary → `/pr-critique`, with the boundary stated when you
   invoke it.

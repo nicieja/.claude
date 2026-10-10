@@ -47,7 +47,7 @@ Taste is only a tiebreaker (see Step 1), and it runs in this direction:
 - **Fixed time, variable scope.** When the budget is tight, cut scope before you extend time. Decide which way before you start, not after.
 - **Done means running in production, not merged.** A change isn't finished until it's verified end-to-end and small enough to roll back cleanly.
 
-Guards follow the rule in CLAUDE.md ("Don't defend against what can't happen") and `/code-unguard`. Comments follow `/edit-deslop` Key Rule 5. By default there is no comment. Write one only to explain a why, a gotcha, an invariant, an external constraint, or a workaround. Step 5 checks both rules.
+Guards follow the rule in CLAUDE.md ("Don't defend against what can't happen") and `/code-unguard`. Comments follow `/code-deslop` Key Rule 5. By default there is no comment. Write one only to explain a why, a gotcha, an invariant, an external constraint, or a workaround. Step 5 checks both rules.
 
 ## Instructions
 

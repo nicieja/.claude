@@ -32,7 +32,7 @@ This is the prompt-library analog of `/simplify`, run as periodic maintenance. I
 ## Arguments
 
 - `/self-heal` (bare): sweep the whole library (every `skills/*/SKILL.md` and its companions, `commands/*.md`, `agents/*.md`) and rank by accretion debt. Report the ranking. You pick what to heal. **Includes self-heal's own files.**
-- `/self-heal <name | path>`: focus one artifact. The target is a skill name (`edit-deslop`), a command, an agent, or a path. Skip the ranking and go straight to diagnose → heal.
+- `/self-heal <name | path>`: focus one artifact. The target is a skill name (`code-deslop`), a command, an agent, or a path. Skip the ranking and go straight to diagnose → heal.
 - `/self-heal skills | commands | agents`: sweep one type only.
 - `/self-heal audit`: run the usage audit (Step 1) alone, then stop. It does not inspect or heal.
 - Steers in plain words: `--report-only` / "just rank them" ranks without healing. "Be aggressive" / "be conservative" moves the threshold for what deserves a rewrite. "Skip the audit" goes straight from scope to inspection.
@@ -41,9 +41,9 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 
 ## Cases for another skill
 
-- Stripping AI-slop from arbitrary prose or code → `/edit-deslop`. self-heal repairs *structural accretion in the prompt library*, not emptiness in any text.
+- Stripping AI-slop from arbitrary prose or code → `/code-deslop`. self-heal repairs *structural accretion in the prompt library*, not emptiness in any text.
 - Restructuring working *code*, or reviewing a code diff → `/simplify` / `/pr-critique`. self-heal only touches prompt markdown. It never reads source for logic.
-- It composes with `/edit-deslop` (a heal may tighten sloppy prose inside a file as it goes), but self-heal is the one that sweeps the whole library. It also knows each artifact type's healthy-shape template and preserves a coverage ledger across a from-scratch rewrite.
+- It composes with `/code-deslop` (a heal may tighten sloppy prose inside a file as it goes), but self-heal is the one that sweeps the whole library. It also knows each artifact type's healthy-shape template and preserves a coverage ledger across a from-scratch rewrite.
 
 ## Instructions
 
@@ -105,7 +105,7 @@ Rewrite the file toward its type's healthy-shape template (skill / command / age
 
 - **Unit.** Whole-file re-integration when debt is pervasive (seams throughout, rules repeated across sections, tone drifting). Surgical when debt is localized to a section or two and the rest is clean. But if rewriting one section leaves a visible mismatch against the untouched ones, widen the rewrite.
 - **Moves.** Fold each repeated instruction into one statement in its right home. Dissolve bolt-on parentheticals into the prose. Merge near-duplicate rules. Inline the content a cross-reference points at. Even out tonal seams and cut bloat.
-- **Goal.** The result should be simpler and natural, so it reads like one sitting. Shorter is the usual result and **never a target**. Do not drop content to shrink a file (the Goodhart trap `/edit-deslop` warns about).
+- **Goal.** The result should be simpler and natural, so it reads like one sitting. Shorter is the usual result and **never a target**. Do not drop content to shrink a file (the Goodhart trap `/code-deslop` warns about).
 - **Never regress.** Preserve each ledger item. A rule that looks obsolete or self-contradictory is **flagged for the user as a question and never silently dropped.**
 
 ### Step 7: Verify against the ledger
