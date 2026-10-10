@@ -27,6 +27,7 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | System design, a new module or abstraction, a technology choice, coupling concerns | `/idea-primitive` |
 | A design or behavior question that running something would answer, such as which layout or whether it's fast enough | `/idea-prototype` |
 | A vague goal, or a build / rank / launch / kill call that needs a measurable target and one recommendation | `/idea-goal` |
+| A plan, spec, brief, or PR whose requirements need an owner, or "where did this requirement come from?" | `/trace-requirement` |
 | An epic, feature, or plan to break into stories or milestones that each deliver value | `/idea-slice` |
 | Building a feature or a slice of code from a plan, a spec, or a request | `/code-build` |
 | Reviewing a meaty code change before merge, a second opinion on a diff (correctness, security, performance) | `/pr-critique` |

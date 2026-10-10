@@ -63,7 +63,9 @@ Say which executor you picked and why, in one line.
 
 ### Step 3: Write the brief
 
-Write it per `~/.claude/skills/work-delegate/brief-guide.md`. Add the project-specific rules from `delegation.md`. For a tracker-based executor, the brief is the issue description.
+Write it per `~/.claude/skills/work-delegate/brief-guide.md`: a full brief for an executor new to the task, or a follow-up for one that already worked on it. Add the project-specific rules from `delegation.md`. For a tracker-based executor, the brief is the issue description.
+
+Before dispatch, search the brief for a fenced code block. A brief that has one doesn't go out. Rewrite the code as a description in words, per the guide's rule against code, and search again.
 
 ### Step 4: Dispatch
 
@@ -90,7 +92,7 @@ When a `/work-log` is open for this run, log the dispatch.
 2. **For each PR without a review from me since its last push:**
    - Check it out in a worktree, named as `delegation.md` says.
    - Run `/pr-critique` through the `reviewer` agent, and `/test-prune` and `/code-unguard` in report mode. Run the private checks in `~/.claude/context/<project>/checks/`, and the project's verify skill when it has one (the repo's own, or `~/.claude/context/<project>/verify/SKILL.md`).
-   - Post one comment on the PR with the findings. A PR from my delegated issue is my own thread. The comment goes ahead without asking, signed per `~/.claude/AGENTS.md`.
+   - Post one comment on the PR with the findings, written as a follow-up per the brief guide, because the executor already has the task's context. A PR from my delegated issue is my own thread. The comment goes ahead without asking, signed per `~/.claude/AGENTS.md`.
    - Collect what the executor asked me to decide, such as its "Decisions for you" comments.
    - Hand the PR to the project's babysit skill when it has one, per the project-skill rules in `~/.claude/AGENTS.md`.
 3. **Report** one row per item, with the issue and its PR, the findings count, the decisions waiting for me, and the next step. Then ask the decisions together.
@@ -100,5 +102,5 @@ When a `/work-log` is open for this run, log the dispatch.
 1. **The executor comes from `delegation.md`.** This skill works with any tracker or vendor that file describes.
 2. **Work that needs `~/.claude` skills runs locally.** No other executor can load them.
 3. **Held work is never dispatched.**
-4. **Every brief follows `brief-guide.md`,** with the armor rule and the stop rule.
+4. **Every brief follows `brief-guide.md`,** with the armor rule and the stop rule, and without code.
 5. **I own the delegate's work.** Pickup reviews every PR before anything else happens to it.

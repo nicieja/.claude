@@ -5,11 +5,14 @@ cloud agent, `codex exec`, a local subagent, or another model. The brief is the
 whole handoff. `/work-delegate` and the `/prompt` command both write their
 briefs by this guide.
 
+There are two forms: a full brief for an executor that is new to the task, and
+a follow-up for one that already worked on it.
+
 A brief is instructions to an executor, never the plan itself. A restatement, a
 summary, or a reordering of a plan's steps counts as the plan, so if the brief
 could be mistaken for the plan, start over.
 
-## Sections
+## The full brief
 
 Use these headings, in this order. Leave a section out only when it would be
 empty.
@@ -22,7 +25,8 @@ empty.
 3. **Decisions so far.** The calls already made, each with its date and who
    made it, and the line "Do not stop on them." The executor treats them as
    settled.
-4. **What to change.** The concrete changes, one bullet each.
+4. **What to change.** Each change as the behavior or the design it needs, in
+   words, one bullet each.
 5. **Before you start.** The facts the executor would otherwise rediscover the
    slow way, as flat statements with file pointers. These include the files
    that matter, the files that look relevant but aren't, the approaches tried
@@ -55,9 +59,25 @@ empty.
     the base branch. The final report lists what was built, what was skipped
     and why, and each place the work departed from the plan.
 
+## The follow-up
+
+When the executor already worked on this task, as with its own PR or the issue
+it holds, it already has everything a full brief would repeat. Send only what's
+new, in a few lines. Say what to change and why, and add each decision made
+since its last brief, with who made it. Leave out every section it already received.
+
+A follow-up that needs more than a few short paragraphs means the task changed,
+so write a full brief instead.
+
 ## Voice
 
 - Address the executor as "you". Be imperative and specific, without hedging.
+- **Describe behavior and design in words, without code.** The executor picks
+  the names of the classes, methods, and files it creates. Its code then
+  matches its own style and the repo's conventions. A name that already exists
+  in the repo gets its path. A name or an interface a person decided goes under
+  "Decisions so far", stated in words. Code samples help a person judge a design before the
+  brief is written, and they stay out of the brief.
 - Don't describe this session: no "we decided", no "the user said", no agent
   names. State outcomes as facts.
 - Refer to the repo's own skills when a step needs one. A skill from
