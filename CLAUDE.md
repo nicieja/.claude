@@ -39,7 +39,7 @@ I have a small library of skills and commands. They only help if I remember they
 | One claim about live runtime state to verify, such as a count, a flag, or whether a row exists | `/production-query` |
 | Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden), or a PR/code stuffed with obvious comments | `/code-deslop` |
 | Code that guards states that can't happen: needless rescues, fallbacks, retries, armor I didn't ask for | `/code-unguard` |
-| Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/prune-tests` |
+| Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/test-prune` |
 | Working but tangled code that needs one cleanup pass | `/simplify` |
 | Code that grew by iteration and needs a cleanup too big for one pass, run as a checklist of slices | `/code-refactor` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |

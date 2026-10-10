@@ -38,7 +38,7 @@ Load `critique-guide.md` (next to this file) every run. It is the standard the c
 - Only comments or prose → `/code-deslop`.
 - Working code that needs restructuring → `/simplify`, or `/code-refactor` across many files.
 - A design that needs grilling before code exists → `/idea-challenge`, or `/idea-primitive` for the concept underneath.
-- The tests a change added past what its behavior needs → `/prune-tests`.
+- The tests a change added past what its behavior needs → `/test-prune`.
 
 ## Instructions
 

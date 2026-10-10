@@ -44,7 +44,7 @@ skill inline, with a weaker check.
 ## Skills
 
 A skill is a workflow I don't trust myself to improvise, usually because the
-moment it runs is the moment I'm in a hurry. Each is multi-step and stops at a
+moment it runs is the moment I'm in a hurry. Each is multi-step, most stop at a
 checkpoint instead of running to the end, and each is allowed to come back with
 nothing.
 
@@ -68,8 +68,8 @@ Commands are the opposite, without a workflow, a checkpoint, or judgment. Each
 runs a few shell commands and drops the output into the prompt, then asks for
 one piece of writing I'd otherwise type from scratch. They save the paste.
 
-The line between the two is that checkpoint. Anything that has to stop and ask
-belongs on the other side of it.
+The line between the two is judgment. Anything that has to stop and ask, or
+has to decide what to keep and what to cut, belongs on the other side of it.
 
 ## Prose linting
 

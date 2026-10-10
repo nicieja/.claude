@@ -6,7 +6,7 @@ description: |
   depend on. Takes a diff, a feature, a file, or a suite. Starts from capabilities,
   always/never statements, and the user-state paths, weights the work by risk, and
   proves each test with a red-then-green run before trusting it. Also rules Keep or
-  Cut on tests that already exist, which is how /prune-tests uses it.
+  Cut on tests that already exist, which is how /test-prune uses it.
 allowed-tools:
   - Read
   - Write
@@ -32,17 +32,17 @@ Load `test-guide.md` (next to this file) at the start of every run. It holds the
 
 ## Cases for another skill
 
-- Tests a slice added past what its behavior needs → `/prune-tests`. That command loads this skill for its rulings.
+- Tests a slice added past what its behavior needs → `/test-prune`. That skill sends this one to the `reviewer` agent for its rulings.
 - Guards for states no caller can produce → `/code-unguard`.
 - A whole diff read for correctness → `/pr-critique`.
 - A claim about live data or the current state of production → `/production-query`.
 
 ## Report mode
 
-The `reviewer` agent loads this skill from a brief, and `/prune-tests` is the main caller. In report mode:
+The `reviewer` agent loads this skill from a brief, and `/test-prune` is the main caller. In report mode:
 
 - Edit no file. Rule and report only.
-- Use the output format that the brief defines. For `/prune-tests`, that is one row per test with a Keep or Cut ruling, and the run goes from Step 0 straight to Step 4.
+- Use the output format that the brief defines. For `/test-prune`, that is one row per test with a Keep or Cut ruling, and the run goes from Step 0 straight to Step 4.
 - A question you would ask the user becomes a listed gap in the report.
 
 ## Instructions
