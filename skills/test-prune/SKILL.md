@@ -108,16 +108,17 @@ Skip this step in report mode. Run the touched test files with the project's own
 
 ### Step 7: Report
 
-Leave the edits in the working tree, and do not commit.
+Leave the edits in the working tree, uncommitted. Under the stepping-away steer in `~/.claude/AGENTS.md`, commit them instead.
 
 - **Cut**: how many, and one line per test as `file:test · reason`.
 - **Kept**: how many, and one line per test as `file:test · behavior`.
 - **Follow-ups**: the rewrites and coverage gaps the agent flagged. None of them were applied.
 - **Out of scope**: the pre-existing tests that the range changed.
 - **Verification**: what ran, and the result.
+- **Check**: the Cut with the thinnest evidence, and the kept test that now covers its behavior.
 - **Undo**: `git restore <files>` for clean files, or `cp <backup> <file>` for each file that had uncommitted changes.
 
-In report mode, the Cut list holds proposed cuts, and there is no Verification or Undo section.
+In report mode, the Cut list holds proposed cuts, and the Verification, Check, and Undo sections are left out.
 
 A run that cuts nothing says so plainly, and names the weakest Keep and what would flip it. On tests an agent wrote, that result is unusual, so it shows its work.
 
@@ -128,4 +129,4 @@ A run that cuts nothing says so plainly, and names the weakest Keep and what wou
 3. **Only tests the range adds are in scope.** A pre-existing test whose body the range changes goes under *Out of scope*.
 4. **The rulings come from `test-design`.** Don't restate its heuristics in the brief.
 5. **Don't touch anything outside the slice's own tests and setup.** Pre-existing tests and production code are off limits.
-6. **Never commit.** The edits wait in the working tree for the user.
+6. **Don't commit.** The edits wait in the working tree for the user, unless the stepping-away steer pre-approved the commit.

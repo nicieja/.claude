@@ -35,7 +35,7 @@ Load `critique-guide.md` (next to this file) every run. It is the standard the c
 
 - A differential review of someone else's PR that already has bot and human feedback, ending in a posted GitHub review → `/pr-review`.
 - Only the defensive code → `/code-unguard`.
-- Only comments or prose → `/code-deslop`.
+- Only comments or lint suppressions → `/code-uncomment`, and prose alone → `/code-deslop`.
 - Working code that needs restructuring → `/simplify`, or `/code-refactor` across many files.
 - A design that needs grilling before code exists → `/idea-challenge`, or `/idea-primitive` for the concept underneath.
 - The tests a change added past what its behavior needs → `/test-prune`.

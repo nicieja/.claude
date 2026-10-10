@@ -124,7 +124,7 @@ into the Keep column as if it had been examined.
 - Code read for **bugs or correctness** → `/pr-critique` or `/code-review`.
 - Code **restructured**, dead functions removed → `/simplify`.
 - A **restructure across many files**, run as a checklist of slices → `/code-refactor`.
-- **Comments or prose** → `/code-deslop`.
+- **Comments or lint suppressions** → `/code-uncomment`. **Prose** → `/code-deslop`.
 - **Tests** a slice added past what its behavior needs → `/test-prune`.
 - A **missing** guard on a boundary → `/pr-critique`, with the boundary stated when you
   invoke it.
@@ -212,7 +212,7 @@ Never delete a test to protect a change.
 
 ### Step 5: Report
 
-Edits remain in the working tree. Do not commit, push, or post a review.
+Edits remain in the working tree, uncommitted. Under the stepping-away steer in `~/.claude/AGENTS.md`, commit them instead. Never push or post a review without an explicit ask.
 
 - **Cut**: count and one line each.
 - **Converted**: the loudest half of the work, what was silent and what it says now.
@@ -247,6 +247,6 @@ work shown, never as a victory lap.
    Verdict *Ask*.
 7. **Cuts and converts only.** No refactoring while you're in there.
 8. **Load `guard-guide.md` every run.**
-9. **Never commit, push, or post a review** without an explicit ask.
+9. **Leave the edits uncommitted, and never push or post a review** without an explicit ask. The stepping-away steer pre-approves the commit.
 10. **A zero-change run shows its work.** State the weakest Keep and what would flip it.
     A skill that only ever agrees with the code is not an instrument.

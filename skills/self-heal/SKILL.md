@@ -74,6 +74,8 @@ Identify dead weight before polishing it. This step runs on bare and type sweeps
 
 Read `~/.claude/skills/self-heal/heal-guide.md` in full **before inspecting**. It contains the accretion taxonomy, the healthy-shape templates for the three types, the coverage-ledger method, and the worked examples. Load it every run. It is the spec, tuned over time. Do not work from memory.
 
+Then run `~/.claude/bin/check`. Each failure it reports is a symptom for this run. A mechanical symptom that keeps coming back across files becomes a new `bin/check` rule, routed through `/self-improve`, instead of another round of hand fixes.
+
 ### Step 3: Inspect in parallel
 
 Dispatch read-only `Explore` subagents across the resolved set, batched so none is overloaded (one per type, or chunks of about 6 to 8 files). Hand each inspector the relevant healthy-shape template from the guide so its read is grounded. Each returns, per file:

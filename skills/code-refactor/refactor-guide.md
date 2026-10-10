@@ -16,11 +16,11 @@ Code that reached its form through experiments and changed requirements still sh
 - **One call sequence in every caller.** Each caller wraps the engine in the same lines of code. One entry point replaces them. It takes one request object with the defaults in one place, and positional arguments become fields of that object.
 - **Many names for one concept.** A limit has one name in the core and another in the UI. Pick one name for the code. The flags and messages that users see keep their names.
 - **Many tables for one set of values.** The same values are keyed in a different way in several files. One table replaces them, and each old table becomes a field of it.
-- **Long functions with many jobs.** Split them into named steps, and move each comment next to the rule that it explains.
+- **Long functions with many jobs.** Split them into named steps whose names say what each comment used to say.
 - **Repeats in markup and in tests.** The same markup repeats across layouts, or a lookup or a fixture repeats across tests. A component or a test helper replaces the repeats.
 - **Unread data.** A generated file, or a file that users download, has fields that its readers ignore. The writer drops them. Measure the size before and after, compressed as well as raw.
 - **Hand-written grouping.** A loop builds a map of lists where the runtime has a built-in, such as `Map.groupBy` or Ruby's `group_by`. Use the built-in only where each item goes under one key. A loop that files one item under many keys keeps its loop.
-- **Stale comments.** A comment explains a requirement that is gone. Rewrite it for the current rule, or delete it.
+- **Stale comments.** A comment explains a requirement that is gone. Delete it. When the code still needs explaining, change the code, per `/code-uncomment`.
 
 A cleanup that changes an output is outside this list, however small it is. It goes to the findings for later.
 

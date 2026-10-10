@@ -2,10 +2,10 @@
 
 Generated: <YYYY-MM-DD>
 
-Cached map of the code areas the user is responsible for and actively touches. `/review-pr`
+Cached map of the code areas the user is responsible for and actively touches. `/pr-review`
 reads it to focus the review: depth on interactions with these areas, never a
-fence. Written by `/review-pr`. Regenerated after ~30 days or with
-`/review-pr refresh-focus`.
+fence. Written by `/pr-review`. Regenerated after ~30 days or with
+`/pr-review refresh-focus`.
 
 ## CODEOWNERS
 

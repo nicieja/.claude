@@ -1,0 +1,21 @@
+#!/bin/sh
+# Lint the library before any commit, whichever agent or person makes it.
+# bin/check covers references, the trigger map, frontmatter, and private terms.
+# Vale covers the wording of the Markdown files in the commit.
+
+repo=$(git rev-parse --show-toplevel)
+status=0
+
+"$repo/bin/check" || status=1
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR -- '*.md')
+if [ -n "$staged" ]; then
+  if ! command -v vale >/dev/null 2>&1; then
+    echo "pre-commit: vale isn't installed. Run bin/setup for the fix." >&2
+    exit 1
+  fi
+  # shellcheck disable=SC2086
+  (cd "$repo" && vale --config "$repo/vale/.vale.ini" --minAlertLevel=error --output=line $staged) || status=1
+fi
+
+exit $status

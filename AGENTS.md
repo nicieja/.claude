@@ -1,30 +1,37 @@
-# Surface skills and commands when context matches
+# Run the matching skill
 
-I have a small library of skills and commands. They only help if I remember they exist. Watch the conversation and **suggest the relevant one when context matches**. I'll decide whether to invoke it.
+I have a library of skills and commands, and it only helps when it gets used. **When the conversation matches a row in the trigger map, run that skill.** Say which one in a line as it starts, so I can stop it.
 
-### How to suggest
+### When to suggest instead
 
-- **One line, at most two.** *"This sounds like `/idea-spec` territory. Want me to run it?"* Not a menu.
-- **Suggest, do not invoke.** Wait for me to say yes (or to type the slash myself). The exception is when I've already implied the workflow (e.g. *"diagnose this prod issue"* → just run `/production-incident`).
-- **At most one suggestion per turn.** If two fit, pick the better one. Stacking suggestions is noise.
-- **Skip when I'm clearly mid-task in a different direction**, when a skill is already running, or when the suggestion would just restate what I asked for.
-- **Don't suggest the same skill twice in a row** if I declined or ignored it the first time.
-- **Prefer the closest fit.** When two skills seem to match, suggest the one whose output is what I asked for.
+Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/pr-readiness`, `/pr-review`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
+
+### Limits
+
+- **One skill per turn.** When two fit, pick the one whose output is what I asked for.
+- **Skip** trivial asks, turns where I'm clearly going another way, and turns where a skill is already running.
+- **Don't repeat a suggestion** I declined or ignored.
+
+### Steps go in the todo list
+
+When a skill runs, copy its steps into the todo list word for word, before any items of your own. A step you skip stays in the list as `skip: <reason>`.
 
 ### Trigger map
 
-| If the conversation involves… | Suggest |
+| If the conversation involves… | Skill |
 |---|---|
 | A half-formed task idea, "how should we approach X", refining scope before coding | `/idea-spec` |
 | Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/work-triage` |
 | An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling, or a strategic bet or roadmap call that needs executive grilling | `/idea-challenge` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/idea-moonshot` |
 | System design, a new module or abstraction, a technology choice, coupling concerns | `/idea-primitive` |
+| A design or behavior question that running something would answer, such as which layout or whether it's fast enough | `/idea-prototype` |
 | A vague goal, or a build / rank / launch / kill call that needs a measurable target and one recommendation | `/idea-goal` |
 | An epic, feature, or plan to break into stories or milestones that each deliver value | `/idea-slice` |
 | Building a feature or a slice of code from a plan, a spec, or a request | `/code-build` |
 | Reviewing a meaty code change before merge, a second opinion on a diff (correctness, security, performance) | `/pr-critique` |
 | Test strategy, what to test, missing coverage, flaky tests | `/test-design` |
+| A project with no scripted way to run the app and prove a feature works, or a verify skill whose feature map has drifted | `/test-verify` |
 | Positioning, category naming, a pitch, a landing page, launch copy | `/market-pitch` |
 | Channel choice, traction, a launch plan | `/market-launch` |
 | Testing a pitch, a frame, or a draft on a simulated buyer before it meets a real one | `/market-rehearse` |
@@ -33,20 +40,19 @@ I have a small library of skills and commands. They only help if I remember they
 | Work built with AI is about to go out, checking I can defend every decision in the PR/doc before review | `/pr-readiness` |
 | A production issue that needs diagnosing: errors, a stuck job, data that looks wrong | `/production-incident` |
 | One claim about live runtime state to verify, such as a count, a flag, or whether a row exists | `/production-query` |
-| Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden), or a PR/code stuffed with obvious comments | `/code-deslop` |
+| Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden) | `/code-deslop` |
+| Code or a diff stuffed with comments, or lint suppressions such as `rubocop:disable` and `@ts-ignore` | `/code-uncomment` |
 | Code that guards states that can't happen: needless rescues, fallbacks, retries, armor I didn't ask for | `/code-unguard` |
 | Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/test-prune` |
 | Working but tangled code that needs one cleanup pass | `/simplify` |
 | Code that grew by iteration and needs a cleanup too big for one pass, run as a checklist of slices | `/code-refactor` |
+| A long or unattended run I'll review later, or "catch me up on what you did" | `/work-log` |
+| Work to hand to a cloud agent, `codex exec`, or a background subagent, or a check on work handed off earlier | `/work-delegate` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
 
-### Anti-patterns
-
-- Do not invent skills. Only suggest ones in the table above (or ones I've explicitly invoked this session).
-- Do not pad responses with *"by the way, you have a `/foo` skill"* when the current task is already on rails.
-- Do not turn every reply into a skill-discovery menu. Most turns should not include a suggestion at all.
+Run or suggest only the skills in this table, or ones I invoked this session.
 
 # Project skills take precedence (detect, ask, remember)
 
@@ -69,7 +75,7 @@ Include the rule in the brief of any agent you dispatch. And don't summon the be
 
 # When to act and when to confirm
 
-Act on what you find. A skill or an agent applies its changes, then reports them. Ask me first only when the undo is expensive, or when other people would see the result.
+Act on what you find. A skill or an agent applies its changes, then reports them. Ask me first only when the undo is expensive, or before an outward action that the list below doesn't allow.
 
 **Local, and one command undoes it: apply, then report.** This covers edits to files in a git repo. Before the first write to a file that has uncommitted changes or isn't tracked, copy it to `~/.cache/agent-backups/<repo>/<YYYYMMDD-HHMMSS>/<path in repo>`. Then the undo is one command, even when my own edits are in the same file, and it still works after the session ends. End with a report in three parts:
 
@@ -81,10 +87,44 @@ A skill's own report sections can serve as the Changed part. Check and Undo alwa
 
 **Local, but the undo costs real work: confirm first.** This covers history rewrites (rebase, amend, force push), deleting files that git can't restore, and a migration run against a local database that holds data I care about.
 
-**Outward-facing or production: confirm first.** This covers a post or a comment on GitHub, Linear, Slack, or email, a push, and a deploy. People may see it before you delete it. A production mutation is mine to run, and fix scripts are human-run. `/work-triage` is the exception, and it creates draft PRs when its own risk tiers allow it.
+**Outward-facing: it depends on whose thread it is.** People may see a post before you delete it.
+
+- **Go ahead:** signed comments and thread replies on my own PRs and issues, plus status changes on Linear issues assigned to me.
+- **Ask first:** pushing my branch or opening a draft PR. Posts anywhere else need my OK too, like a comment on a teammate's PR or a Slack message.
+- **Always my OK:** merges, deploys, force pushes, Approve or Request changes on a teammate's PR, customer messages, and production mutations. Fix scripts are human-run.
+
+Every comment or message posted under my account ends with this line, on its own: `Posted by <agent> on Kamil's behalf`. `<agent>` is Claude, Codex, or Cursor, whichever wrote it. A post from an agent's own account, such as Cursor's app user in Linear, doesn't need it. PR descriptions and commit messages keep their attribution lines instead.
+
+A project can widen or narrow these lists in `context/<project>/escalation.md`. `/work-triage` is an exception, and it creates draft PRs when its own risk tiers allow it.
 
 **Decisions that are mine.** A failure policy (retry, degrade, alert, drop), or a behavior change I didn't ask for, is my call at any tier. Finish everything else first, then ask all such questions together at the end. An unattended run lists them in its run report.
+
+**Prototype before asking.** Before you ask me anything, sort the question. When running something would answer it, as with behavior, output, timing, layout, or performance, settle it with `/idea-prototype` and report what it showed. Only product and preference calls come to me.
 
 **Interactive skills keep their questions.** `/idea-challenge`, `/pr-readiness`, and the per-issue choice in `/pr-review` exist to get my input.
 
 **A steer brings the stop back.** When I say "ask first", "show me first", or `--review`, stop after the diagnosis and wait for me.
+
+**A steer can also widen it.** When I say I'm going to bed or stepping away, or "don't stop", "run until done", or "be fully autonomous", these hold until my next message:
+
+- **A finish condition first.** It's a check that can pass or fail. When I didn't give one, state the one you'll use at the top of the log. A duration isn't a finish condition.
+- **Pre-approved:** commits, pushing your own branch, draft PRs, and signed comments on my own PRs and issues. A skill's "leave it uncommitted" default gives way, and its result gets committed.
+- **Still my OK:** everything under "Always my OK" above.
+- **My decisions get a default.** Pick a reversible one, log it with the reason, and say what I could tell you instead. Don't park that part of the work. For the length of the grant, this replaces "Unattended runs never guess" and the at-any-tier line in "Decisions that are mine". A project-skill conflict defaults to the project's skill.
+- **Drop what doesn't help.** Revert a change that didn't move the finish condition. A plateau calls for a new approach, and it isn't a reason to stop. Never relax the condition. At a real dead end, stop and write up why.
+- **Keep a decision log** with `/work-log`, and end with its Attention section.
+
+# Say how you know
+
+In a report, mark each claim as measured, inferred, or a guess, in the same sentence as the claim. Never hand me a check you could run yourself. Run it, and report what it showed.
+
+# Fix the class, not only the instance
+
+When I correct you, fix the instance, then stop the mistake from coming back. Pick the strongest fix that works, in this order:
+
+1. **Make it impossible** with one source of truth, a type, a module boundary, or a hook.
+2. **A check whose error says the fix**, such as a lint rule, CI, `bin/check`, or a Vale rule.
+3. **A test.**
+4. **Prose** in a skill or in this file, last, because nothing fails when an agent skips it.
+
+In a team repo, a new check starts private in `context/<project>/checks/`, and moving it into the repo is my call. `/self-improve` does this at the end of a session, and `~/.claude/docs/enforcement.md` lists the rules here that already have a mechanism.

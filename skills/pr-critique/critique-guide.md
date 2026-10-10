@@ -31,7 +31,7 @@ Perfection is not the bar. The bar is whether this change leaves the codebase he
 
 **Naming.** Do the names communicate what the thing is or does, without becoming unwieldy? Bad names compound. Rename now, while the change is small.
 
-**Comments.** A comment explains *why*, because well-named code already explains *what*. If the code needs a comment to be understood, prefer making the code clearer first. Use the comment only when the why is non-obvious, such as a constraint, an invariant, or a workaround for a specific bug. `/code-deslop` defines the full rule.
+**Comments.** Each comment the diff adds must be on the keep list in `~/.claude/skills/code-uncomment/comment-guide.md`. When one explains a surprise in our own code, the finding is against the code, and its fix is the rename, extraction, or type that makes the comment unnecessary. A lint suppression of a correctness or safety rule is a finding too.
 
 **Style and consistency.** Defer to the project's style guide where one exists, and follow the surrounding code where it doesn't. Don't relitigate personal preference as policy. Mark pure-style nits as style.
 

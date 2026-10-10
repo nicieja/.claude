@@ -169,6 +169,7 @@ Report in one message:
 - each measured gain in the form that matters to its reader, such as the gzipped size of a bundle next to the raw size;
 - the checks of each slice and the mutation test, and each manual check with its limits;
 - the findings for later, one line each, for the user to decide;
+- **Check**: the slice with the weakest checks. Also list each planned output change, because behavior moved there on purpose;
 - **Undo**: the command that removes the run. On a new branch, that is deleting the branch. On the current branch, it is `git revert <first>^..<last>`.
 
 ---

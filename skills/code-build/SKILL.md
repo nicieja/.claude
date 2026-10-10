@@ -48,7 +48,7 @@ Taste is only a tiebreaker (see Step 1), and it runs in this direction:
 - **Fixed time, variable scope.** When the budget is tight, cut scope before you extend time. Decide which way before you start, not after.
 - **Done means running in production, not merged.** A change isn't finished until it's verified end-to-end and small enough to roll back cleanly.
 
-Guards follow the rule in `~/.claude/AGENTS.md` ("Don't defend against what can't happen") and `/code-unguard`. Comments follow `/code-deslop` Key Rule 5. By default there is no comment. Write one only to explain a why, a gotcha, an invariant, an external constraint, or a workaround. Step 5 checks both rules.
+Guards follow the rule in `~/.claude/AGENTS.md` ("Don't defend against what can't happen") and `/code-unguard`. Comments follow the keep list in `~/.claude/skills/code-uncomment/comment-guide.md`. By default there is no comment, and a surprise in our own code gets a clearer name or shape instead of a comment. Step 5 checks both rules.
 
 ## Instructions
 
@@ -72,6 +72,8 @@ When you do push back, state the harm specifically. Give the file, the failure m
 
 Skip this step when there is no plan. Plans, specs, design notes, and recommendations are a starting point. They are not a binding contract, but don't smuggle deviations either. Anything you change from the plan gets stated clearly in the handoff.
 
+An open question in the plan that running something would answer goes to `/idea-prototype` first, before the ladder below. Build from what the prototype showed.
+
 - **Cosmetic divergence: fix inline and flag it.** This covers names, file layout, and helper extraction. If a spec calls for `OrderCancellationService.execute(order)` and a verb on the noun reads better in this codebase, use the better name and flag the swap. Whoever wrote the plan was most likely not married to the exact API signature.
 - **Structural divergence: build the plan, and record the alternative.** This covers new layers, extra abstractions, and changes to where logic is defined. Build what the plan says. In the handoff, write what you'd do instead and the concrete cost of each, so the plan's author can decide. Don't drop a layer that was specifically requested.
 - **Behavioral divergence: the call belongs to the user.** If building the plan as written would change what the system does in a way the request didn't ask for, leave that part unbuilt. Build the rest, then ask about it at the end, per "Decisions that are mine" in `~/.claude/AGENTS.md`.
@@ -84,9 +86,13 @@ Build it end-to-end, in the style of the surrounding code, with intent-carrying 
 
 Run the targeted tests, the type checker, the linter, and any security tooling already configured in the project. If nothing exercises the change, write a focused test that does.
 
+Then run the project's private checks: each executable in `~/.claude/context/<project>/checks/`, with the changed files as arguments. A failure says the fix, so apply it.
+
+For a change a user would notice, passing tests don't prove the feature works, so prove it on the running app. Drive it with the repo's own verify skill, or with `~/.claude/context/<project>/verify/SKILL.md` when the repo has none, and treat an inconclusive drive as a fail.
+
 ### Step 5: Self-review
 
-Read your own diff as a sharp reviewer would. Cut anything you wouldn't defend. Check each guard the diff adds against the armor rule, and each comment it adds against the comment rule above.
+Read your own diff as a sharp reviewer would. Cut anything you wouldn't defend. Check each guard the diff adds against the armor rule, and each comment it adds against the keep list above.
 
 ### Step 6: Hand off
 
@@ -96,7 +102,7 @@ Write a concise summary with these sections:
 - **Design rationale**: the local patterns you matched and any deliberate taste decisions. Also list each divergence from the upstream plan, with the swap stated.
 - **What you ran**: tests, type checker, linter, security tooling, and their outcomes.
 - **Residual risk**: what you didn't cover and why. List each open decision about failure behavior (retry, degrade, alert, drop) with its options, because that call belongs to the user.
-- **Rollback**: the exact command that undoes the change, such as `git restore <files>` or `git revert <sha>`.
+- **Undo**: the exact command that undoes the change, such as `git restore <files>` or `git revert <sha>`.
 
 ## Key Rules
 

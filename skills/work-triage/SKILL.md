@@ -200,16 +200,17 @@ The pipeline is a sequence of **work phases**, and the agent types are not fixed
 - **Agent selection:** pick the agent best suited for software architecture and planning.
 
 #### Phase: Build
+- **Cloud executor:** hand the issue to `/work-delegate` instead of building it here when two things hold. `~/.claude/context/<project>/delegation.md` lists a cloud executor, and the repo's own skills cover the issue. Its pickup reviews the PR when it comes back. Build locally when the work needs skills that exist only in `~/.claude`.
 - **Isolation:** `worktree` (each issue gets its own isolated copy of the repo)
 - **Goal:** write the code
 - **Work:** write the code described in the plan. Write clean code following existing codebase patterns. Do NOT commit, just write the files.
 - **Agent selection:** pick the agent best suited for writing production code, and tell it to load the `code-build` skill before it writes anything. Its handoff matches the evidence bundle below, with its `Design rationale` section titled `Why this shape`. If the issue is primarily a refactor, also tell it to keep behavior the same and to follow the slice rules in `~/.claude/skills/code-refactor/refactor-guide.md`, without that skill's plan file, checkpoint, or commits.
 - **Diagnostic scripts for bugs:** for a bug or customer-reported issue, the Build agent also produces `tmp/diagnostic_<issue_id>.rb`. This is a read-only Rails console script that targets the records and identifiers listed in the Linear issue. The user runs it in production to verify that the fix addresses the real issue. When Diagnose moved into Build, this script is the diagnosis.
-- **Evidence bundle:** the Build agent's completion report must end with five short sections: `What changed`, `Why this shape`, `What you ran`, `Residual risk`, and `Rollback`. Verify and Review receive it, and the PR body's How-to-test section contains its verified commands.
+- **Evidence bundle:** the Build agent's completion report must end with five short sections: `What changed`, `Why this shape`, `What you ran`, `Residual risk`, and `Undo`. Verify and Review receive it, and the PR body's How-to-test section contains its verified commands.
 
 #### Phase: Verify
 - **Goal:** ensure the code works
-- **Work:** write and run tests for the changes. Ensure adequate coverage. Run the test suite and fix any failures.
+- **Work:** write and run tests for the changes. Ensure adequate coverage. Run the test suite and fix any failures. Then run each executable in `~/.claude/context/<project>/checks/` with the changed files as arguments, and fix what they report. For a change a user would notice, drive it on the running app with the repo's verify skill, or `~/.claude/context/<project>/verify/SKILL.md` when the repo has none. Keep the evidence for the PR.
 - **Agent selection:** pick the agent best suited for test automation, and tell it to load the `test-design` skill. Each test it adds comes with the red-then-green proof from that skill. Build's changes are uncommitted in the worktree, so prove red with a mutation, or stash only the production files under test and pop them before continuing. Never revert or check out over the Build work.
 - **Stage deference:** when Step 0.2 recorded a project skill for this stage, instruct the stage agent to run that skill (via the Skill tool) inside the worktree instead of improvising a test plan. Its output is passed to the pipeline exactly like the built-in stage's would be.
 
@@ -362,6 +363,11 @@ When all issues are processed or the user says Done, show a final table:
 | ENG-789 | Update API docs         | PR created | github.com/org/repo/pull/43 |
 ```
 
+Below the table:
+
+- **Check**: per PR, the stage with the weakest outcome. A review finding that was overridden counts, and so does a test that Verify couldn't run.
+- **Undo**: `gh pr close <number> --delete-branch` for each PR.
+
 ---
 
 ## Unattended mode
@@ -376,6 +382,7 @@ interactive flow, all non-negotiable:
   (step 1.4); needs a stage whose project-skill overlap has no recorded resolution;
   or requires production diagnostics that only a human can run.
 - **Auto-advance from the start**, auto-fix loop unchanged (cap 2).
+- **Keeps a decision log** with `/work-log`: one row per dispatch, stage outcome, skip, and fix round. The run report ends with its Attention section.
 - **Ends with a run report:** issues dispatched with stages completed and PR links,
   issues skipped with reasons, telemetry summary, and any conflicts left for an
   interactive session.

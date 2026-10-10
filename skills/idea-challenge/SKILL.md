@@ -22,12 +22,13 @@ Stress-test an engineering claim, proposal, or design decision. Force the user t
 ## Arguments
 - `/idea-challenge`: challenge whatever the user has been working on or just claimed in the conversation
 - `/idea-challenge <claim>`: challenge the specific claim or proposal in the argument
-- From a brief: another skill (such as `/idea-spec`) dispatches the `reviewer` agent with a brief that points here. See **Brief mode**.
+- From a brief: another skill (such as `/market-pitch`) dispatches the `reviewer` agent with a brief that points here. See **Brief mode**.
 
 ## Cases for another skill
 - They want help executing, not interrogating their plan → use a different skill
 - They're debugging a confirmed production issue → use `/production-incident` instead
-- They're refining a Linear ticket → `/idea-spec` already includes some of this. Prefer it.
+- They're refining a Linear ticket into a plan → `/idea-spec`.
+- A design question that running something would answer → `/idea-prototype`.
 
 ---
 
@@ -166,7 +167,7 @@ The forcing questions cover the engineering side. A user-facing feature, a roadm
 
 ## Brief mode
 
-The `reviewer` agent can load this skill from a brief, usually sent by `/idea-spec`. It runs in its own context and cannot ask the user anything. In that mode:
+The `reviewer` agent can load this skill from a brief, such as the pressure test in `/market-pitch`. It runs in its own context and cannot ask the user anything. In that mode:
 
 1. Take the claim and the stage from the brief. When the brief leaves the stage out, infer it and say which stage you used.
 2. Route the forcing questions as usual, and add the executive concerns when the claim is big enough for them.

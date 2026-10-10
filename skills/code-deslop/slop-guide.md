@@ -1,6 +1,6 @@
 # Slop guide
 
-The reference `deslop` loads every run. It defines what slop is and the markers to look for, then gives the rule for comments and worked before/after examples. Tune it over time. It is the spec, and the author sharpens it as the tells evolve.
+The reference `/code-deslop` loads every run. It defines what slop is in prose and the markers to look for, then gives worked before/after examples. Code comments follow `~/.claude/skills/code-uncomment/comment-guide.md` instead. Tune it over time. It is the spec, and the author sharpens it as the tells evolve.
 
 ## What slop is
 
@@ -43,18 +43,6 @@ Vale sees none of these. They are the reading.
 ### Surface: Vale's job
 
 Vocabulary, em-dash density, stock cadences, sign-offs, empty qualifiers: the `ai-tells` and `deslop` styles under `~/.claude/vale/` contain the list. Tune it there, not here. Its alerts are never evidence of authorship (strong human writers match every rule), and they are not the headline. Apply them last, in one mechanical sweep.
-
-## Comment rubric
-
-**Default: no comment.** A comment justifies its place ONLY if it does one of:
-
-- explains **why**, not what (a decision or tradeoff the code can't show);
-- warns of a **gotcha / footgun** (a non-obvious edge or ordering constraint);
-- documents an **invariant or precondition** not visible in the code;
-- cites an **external constraint** (a spec clause, bug id, or API quirk);
-- explains a **workaround**, with the reason and ideally a ticket.
-
-Everything else is cut. The clearest tell of AI over-commenting is narration, a comment that restates the line below it. Code says *what*, and comments exist for *why*.
 
 ---
 
@@ -100,54 +88,3 @@ Slop enumerates to avoid committing. Authored prose chooses and says why.
 
 Vale flags *testament, tapestry, delve* and the "isn't just X — it's Y" frame. Delete them and the sentence still names nothing; vocabulary was never the problem. Naming X/Y/Z is the fix, and only the compression test finds it.
 <!-- vale on -->
-
----
-
-## Comment examples
-
-**C1. Obvious narration → cut**
-```
-# increment the counter
-counter += 1
-```
-→ delete the comment.
-
-**C2. Docstring paraphrasing the signature → cut**
-```
-# get_user(id): gets the user by id
-def get_user(id): ...
-```
-→ delete, because the signature already says it.
-
-**C3. Step scaffolding → cut**
-```
-# Step 1: loop over the items
-# Step 2: return the total
-```
-→ delete, because the code is the steps.
-
-**C4. Commented-out code → cut**
-```
-# old_total = sum(x.price for x in items)
-```
-→ delete, because git remembers.
-
-**C5. "What" → reword to "why" (borderline)**
-```
-# sort the list
-items.sort(key=lambda x: x.created_at)
-```
-→ ✅ `# oldest-first: the reconciler applies events in creation order`, but only if that *why* is real. Otherwise cut.
-
-**C6. Crucial "why" → keep**
-```
-# Webhooks can arrive out of order; dedupe by event id before applying.
-# Inclusive range — the vendor API counts both endpoints (docs §4.2).
-```
-→ keep, because the code can't say this itself.
-
-**C7. Workaround / gotcha → keep**
-```
-# WORKAROUND: SDK <v3 throws on empty input; guard until upgrade (TICKET-123).
-```
-→ keep, because it explains a non-obvious guard and points to its end.

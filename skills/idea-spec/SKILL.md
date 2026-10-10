@@ -1,11 +1,11 @@
 ---
 name: idea-spec
-version: 1.2.0
+version: 2.0.0
 description: |
-  Take a half-formed task idea, research the codebase and the open web,
-  challenge it in an isolated review, run the build plan through the review
-  skills in pushback mode, and produce a refined plan in the
-  project's plans/ directory. Never starts coding without explicit approval.
+  Take a half-formed task idea, research the codebase and the open web, settle
+  its open questions by prototype, data check, or a question to the user, and
+  produce a refined plan in the project's plans/ directory, where each slice
+  states its proof. Never starts coding without explicit approval.
 allowed-tools:
   - Read
   - Write
@@ -13,7 +13,6 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
-  - Agent
   - Skill
   - AskUserQuestion
   - WebFetch
@@ -21,7 +20,7 @@ allowed-tools:
 ---
 
 # Spec
-Turn a half-formed idea into a refined plan. The skill researches the codebase and reads any URLs in the seed. It asks scope questions and scans the open web for prior art. It runs the proposal through `/idea-challenge` in an isolated `reviewer` agent for adversarial product review, then runs the build plan through the review skills in pushback mode. The artifact is a plan file in the project's `plans/` directory. The skill never writes code. It ends with an explicit "build now / defer" choice.
+Turn a half-formed idea into a refined plan. The skill researches the codebase and reads any URLs in the seed. It asks scope questions and scans the open web for prior art. Then it settles each open question by the cheapest honest route. A question that running something answers gets a prototype, a question about current data gets a production query, and a product or preference call goes to the user. The plan itself doesn't go through adversarial review, because a reviewer of a plan with no code behind it invents risks that never happen. Review comes later, on the built code. The artifact is a plan file in the project's `plans/` directory. The skill never writes code. It ends with an explicit "build now / defer" choice.
 
 ## Arguments
 - `/idea-spec <seed>`: shape the proposal in the seed (a sentence, a paragraph or a Slack pitch with URLs)
@@ -29,6 +28,7 @@ Turn a half-formed idea into a refined plan. The skill researches the codebase a
 
 ## Cases for another skill
 - They want to challenge one claim rather than plan work → use `/idea-challenge` instead
+- They want one design question settled by trying it → use `/idea-prototype` instead
 - They want to diagnose a production issue → use `/production-incident` instead
 - The Linear ticket is already shaped and ready to execute → use `/work-triage` instead
 
@@ -41,6 +41,8 @@ Follow these steps in order. A step that plainly doesn't apply is skipped, with 
 ### Step 0: Preflight
 
 1. **Capture the seed.** If invoked as `/idea-spec <text>`, that's the seed. If bare, ask once: "What's the idea you want to shape?" Do not proceed without a seed.
+
+   **A small change doesn't need a plan.** When the seed is a change to one or two files, a plan costs more than it saves. Say so, offer `/code-build`, and stop, unless the user still wants the plan.
 
 2. **Project-skill check.** Some repos have their own skill for this job. Check `~/.claude/context/<project>/resolutions.md` first (`<project>` = repo directory name): if it records a resolution for `shape`, follow it silently. Otherwise scan the project's skills (`<root>/skills/*/SKILL.md`, `<root>/.claude/skills/`, `<root>/.agents/skills/`, plus any project-scoped entries already in the available-skills listing) for one whose *output* covers turning an idea into a shaped plan or brief. No overlap → proceed. Overlap → ask via AskUserQuestion, one question:
 
@@ -207,47 +209,40 @@ Edit `## Research` with:
 
 ---
 
-### Step 5: Isolated challenge → write Considerations
+### Step 5: Settle the open questions → write Considerations
 
-Dispatch the `reviewer` agent via the Agent tool with `subagent_type: "reviewer"`. It runs `/idea-challenge` in brief mode, in its own context window. That's the unbiased-review property the skill depends on.
+List the open questions and the riskiest assumptions that Steps 2 to 4 left, then sort each one:
 
-The brief must include:
-- The seed prompt verbatim
-- The Context section just written
-- The Research section's "what we'd borrow / what we wouldn't" paragraph
-- An explicit ask:
-  > "Load the `idea-challenge` skill and run it in brief mode. The stage is designing / pre-build. Size the claim, and add the executive concerns when its size calls for them. Challenge this end-to-end. Don't rubber-stamp. Return your verdict (Solid / Weak / What to bring back, and the outcome line), the specific concerns I should reflect back to the user, and the gaps."
+- **Running something answers it**, as with behavior, output, timing, layout, or what an API returns. Invoke `/idea-prototype` with the question. Its result is evidence for Considerations.
+- **It's about the current state of production data.** Take it to Step 5.5.
+- **It's a product or preference call** that no experiment settles. Ask it via AskUserQuestion, one per call. A question the user can't answer goes to `## Open questions`.
 
-When the reviewer returns:
+When an answer changes the direction, present 2 or 3 concrete options via AskUserQuestion, such as "Narrow the wedge to X first" or "Keep scope but add Y guardrail". The user can pick "Other" to write their own.
 
-**If the verdict reports real concerns:**
-1. Brainstorm 2-3 ways to address them (as concrete options, not "we could think about…").
-2. Present via AskUserQuestion. Each option is a directional choice ("Narrow the wedge to X first", "Keep scope but add Y guardrail", etc.). The user can pick "Other" to write their own.
-3. Edit `## Considerations` to capture each surviving concern as **integrated prose owned by one voice**. Each paragraph says what the concern is and why it's real. It then says how the proposal answers it. These rules apply to the writing:
+Edit `## Considerations` to capture each question that changed the plan as **integrated prose owned by one voice**. Each paragraph says what the question was, the evidence that answered it, and how the proposal responds. These rules apply to the writing:
 
-   > **Hide the machinery**, because the reader doesn't care which subagent raised which concern. **Never** use headings, labels, or framings like "Challenge verdict", "User response", "What changed", "Architecture review", "Tester verdict", "Reviewer pushback", **and do not name subagents at all.** The Considerations section should read as if one engineer wrote it after thinking hard about the proposal.
-   >
-   > **Synthesize, don't transcribe.** Each concern that was kept in the plan becomes one short paragraph in prose, without `**Why:**` / `**How to apply:**` style scaffolding, transcript-style call-and-response, or "the user said" framing.
-   >
-   > **Drop concerns the team chose not to act on.** A list of rejected concerns is noise. Only immortalize a concern if either (a) it changed the plan, or (b) the *reasoning for setting it aside* is non-obvious and useful to a later reviewer.
+> **Hide the machinery**, because the reader doesn't care which prototype or query settled a question. **Never** use headings, labels, or framings like "Prototype result", "Query verdict", "User response", or "What changed", **and do not name skills or agents at all.** The Considerations section should read as if one engineer wrote it after thinking hard about the proposal.
+>
+> **Synthesize, don't transcribe.** Each question kept in the plan becomes one short paragraph in prose, without `**Why:**` / `**How to apply:**` style scaffolding, transcript-style call-and-response, or "the user said" framing.
+>
+> **Drop the questions that didn't change anything.** A list of answered non-issues is noise. Keep a question only if it changed the plan, or if the *reasoning for setting it aside* is non-obvious and useful to a later reviewer.
 
 Someone reading the plan a month later should see the **thought process**, written as the writer's own reasoning rather than as a transcript of the shaping session.
 
-**If the reviewer lists gaps** (a forcing question the material couldn't answer, such as no named customer), put each gap to the user as its own AskUserQuestion before the concern options. A gap the user can't close goes to `## Open questions`.
-
-**If the outcome line says this is the wrong thing to build**, show the user the reason and ask via AskUserQuestion with these options:
+**If the evidence says this is the wrong thing to build**, as when a prototype shows the approach can't work or the data shows the problem doesn't exist, show the user the reason and ask via AskUserQuestion with these options:
 - **Reshape the idea**: loop back to Step 3 with the reason as input.
 - **Proceed anyway**: record the reason in Considerations as an accepted risk.
 - **Stop**: leave the plan file as a deferred draft and exit.
 
-**If the verdict approves with no real concerns:** move on.
+To grill the idea itself, the user runs `/idea-challenge`, which this skill leaves out.
+
 ---
 
 ### Step 5.5: Verify riskiest assumptions against production data
 
-Some surviving concerns from Step 5 (and sometimes claims already written into Context from Step 3) rest on the current state of production data rather than on what the code or schema suggests. Examples are schema reality, row distributions, query plans, lock behavior, and whether the bad combination of states already exists in the wild. Code reading tells you what *could* happen, while production data tells you what *did*. Ratify those claims before they are written into `Implementation`.
+Some open questions from Step 5 (and sometimes claims already written into Context from Step 3) rest on the current state of production data rather than on what the code or schema suggests. Examples are schema reality, row distributions, query plans, lock behavior, and whether the bad combination of states already exists in the wild. Code reading tells you what *could* happen, while production data tells you what *did*. Ratify those claims before they are written into `Implementation`.
 
-For each surviving claim of this kind, invoke `/production-query` with the narrowest assertion that, if confirmed or refuted, moves the plan forward. Examples:
+For each claim of this kind, invoke `/production-query` with the narrowest assertion that, if confirmed or refuted, moves the plan forward. Examples:
 
 - `/production-query "no Account record has a NULL primary_subscription_id"`
 - `/production-query "the existing index_accounts_on_user_id is used by the proposed query plan"`
@@ -256,10 +251,10 @@ For each surviving claim of this kind, invoke `/production-query` with the narro
 `/production-query` writes the script, the user runs it, and returns one of `Confirmed`, `Refuted`, or `Inconclusive` with cited evidence. Use the verdicts to:
 
 - **`Confirmed`**: the assumption is true. Carry it into Step 6.
-- **`Refuted`**: the design rested on a wrong premise. Loop back to Step 5 (re-brainstorm with the new information) or Step 3 (revise Context). Do not write `Implementation` on a refuted assumption.
+- **`Refuted`**: the design rested on a wrong premise. Loop back to Step 5 (settle the questions again with the new information) or Step 3 (revise Context). Do not write `Implementation` on a refuted assumption.
 - **`Inconclusive`**: record it in Step 8's `## Open questions` with the specific query, count, or plan that would resolve it. `Implementation` can proceed, and the gap is stated so the next reader sees it.
 
-**When to skip.** Skip when no surviving claim concerns current data state, as with pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those belong to the `/idea-challenge` interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
+**When to skip.** Skip when no open claim concerns current data state, as with pure config tweaks, prose, UX-only work, or claims about future demand / user behavior / cross-system bets (those belong to the `/idea-challenge` interrogation). When the skip applies, say so in the plan once: `_Production-data verification skipped — no claims rest on current data state._`
 
 **Hide the machinery.** Like Step 5, the verification itself doesn't show up in the plan file as scaffolding. Confirmed findings fold into Considerations or `Implementation` as if the writer just knew them. Refuted claims become dropped (or reshaped) plan items rather than "we asked `/production-query` and it said no" call-outs. Write in one voice without a transcript, the same rule as Step 5 and Step 8.1.
 
@@ -279,50 +274,29 @@ Be detailed but not overly verbose.
 
 ---
 
-### Step 7: Review skills, adversarial mode
+### Step 7: State the proof for each slice
 
-**Auto-pick reviewers by domain** based on the `Implementation` section. Mapping:
+For each step or slice in `Implementation`, add the command or test that shows it works once built, or the observation that would. For a UI change, say what to look at and where. A slice whose proof you can't state is either not needed or not yet understood, so settle it in Step 5 or cut it.
 
-| Trigger in the plan | Review skill |
-|---|---|
-| Introduces new abstractions, cross-service boundaries, schema migrations, public APIs | `idea-primitive` |
-| Adds critical paths that need testing, changes test strategy, test infrastructure, or CI | `test-design` |
-
-A change can match both, in which case pick both. A change that matches none probably doesn't need review at this gate, and you should say so.
-
-**Show the user the auto-picked panel** before dispatch and ask via AskUserQuestion:
-- **Run as picked** (Recommended)
-- **Add or remove**
-- **Skip review**
-
-If "Add or remove": let the user write a freehand response listing which to drop and which to add.
-
-**Dispatch in parallel**, in one message with multiple Agent tool calls, one `subagent_type: "reviewer"` per picked skill. Each brief includes:
-- The Context (one paragraph version)
-- The Research summary
-- The full `Implementation` section
-- An explicit instruction:
-  > "Load the `<review skill>` skill and apply it in report mode. Apply the pushback framing of `/idea-challenge`: challenge this plan, don't validate it. Return blocking issues, should-fix items, and a one-line verdict. Use the smart-routing rules in `/idea-challenge` to choose the questions that matter for this stage (designing / pre-build)."
-
-Wait for **all** reviewers to return before writing.
+The plan doesn't go to a reviewer panel. Review happens on the built code, with `/pr-critique`, when there is something real to review.
 
 ---
 
 ### Step 8: Integrate, present, wait
 
-1. **Integrate findings.** Read each reviewer's report. Don't bury feedback at the bottom. Fold concrete changes into the `Implementation` section they affect. Use Edit to revise.
+1. **Integrate late results.** A prototype or query result that arrived after Step 5 changes the `Implementation` section it affects. Use Edit to revise.
 
-   **The integration is silent.** Skill names, "verdict" labels, and "blocking / should-fix" bucketing are scaffolding. They belong in the reviewer's report and never in the plan file. When a finding causes a change, the plan reflects the change as if the writer thought of it. When a finding adds a new tradeoff to Considerations, write it as one paragraph of integrated reasoning, never as "The architecture review flagged X". Same rule as Step 5: hide the machinery.
+   **The integration is silent.** Skill names and "verdict" labels are scaffolding, and they never go in the plan file. When a result causes a change, the plan reflects the change as if the writer thought of it. When it adds a new tradeoff to Considerations, write it as one paragraph of integrated reasoning, never as "The prototype showed X". Same rule as Step 5: hide the machinery.
 
 2. **Open questions.** Edit `## Open questions` with anything that's not blocking but needs a call from the user. One question per entry, with a sentence of context.
 
 3. **Out of scope.** Edit `## Out of scope` with anything that came up during shaping but is not in this plan. Examples are explicit non-goals, related work that should be a separate plan, and things deliberately deferred. Write one bullet per item with one short reason each. This is the **only** out-of-scope section in the file (without duplication in Context or a subsection inside `Implementation`).
 
-4. **Final clarifications.** If a reviewer's feedback opened a real new tradeoff, ask 1-2 final questions via AskUserQuestion (one per call) before locking the plan.
+4. **Final clarifications.** If a late result opened a real new tradeoff, ask 1-2 final questions via AskUserQuestion (one per call) before locking the plan.
 
 5. **Verification section.** Edit `## Verification` with how to test the work end-to-end once it's built (what command, what to look for, what would prove it broken). **This is where specific identifiers from the seed (charge IDs, invoice numbers, exact amounts, dates) are allowed and useful**, because they help reproduce or sanity-check the fix in production.
 
-6. **Self-audit.** Re-read the plan end-to-end as if you'd never seen it before. The plan has been built section by section under different lenses (the challenge, the review skills, user clarifications). That makes drift between sections the default rather than the exception. Catch it before the user does.
+6. **Self-audit.** Re-read the plan end-to-end as if you'd never seen it before. The plan has been built section by section from different inputs (research, prototypes, data checks, user clarifications). That makes drift between sections the default rather than the exception. Catch it before the user does.
 
    Run these checks against the file you just wrote, and **edit in place** to fix any gaps you find. Do not put "audit notes" in the plan. The integration is silent, same as Step 5 and 8.1. The reader sees a coherent plan, and the caught inconsistencies are fixed in place rather than listed.
 
@@ -336,7 +310,7 @@ Wait for **all** reviewers to return before writing.
 
 7. **Final ask.** Show the plan path and use AskUserQuestion:
    - **Build now**: confirm the path. The user is expected to start the build separately (e.g., `/work-triage` for ticket-driven work, or just `implement this plan`). The skill exits cleanly.
-   - **Edit plan**: user wants to revise. Loop back to Step 6 (re-plan) or Step 7 (re-review).
+   - **Edit plan**: user wants to revise. Loop back to Step 5 (settle a new question) or Step 6 (re-plan).
    - **Defer**: leave the plan in the repo. The skill exits.
 
 **Never start coding from this skill.** The artifact is the plan. The build is a separate invocation.
@@ -345,7 +319,7 @@ Wait for **all** reviewers to return before writing.
 
 ## Key Rules
 
-1. **The spec is the artifact, the process isn't.** Nothing in the plan file should reveal how it was produced. That rules out agent and skill names ("reviewer", "idea-challenge", "idea-primitive"), procedural subheadings ("Challenge verdict", "User response", "Specialist pushback", "Verdict"), and "the user said" framing. A reader six months from now should see one coherent voice rather than a transcript of the shaping session.
+1. **The spec is the artifact, the process isn't.** Nothing in the plan file should reveal how it was produced. That rules out skill names ("idea-prototype", "production-query"), procedural subheadings ("Prototype result", "Query verdict", "User response", "Verdict"), and "the user said" framing. A reader six months from now should see one coherent voice rather than a transcript of the shaping session.
 2. **Use roles instead of names.** Refer to people by role ("the customer's accountant", "Finance", "the team", "we"). Never name individuals (engineers, customers, teammates), even when the seed uses names verbatim. Repos can be public and team members rotate. Specific names rot.
 3. **Abstract narrative, specific verification.** Context narrates the *class of problem* in role-based, identifier-free prose. Specific charge IDs, invoice numbers, exact amounts, and exact dates only appear in `## Verification`, where they help reproduce or sanity-check.
 4. **Plan directory: discover first, default last.** Step 0.3 checks `docs/plans/`, `plans/`, `rfcs/`, `designs/`, `.agents/plans/`. When a `TEMPLATE.md` is detected, the user picks (repo template vs. skill default). The skill recommends the repo template but doesn't override silently. Fall back to `~/.claude/plans/` only when not in a git repo, and tell the user.
@@ -353,12 +327,12 @@ Wait for **all** reviewers to return before writing.
 6. **Slugs are tight.** 2 to 4 words, ≤32 chars, the core noun phrase. The plan title matches the slug's intent.
 7. **One question per AskUserQuestion call.** Never batch.
 8. **Edit, don't rewrite.** After Step 1's skeleton, all section updates use Edit so user mid-flow tweaks survive.
-9. **The challenge must run in the `reviewer` agent** (`subagent_type: "reviewer"`, with `/idea-challenge` in brief mode). The separate context is the unbiased-review property this skill depends on.
-10. **Reviewers in Step 7 must be briefed with explicit pushback framing.** The brief says "challenge this" rather than "review this." A reviewer who rubber-stamps got the wrong brief.
+9. **A plan with no code behind it doesn't go through adversarial review.** Open questions are settled by running something, by a data check, or by asking the user. Review happens on the built code.
+10. **Every slice states its proof.** A command, a test, or an observation. A slice without one isn't understood yet.
 11. **Skip steps when obviously not applicable**, but note the skip in the plan (`_External research skipped — internal scope._`). Don't silently drop work.
 12. **This skill never writes code.** The artifact is the plan file. The build is a separate invocation.
 13. **External research is best-effort.** If WebSearch and WebFetch return nothing useful, say so in the Research section. Don't pad with weak sources.
-14. **The plan should read as a thought process rather than a conclusion.** Considerations captures what was challenged and how it changed the proposal, synthesized in one voice rather than transcribed as a back-and-forth. That's what makes the plan reviewable later.
+14. **The plan should read as a thought process rather than a conclusion.** Considerations captures what was settled and how it changed the proposal, synthesized in one voice rather than transcribed as a back-and-forth. That's what makes the plan reviewable later.
 15. **Self-audit before final ask.** A plan built section by section under different lenses drifts. The audit (Step 8.6) re-reads the whole plan and catches coverage gaps between Context and `Implementation`, unanswered Considerations, Verification that doesn't match the success criteria, and contradictions between sections. Edit in place and never expose the audit as scaffolding in the plan file.
 16. **Verify the riskiest design bets against production data.** Step 5.5 invokes `/production-query` for any surviving claim about the current state of data, such as schema reality, row distributions, query plans, lock behavior, or status combinations. Refuted claims rewrite the plan, and inconclusive ones are recorded in Open questions. `/production-query` is for the current state of production rather than for its future state. Demand and behavior belong to `/idea-challenge`.
 17. **The publishability test extends "roles instead of names" to domains.** This library is public: plans may contain project specifics (they're gitignored), but nothing written back into skills, commands, or agents may mention an employer, product, customer, internal service, or industry domain. Examples in prompt files use neutral SaaS vocabulary (orders, accounts, subscriptions, webhooks).

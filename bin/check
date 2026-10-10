@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Lint this library's files: the tracked ones, plus new ones git doesn't ignore.
+
+Each failure prints as `path:line: problem. Fix: ...` and the exit code is 1
+when anything fails. The rules come from docs/enforcement.md.
+
+  bin/check                 every rule, over the tracked files
+  bin/check --terms FILE…   only the private-terms rule, over the files given,
+                            where - reads stdin (the commit-msg hook uses it)
+
+Stdlib only. Reads context/*/private-terms, which is gitignored, so a machine
+without a context/ directory skips that rule.
+"""
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+
+# Slash commands that Claude Code or Codex provide, so no file here defines them.
+BUILTINS = {"simplify", "code-review", "loop", "compact", "hooks"}
+
+# Skills that are reached through other skills and don't need a trigger-map row.
+TRIGGER_EXEMPT = set()
+
+SKILL_REF = re.compile(r"`/([a-z][a-z0-9-]*(?::[a-z0-9-]+)?)(?=[`\s])")
+SKILL_PATH = re.compile(r"~/\.claude/(skills/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+)")
+# The line an act-then-report skill opens its Instructions with.
+ACT_RULE = "Acting and confirming follow"
+
+failures = []
+
+
+def fail(path, line, problem, fix):
+    failures.append(f"{path}:{line}: {problem}. Fix: {fix}")
+
+
+def tracked():
+    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "--cached", "--others",
+                          "--exclude-standard"], capture_output=True,
+                         text=True, check=True).stdout
+    return [p for p in out.splitlines() if p]
+
+
+def read(rel):
+    try:
+        return (REPO / rel).read_text(encoding="utf-8")
+    except (UnicodeDecodeError, FileNotFoundError):
+        return None
+
+
+def frontmatter(text):
+    if not text.startswith("---\n"):
+        return {}
+    end = text.find("\n---", 4)
+    fields = {}
+    for line in text[4:end].splitlines():
+        m = re.match(r"([a-z][a-z-]*):\s*(.*)", line)
+        if m:
+            fields[m.group(1)] = m.group(2).strip()
+    return fields
+
+
+def check_references(files, names):
+    for rel in files:
+        if not rel.endswith(".md"):
+            continue
+        text = read(rel) or ""
+        for n, line in enumerate(text.splitlines(), 1):
+            for m in SKILL_REF.finditer(line):
+                name = m.group(1)
+                if ":" in name or name in names:
+                    continue
+                fail(rel, n, f"`/{name}` matches no skill, command, or built-in",
+                     "rename the reference, or add a real built-in to BUILTINS in bin/check")
+
+
+def check_trigger_map(skills, names):
+    lines = (read("AGENTS.md") or "").splitlines()
+    if "### Trigger map" not in lines:
+        fail("AGENTS.md", 1, "no '### Trigger map' section", "restore the section")
+        return
+    mapped = set()
+    in_table = False
+    for n, line in enumerate(lines[lines.index("### Trigger map"):],
+                             lines.index("### Trigger map") + 1):
+        if not line.startswith("|"):
+            if in_table:
+                break
+            continue
+        in_table = True
+        cells = line.strip().strip("|").split("|")
+        for name in re.findall(r"`/([a-z][a-z0-9-]*)`", cells[-1]):
+            mapped.add(name)
+            if name not in names:
+                fail("AGENTS.md", n, f"trigger-map row points to `/{name}`, which doesn't exist",
+                     "point the row at an existing skill, or delete it")
+    for skill in sorted(skills - mapped - TRIGGER_EXEMPT):
+        fail(f"skills/{skill}/SKILL.md", 1, f"`/{skill}` has no row in the AGENTS.md trigger map",
+             "add a row, or add the skill to TRIGGER_EXEMPT in bin/check with a comment")
+
+
+def check_frontmatter(files, skills):
+    tracked_set = set(files)
+    for skill in sorted(skills):
+        rel = f"skills/{skill}/SKILL.md"
+        fm = frontmatter(read(rel) or "")
+        if fm.get("name") != skill:
+            fail(rel, 2, f"frontmatter name is {fm.get('name')!r}, the directory is {skill!r}",
+                 "make them match")
+        if not re.fullmatch(r"\d+\.\d+\.\d+", fm.get("version", "")):
+            fail(rel, 1, "frontmatter has no semver version", "add `version: 1.0.0`")
+        if "description" not in fm:
+            fail(rel, 1, "frontmatter has no description", "add one")
+    for rel in files:
+        if rel.startswith("agents/") and rel.endswith(".md") and not rel.endswith(".evals.md"):
+            stem = Path(rel).stem
+            fm = frontmatter(read(rel) or "")
+            if fm.get("name") != stem:
+                fail(rel, 2, f"agent name is {fm.get('name')!r}, the file is {stem!r}",
+                     "make them match")
+    for rel in files:
+        if not rel.endswith(".md"):
+            continue
+        for n, line in enumerate((read(rel) or "").splitlines(), 1):
+            for m in SKILL_PATH.finditer(line):
+                target = m.group(1).rstrip(".")
+                if target not in tracked_set:
+                    fail(rel, n, f"~/.claude/{target} doesn't exist",
+                         "fix the path, or create the file")
+
+
+def check_act_then_report(skills):
+    for skill in sorted(skills):
+        rel = f"skills/{skill}/SKILL.md"
+        text = read(rel) or ""
+        if ACT_RULE not in text:
+            continue
+        for part in ("Check", "Undo"):
+            if f"**{part}**" not in text:
+                fail(rel, 1, f"acts, then reports (\"{ACT_RULE}\"), but its report has no **{part}** part",
+                     f"add the **{part}** part to the report, as AGENTS.md requires")
+
+
+def private_terms():
+    terms = []
+    for path in sorted((REPO / "context").glob("*/private-terms")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                terms.append(line)
+    return terms
+
+
+def check_terms(paths, terms):
+    if not terms:
+        return
+    pattern = re.compile(r"(?<![A-Za-z0-9_])(?:" + "|".join(map(re.escape, terms))
+                         + r")(?![A-Za-z0-9_])")
+    for path in paths:
+        try:
+            text = sys.stdin.read() if path == "-" else \
+                Path(path if Path(path).is_absolute() else REPO / path).read_text(encoding="utf-8")
+        except (UnicodeDecodeError, FileNotFoundError, IsADirectoryError):
+            continue
+        for n, line in enumerate(text.splitlines(), 1):
+            m = pattern.search(line)
+            if m:
+                fail(path, n, f"contains the private term {m.group(0)!r}",
+                     "move the project-specific content to context/<project>/")
+
+
+def main(argv):
+    if argv[:1] == ["--terms"]:
+        check_terms(argv[1:], private_terms())
+    else:
+        files = tracked()
+        skills = {p.split("/")[1] for p in files
+                  if re.fullmatch(r"skills/[^/]+/SKILL\.md", p)}
+        commands = {Path(p).stem for p in files if re.fullmatch(r"commands/[^/]+\.md", p)}
+        names = skills | commands | BUILTINS
+        check_references(files, names)
+        check_trigger_map(skills, names)
+        check_frontmatter(files, skills)
+        check_act_then_report(skills)
+        check_terms(files, private_terms())
+    for line in failures:
+        print(line)
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

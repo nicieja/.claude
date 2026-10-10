@@ -97,10 +97,10 @@ After gathering all sources, present one merged, prioritized table. Confirm the 
 - would take a specialist a fifth of the rotation engineer's time
 - involves systems the rotation engineer shouldn't be modifying
 
-Delegating doesn't mean forgetting. For each delegation:
+Delegating doesn't mean forgetting. These Linear writes follow the outward rule in `~/.claude/AGENTS.md` ("When to act and when to confirm"). An issue that isn't assigned to me needs my OK before the first write. For each delegation:
 
 1. Assign it in Linear by updating the issue's assignee through the Linear MCP tools.
-2. Add a context comment through the Linear MCP tools, with the body passed as the tool's string argument.
+2. Add a context comment through the Linear MCP tools, with the body passed as the tool's string argument. It ends with the signature line from `~/.claude/AGENTS.md`.
 3. Set a follow-up date.
 4. Track it for the session summary.
 

@@ -335,10 +335,12 @@ AskUserQuestion offers **Post (comment)** / **Post (request changes)** / **Post 
 
 **"Don't post"** → stop cleanly. The draft stays in the conversation, without files, partial posts, or a follow-up menu.
 
+The review body and every reply end with the signature line from `~/.claude/AGENTS.md` ("When to act and when to confirm"), on its own line: `Posted by Claude on Kamil's behalf`, with your own agent name. The outward guard denies a post without it.
+
 On post:
 
-1. Re-check `gh pr view <num> --json headRefOid`. If it drifted, re-fetch the `/files` patches, re-validate every anchor, and demote broken ones to the review body.
-2. Build the payload as JSON in the session scratchpad directory (fall back to `/tmp`):
+1. Re-check `gh pr view <num> --json headRefOid`. If it drifted, re-fetch the patches from the PR's files endpoint, re-validate every anchor, and demote broken ones to the review body.
+2. Build the payload as JSON in the session scratchpad directory (fall back to `/tmp/`):
 
    ```json
    {
@@ -356,14 +358,16 @@ On post:
    gh api repos/<owner>/<repo>/pulls/<num>/reviews --method POST --input <scratchpad>/review-payload.json
    ```
 
+   A `COMMENT` review is yours to post. An `APPROVE` or `REQUEST_CHANGES` review always needs Kamil's own hand, even after his pick, and the outward guard denies it. Print the command and ask him to run it with `! <command>`, then continue with the replies once he has.
+
    Always pass `event`, because omitting it creates a PENDING review nobody sees. Prefer single-line anchors. A multi-line anchor needs `start_line < line` within one hunk. An `APPROVE` on the nothing-novel path may omit `comments` and have a one-line body. The POST is **atomic**. A 422 means nothing was posted. Parse the error, demote the offending comment(s) to the body, and retry **once**. If it still fails, print the payload path and the error, then stop.
 3. Post the replies, one call per endorsement/refutation, using the `databaseId` from the endorsement-target table (it must be the thread's top-level comment, because replies-to-replies are unsupported):
 
    ```bash
-   gh api repos/<owner>/<repo>/pulls/<num>/comments/<databaseId>/replies --method POST -f body='…'
+   gh api repos/<owner>/<repo>/pulls/<num>/comments/<databaseId>/replies --method POST -F body=@<scratchpad>/reply-<databaseId>.md
    ```
 
-   Replies are not atomic with the review. If one fails, report which thread failed and continue with the rest.
+   Write each reply body to its file first, so the apostrophe in the signature can't break the shell quoting. Replies are not atomic with the review. If one fails, report which thread failed and continue with the rest.
 4. Print the review URL. Stop without a follow-up menu.
 
 ---

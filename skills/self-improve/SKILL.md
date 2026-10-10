@@ -1,13 +1,14 @@
 ---
 name: self-improve
-version: 3.0.0
+version: 4.0.0
 description: |
-  Turn the current session into durable harness improvements. Harvest
-  corrections, failed paths, and repeated instructions; generalize each into a
-  class-level lesson; route every lesson to the smallest durable home: global
-  AGENTS.md, an existing skill/command/agent, the project's context directory,
-  or the project's own learning skill. Applies the lessons and commits them,
-  with each lesson listed in the commit message.
+  Turn the current session, or the corrections that recur across past
+  sessions, into durable harness improvements. Generalizes each correction into
+  a class-level lesson, then fixes it at the strongest level that works: make
+  the mistake impossible, add a check whose error says the fix, add a test, and
+  only then write prose. Checks go in this library or, for a project, in its
+  private context. Applies the lessons and commits them, with each lesson listed
+  in the commit message.
 allowed-tools:
   - Read
   - Edit
@@ -30,6 +31,7 @@ generalization become nothing. An honest "no durable learning" is a valid result
 
 - `/self-improve`: harvest the current session.
 - `/self-improve <hint>`: focus the harvest on one thread of the session.
+- `/self-improve history [topic]`: look across past sessions and recent PRs for corrections that recur (see **History mode**).
 - Steers in plain words: `--review` / "ask first" stops after the Step 4 table and waits for your pick.
 
 ## Cases for another skill
@@ -55,6 +57,14 @@ Re-read the session for the moments that cost something:
 
 Each candidate keeps a pointer to its evidence (the message or output that shows it).
 
+### History mode
+
+`/self-improve history [topic]` harvests past work instead of this session:
+
+1. Search my own turns with `~/.claude/bin/transcripts.py search '<regex>' --days 60`, for correction phrasing ("I said", "again", "don't", "stop", "why did you") and for the topic. Read each match in its session before counting it. Only Claude Code sessions are on disk, so Codex and Cursor corrections don't show up.
+2. In the current repo, read `git log --grep='^Revert' --since='60 days ago'`, and the review comments on my recent PRs (`gh pr list --author @me --state all --limit 20`, then `gh api repos/<owner>/<repo>/pulls/<number>/comments`).
+3. Group the findings into mistake classes. A class counts once it has happened twice, in two sessions or two PRs. The classes are the candidates for Step 2.
+
 ### Step 2: Generalize
 
 For each candidate, strip the session's specifics (branch names, ticket IDs,
@@ -64,30 +74,31 @@ sense without its specific nouns, it is not general enough to install; keep it a
 evidence only. Drop generic advice ("write tests", "read the code") and anything an
 existing file already says.
 
-### Step 3: Route each lesson to the smallest durable home
+### Step 3: Pick the level, then the home
 
-In order of preference:
+A rule an agent can skip is weaker than a check that fails. For each lesson, pick the strongest level that works, per `~/.claude/AGENTS.md` ("Fix the class, not only the instance"), and say why each level above it doesn't:
 
-1. **Global `~/.claude/AGENTS.md`**: only for behavior that should change in every repo. Claude Code loads it through `CLAUDE.md`, and a rule that only Claude Code can follow goes in `~/.claude/CLAUDE.md` itself.
-2. **An existing global skill, command, or agent**: when the lesson is a gap in a
-   workflow this library already covers.
-3. **`~/.claude/context/<project>/`**: project-specific facts and preferences.
-   Stack notes go into `stack.md`, calls into `decisions.md`, and metric learnings into
-   `charter.md`.
-4. **The project's own learning skill**, for a lesson that belongs to the repo's
-   harness (its docs, skills, and routing) when the repo has a skill for
-   exactly this job. Offer to invoke it via the Skill tool for those lessons.
-   Never edit the project's files from here.
-5. **A proposal**, for a repo-owned lesson without a project learning skill. Write the
-   suggested patch into the report for the user to hand to the repo's owners.
-6. **Nothing**: useful history without a durable rule. Say so.
+1. **Make it impossible.** In this library, that means one source of truth instead of hand-synced lists, or a hook. In a project, it means a type or a module boundary, which is a change to the project's code, so it becomes a proposal unless I say otherwise.
+2. **A check whose error says the fix.** In this library, that's a rule in `bin/check`, a Vale rule in `vale/styles/deslop/`, or a pattern in `bin/hooks/outward_guard.py`. In a project, it's a private check in `context/<project>/checks/`, in the format of `context.example/checks/README.md`. Moving a private check into the repo is my call.
+3. **A test.** In this library, that's an eval like `agents/persona.evals.md`. In a project, a test is a proposal.
+4. **Prose.** Only for a decision that needs judgment, which a mechanism can't make. Its homes, in order of preference:
+   1. **Global `~/.claude/AGENTS.md`**: only for behavior that should change in every repo. Claude Code loads it through `CLAUDE.md`, and a rule that only Claude Code can follow goes in `~/.claude/CLAUDE.md` itself.
+   2. **An existing global skill, command, or agent**: when a workflow this library already covers is missing the lesson.
+   3. **`~/.claude/context/<project>/`**: project-specific facts and preferences. Stack notes go into `stack.md`, calls into `decisions.md`, and metric learnings into `charter.md`.
+   4. **The project's own learning skill**, for a lesson that belongs to the repo's harness (its docs, skills, and routing) when the repo has a skill for exactly this job. Offer to invoke it via the Skill tool for those lessons. Never edit the project's files from here.
+   5. **A proposal**, for a repo-owned lesson without a project learning skill. Write the suggested patch into the report for the user to hand to the repo's owners.
+   6. **Nothing**: useful history without a durable rule. Say so.
+
+**A repeat moves up a level.** Search `AGENTS.md`, the skills, and the project's context for the lesson's rule before writing it. When the rule is already there as prose and the session broke it anyway, write the mechanism, not a second copy of the rule.
+
+**Prove a check before keeping it.** Run it against the evidence where the mistake happened, such as the commit, the diff, or a file with the excerpt. It must report the mistake. A check that doesn't report its own evidence is wrong, so fix it or drop it.
 
 Never create a new skill from one session. A workflow gap justifies a skill when it has
 recurred. Until then it is a note in `decisions.md`.
 
 ### Step 4: Prune and route
 
-Print a table (lesson → home → one-line patch summary), then continue to Step 5 and
+Print a table (lesson → level → home → one-line patch summary), then continue to Step 5 and
 apply every lesson that has a home. The user can interrupt to drop a lesson. With
 `--review`, ask which to apply (multi-select) and wait for the answer before any write.
 
@@ -102,6 +113,7 @@ Route 5 stays a written proposal.
   customer, or industry-domain vocabulary, and neutral SaaS examples only.
   Project-specific content goes to `context/<project>/`, never to tracked files.
 - Context files are created from their `context.example/` templates when missing.
+- A new check in this library gets a row in `docs/enforcement.md`. A private project check gets a row in `context/<project>/rules.md`.
 - A tracked file that already has uncommitted changes is being edited now. Skip its
   lesson, apply the rest, and ask about it at the end of the run.
 - Commit the tracked writes in `~/.claude` in one commit. Its message lists each lesson
@@ -110,7 +122,7 @@ Route 5 stays a written proposal.
 
 ### Step 6: Report
 
-Write one line per lesson: installed where, or why not (skipped / proposal / evidence
+Write one line per lesson with its level and where it's installed. A lesson that wasn't installed says why (skipped / proposal / evidence
 only). If an edited file contained a rule that now looks obsolete, flag it as a
 question and never silently drop it.
 
@@ -121,12 +133,12 @@ quoted lines for the context files.
 
 ## Key Rules
 
-1. **Harness-first.** A lesson that changes future behavior is better than a note that
-   describes past behavior. Notes are only the fallback.
+1. **Structure first.** A check that fails is stronger than a rule an agent can skip, and
+   a rule is stronger than a note about the past. Prose is the fallback, and a note is the last resort.
 2. **One strong lesson beats five weak ones.** Prune before proposing.
 3. **Prune before writing, then apply and commit.** The commit message lists every lesson, and the report quotes every new rule.
 4. **Publishability applies to every tracked write.** Project specifics live in
    `context/`, which is gitignored.
 5. **Never edit another repo's files.** Repo-owned lessons route to the repo's own
    learning skill or become proposals.
-6. **No new skills from one session.** Recurrence justifies skills.
+6. **No new skills from one session.** Recurrence justifies skills, and `history` mode finds it.

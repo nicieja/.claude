@@ -1,0 +1,4 @@
+# Words that tracked files in ~/.claude must never contain, such as an employer,
+# a product, or a customer name. One literal, case-sensitive term per line.
+# bin/check and the commit-msg hook read every context/<project>/private-terms.
+ExampleCo

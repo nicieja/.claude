@@ -1,0 +1,15 @@
+#!/bin/sh
+# Lint the commit message: Vale with the commit-message rules, plus the
+# private-terms check. The scissors section of `git commit -v` and the
+# template's comment lines are stripped first.
+
+repo=$(git rev-parse --show-toplevel)
+message=$(sed '/^# -* >8 -*$/,$d' "$1" | git stripspace --strip-comments)
+status=0
+
+printf '%s\n' "$message" |
+  vale --config "$repo/vale/.vale.ini" --ext=.md --path=COMMIT_EDITMSG --minAlertLevel=error --output=line ||
+  status=1
+printf '%s\n' "$message" | "$repo/bin/check" --terms - || status=1
+
+exit $status

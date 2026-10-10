@@ -38,6 +38,14 @@ report $? "config symlink" "$link_fix"
 [ -d "$repo/vale/styles/ai-tells" ] && [ -d "$repo/vale/styles/ai-tells-commits" ]
 report $? "style packages" "(cd $repo/vale && vale sync)"
 
+printf '\nGuards\n'
+
+[ "$(git -C "$repo" config --get core.hooksPath)" = ".githooks" ]
+report $? "git hooks (bin/check, Vale)" "git -C $repo config core.hooksPath .githooks"
+
+grep -q 'outward_guard' "$repo/settings.json" 2>/dev/null
+report $? "Claude Code outward guard" "copy the \"hooks\" block from settings.json.example into settings.json"
+
 if [ -d "$HOME/.codex" ]; then
   printf '\nCodex\n'
 
@@ -48,6 +56,14 @@ if [ -d "$HOME/.codex" ]; then
   fi
   [ "$(readlink "$codex_rules")" = "$repo/AGENTS.md" ]
   report $? "global rules symlink" "$rules_fix"
+
+  codex_hooks="$HOME/.codex/hooks.json"
+  hooks_fix="ln -s $repo/codex/hooks.json '$codex_hooks', then trust it with /hooks in Codex"
+  if [ -e "$codex_hooks" ] || [ -L "$codex_hooks" ]; then
+    hooks_fix="rm '$codex_hooks' && $hooks_fix"
+  fi
+  [ "$(readlink "$codex_hooks")" = "$repo/codex/hooks.json" ]
+  report $? "outward guard symlink (trust it once with /hooks)" "$hooks_fix"
 fi
 
 printf '\nLocal config\n'

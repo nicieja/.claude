@@ -129,6 +129,7 @@ Each improvement is written as a task:
 
 - **Title**: imperative, scoped (e.g. *"Add CI check for migration safety on schema changes"*)
 - **Why**: one sentence on the gain
+- **Level**: structure, check, test, or prose. Pick the strongest that works, per `~/.claude/AGENTS.md` ("Fix the class, not only the instance"). A rule that already exists as prose and was broken again moves up a level.
 - **Effort**: rough estimate (h / d / w)
 - **When**: set *Now* if it's a tweak to agentic config (a new skill, hook, agent definition, settings change) or any other low-cost change the user could make today; *Queued* otherwise.
 
@@ -187,7 +188,7 @@ Wrap the final retro in a fenced code block as **GitHub-flavored markdown** (ren
 - **Check**: ...
 
 ## Improvements to bake in
-- **<title>** — <why>. Effort: <est>. When: <Now | Queued>.
+- **<title>** — <why>. Level: <structure | check | test | prose>. Effort: <est>. When: <Now | Queued>.
 
 ## Ongoing practices
 - ...
