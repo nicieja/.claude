@@ -7,6 +7,8 @@ The reference `code-refactor` loads every run. It lists the marks that iteration
 Code that reached its form through experiments and changed requirements still shows the path it took. Each mark below comes with the change that removes it. A mark is a lead for the survey, and it becomes a slice only after the survey finds it in the code.
 
 - **Dead code.** A function whose only caller is its own test, or an export that other files never import. Delete it, and point the test at the code that is still in use. The props and options that a callee ignores go too.
+- **Wrappers that only forward.** An adapter or a wrapper that passes values through without adding a policy. Callers use the wrapped code directly.
+- **Leftovers of a cutover.** A compatibility layer, or a flag or config branch that no supported runtime path reads after a hard cutover. Delete it, unless the user has called out a migration window that still needs it.
 - **Scattered file access.** Paths and readers spread across scripts, or a script that imports another script for a path or a helper. Move the paths and the readers into one module, next to one writer.
 - **Writers that format in different ways.** One writer of a kind of file formats its output and another does not, and a rerun of an untouched generator then changes a committed file. One writer fixes it, and the first rerun after the change commits the format once.
 - **A file format in pieces.** The check of a file is in one module and its writer in another. One module per format gets the check and the reader, and also the writer and the formatter.
@@ -83,6 +85,8 @@ The goal is the same behavior in less code, with each concept in one module. Thi
 ## Rules for every slice
 
 - **Behavior stays the same.** The checks compare every output with the baseline from slice 0. A slice that must change an output says which output, and the check then expects exactly that change.
+- **The public surface only gets smaller or clearer.** No export, method, or option grows without a concrete requirement.
+- **A new abstraction proves its reuse** with a second caller in the code today. Otherwise the code composes the parts directly.
 - **Each slice ends in its own commit**, after the checks pass. Tick the box and add a log line with the date. The line also records what the slice found or deferred.
 - **Tests change only when the code under test moves or gets a new name.** A test that moves keeps its notes.
 - **No defensive code.** Validate at the boundary (<the inputs from outside>) and trust the data inside. A bad input crashes with a clear message. Keep the crashes that exist.
@@ -117,7 +121,7 @@ The script runs these steps one after another and stops at the first failure.
 
 ### - [ ] Slice <N>. A second look
 
-Ask the `code-simplifier` agent for one pass over the code after the slices above. Its findings become new slices before the docs slice, or findings for later.
+Ask the `reviewer` agent for one pass over the code after the slices above, with this guide as its reference. Its findings become new slices before the docs slice, or findings for later.
 
 ### - [ ] Slice <N+1>. Docs (last)
 

@@ -9,7 +9,7 @@ description: |
   audit that flags dead artifacts and asks which to remove. Ranks the worst,
   then, on your pick and diagnose-first, re-integrates a file from scratch so
   it reads like one author wrote it in one sitting, without regressing any
-  baked-in rule. The prompt-library analog of code-simplifier.
+  baked-in rule. The prompt-library analog of /simplify.
 allowed-tools:
   - Read
   - Edit
@@ -27,7 +27,7 @@ Take the prompt library (every `skills/*/SKILL.md` and its companions, every `co
 
 You **re-integrate**: rewrite the file so it reads like one author wrote it in one sitting. The result is simpler, in one voice, with every instruction stated once in its right home. The contract is that you **never regress behavior**. Most of those bolt-ons were added for a reason, such as a guardrail after something went wrong, an edge case, or a hard-won correction. The win is to remove the patchwork and keep the lessons. Only wording and location are free to change. Every rule, boundary, and edge case the file encoded is preserved.
 
-This is the prompt-library analog of `code-simplifier`, run as periodic maintenance. It inspects in parallel and ranks where debt has piled up. It heals only what you pick. It diagnoses first, you decide, and then it rewrites. It includes its own files in the sweep. The newest skill is often the most accreted.
+This is the prompt-library analog of `/simplify`, run as periodic maintenance. It inspects in parallel and ranks where debt has piled up. It heals only what you pick. It diagnoses first, you decide, and then it rewrites. It includes its own files in the sweep. The newest skill is often the most accreted.
 
 ## Arguments
 
@@ -42,7 +42,7 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 ## Cases for another skill
 
 - Stripping AI-slop from arbitrary prose or code → `/edit-deslop`. self-heal repairs *structural accretion in the prompt library*, not emptiness in any text.
-- Restructuring working *code*, or reviewing a code diff → `code-simplifier` / `code-reviewer`. self-heal only touches prompt markdown. It never reads source for logic.
+- Restructuring working *code*, or reviewing a code diff → `/simplify` / `/pr-critique`. self-heal only touches prompt markdown. It never reads source for logic.
 - It composes with `/edit-deslop` (a heal may tighten sloppy prose inside a file as it goes), but self-heal is the one that sweeps the whole library. It also knows each artifact type's healthy-shape template and preserves a coverage ledger across a from-scratch rewrite.
 
 ## Instructions

@@ -1,10 +1,11 @@
 ---
 name: pr-review
-version: 1.2.0
+version: 1.3.0
 description: |
   Differential PR review: baseline what any bot would say, absorb what human
-  and AI reviewers already said, then dispatch code-reviewer with the context
-  bots lack (ticket intent, file history, your ownership map, and whole-repo
+  and AI reviewers already said, then dispatch isolated reviewers running
+  /pr-critique (plus a review skill per risky trait) with the context bots
+  lack (ticket intent, file history, your ownership map, and whole-repo
   reach) to find only what has NOT been raised. Staged reveal
   (sentence → paragraph → tour → per-issue solution choice) ending in one GitHub review
   of inline comments in your voice, or in "nothing novel to add," which is
@@ -207,29 +208,30 @@ If it failed, timed out, or was skipped, proceed with the mask = existing feedba
 
 ---
 
-### Step 9: Decide required consults + the blast-radius instruction
+### Step 9: Decide the trait reviews + the blast-radius instruction
 
-`code-reviewer` owns specialist dispatch. It triages and spawns `architect-reviewer`, `security-auditor`, and friends, then integrates their findings. Its triage depends on its *own* confidence, which can remain high on a re-architecture whose risk is outside the diff. Rather than dispatch specialists ourselves, we **remove the discretion** for the cases that matter by naming required consults in the Step 10 brief. This step is also the novelty engine: every bot on this PR is diff-scoped, so whole-repo findings are the class of feedback only this pipeline produces.
+Step 10 always runs one `reviewer` with `/pr-critique`. Traits of the PR add more work to the same dispatch. A trait either adds a parallel `reviewer` with its own review skill, or adds a focus line to the `/pr-critique` brief. One reviewer's confidence can remain high on a re-architecture whose risk is outside the diff. For those cases, the traits make the extra review mandatory. This step is also the novelty engine: every bot on this PR is diff-scoped, so whole-repo findings are the class of feedback only this pipeline produces.
 
 Decide by trait, not gut feel. The signals are the Step 2 buckets, the Step 1 title/branch/commits, and the Step 6 critical path:
 
-- **`architect-reviewer`**: any of a migration in the diff (`db/migrate/*`, `db/schema.rb` churn); a removed model association; a polymorphic / enum / scope change; a column that is dropped, made nullable, or added to `ignored_columns`. **Also** when the title or branch matches `re-?architect | migrate | cutover | rename | re-?model`.
-- **`security-auditor`**: auth/authz, crypto, secrets, PII, file upload, or new external-input handling on the critical path.
-- **`performance-engineer`**: new queries (especially inside loops), caching changes, async/sync swaps, hot-path edits.
-- **`quality-engineer`**: critical-path logic changed with thin or absent test coverage, or test-infrastructure / framework / CI edits.
+- **Architecture → a parallel `reviewer` with `/idea-primitive`**: any of a migration in the diff (`db/migrate/*`, `db/schema.rb` churn); a removed model association; a polymorphic / enum / scope change; a column that is dropped, made nullable, or added to `ignored_columns`. **Also** when the title or branch matches `re-?architect | migrate | cutover | rename | re-?model`.
+- **Security → a focus line in the `/pr-critique` brief**: auth/authz, crypto, secrets, PII, file upload, or new external-input handling on the critical path.
+- **Performance → a focus line in the `/pr-critique` brief**: new queries (especially inside loops), caching changes, async/sync swaps, hot-path edits.
+- **Tests → a parallel `reviewer` with `/test-design`**: critical-path logic changed with thin or absent test coverage, or test-infrastructure / framework / CI edits.
 
-**Lean by default.** Most PRs match no trait. Then the directive is empty and `code-reviewer` triages on its own exactly as before. A PR can match more than one trait, and each one is required.
+**Lean by default.** Most PRs match no trait. Then Step 10 dispatches the `/pr-critique` reviewer alone. A PR can match more than one trait, and each one is required.
 
-**The blast-radius instruction** (when the `architect-reviewer` trait is present). `code-reviewer` writes `architect-reviewer`'s brief when it dispatches it, so this is **relayed through** `code-reviewer`. Tell it, in Step 10, to pass this verbatim (paraphrasable, keep the substance):
+**The blast-radius instruction** (when the architecture trait is present). It goes verbatim (paraphrasable, keep the substance) into the brief of the `/idea-primitive` reviewer:
 
 > "This PR changes or removes symbols that other code depends on. For every removed or semantically-changed symbol (a dropped column or association, a column relaxed to nullable or added to `ignored_columns`, a changed enum / scope / serializer, a deleted or renamed method), search the **whole repo** (not just the diff) for readers, and verify each was migrated in this PR or has a linked follow-up. **Findings outside the diff are in scope and are usually the most important on a re-architecture or cutover PR.** Also judge: is the target design right, and is the cutover sequenced safely? Are producers flipped ahead of their readers? Is a backfill deferred without keeping the old readers working in the meantime?"
 
 ---
 
-### Step 10: Dispatch `code-reviewer` (one agent, context-rich)
+### Step 10: Dispatch the reviewers (context-rich)
 
-Single dispatch (`subagent_type: "code-reviewer"`). No simplifier, because style polish is bot territory, and volume is the enemy. The brief contains, in order:
+Dispatch every reviewer in one message, each with `subagent_type: "reviewer"`: the `/pr-critique` reviewer, plus one reviewer per parallel trait from Step 9. No simplifier, because style polish is bot territory, and volume is the enemy. The `/pr-critique` brief contains, in order:
 
+- The skill to load: "Load the `pr-critique` skill and apply it in report mode."
 - PR metadata (title, URL, author, base/head, totals)
 - The Linear snippet (Step 5) and the before-state paragraph (Step 6)
 - The critical-path file list plus the mechanical/generated paths to ignore (Steps 2 and 6)
@@ -245,19 +247,21 @@ Single dispatch (`subagent_type: "code-reviewer"`). No simplifier, because style
   > Open threads (unresolved points other reviewers have raised). Don't re-derive these at length. If your independent analysis **confirms or refutes** one, add a one-line note prefixed `ENDORSE:` or `REFUTE:` with the `file:line` and your one-sentence reason:
   > `<all KNOWN[open] lines>`"
 
-- If Step 9 named required consults (literal, paraphrasable):
+- If Step 9 found a security or performance trait, one focus line per trait (literal, paraphrasable):
 
-  > "This PR has traits that warrant specialist review: `<trait → specialist list>`. **Dispatch these specialists as part of your triage. Do not skip them on confidence grounds, because I'm requiring them.** When you dispatch `architect-reviewer`, give it this instruction verbatim: `<blast-radius instruction from Step 9>`. Integrate their findings into your report with attribution, as you normally would."
+  > "This PR touches `<security | performance>` on the critical path: `<the trait detail from Step 9>`. Give it extra depth, and apply the matching checklist in your guide."
 
 - The closing scope instruction (literal):
 
   > "The total diff is ~`<N>` LoC, but ~`<M>` LoC of that is mechanical/generated across these paths: `<list>`. Those don't need line-by-line review. Focus on the critical-path files above, plus their tests. **Do not refuse to review based on total LoC. The review area is already scoped for you.** Apply your usual Blocking / Should fix / Suggestion / Praise bucketing with `file:line` references. For each finding, give your recommended remedy **plus 1-2 alternatives at different cost/risk levels** (a narrow local patch, a root-cause fix, or defer-with-a-guard). For each, one line on what it changes, what it costs, and what it leaves unfixed. Say plainly when there is only one sane fix, and do not invent alternatives to fill a slot. Apply `/idea-challenge` framing: challenge rather than validate. Report only, and do not post anything to GitHub."
 
+Each trait reviewer gets the same brief with two changes. It loads its own skill (`idea-primitive` or `test-design`) in place of `pr-critique`. It doesn't get the security or performance focus lines, and it keeps the focus instruction and the mask. The `/idea-primitive` reviewer also gets the blast-radius instruction from Step 9, placed after the closing scope instruction, because the readers it names outside the diff are in scope.
+
 ---
 
 ### Step 11: The differential filter
 
-Classify every finding `code-reviewer` returned, in this order. Matching is semantic (same file and roughly the same lines, or the same symbol and the same substantive point), never string equality:
+Wait for every reviewer. First merge their reports: when two reviewers raise the same point (same matching rule as below), keep one finding at the higher severity. When two findings contradict each other, such as one reviewer flagging an abstraction that another recommends, keep both as one item that shows both positions, and let the user decide in Step 12(d). When reviewers disagree on an open thread (one `ENDORSE:`, one `REFUTE:`), drop both prefixes and put the conflict in the Step 12(d) grouped question. Unattended, each conflict is a run-report item. Then classify every finding, in this order. Matching is semantic (same file and roughly the same lines, or the same symbol and the same substantive point), never string equality:
 
 1. Matches a `KNOWN[resolved]` line → **drop** (already handled on the thread).
 2. Matches a `KNOWN[baseline]` line → **drop** (obvious, since any bot would say it).
@@ -275,7 +279,7 @@ Validate every candidate's anchor now with `python3 ~/.claude/skills/pr-review/v
 
 ### Step 12: Staged reveal (interactive profile)
 
-Never mention the machinery in the reveal or in anything posted. That means leaving out "baseline agent", "code-reviewer", and mask jargon. *"Not already raised on this thread"* is fine, and *"my baseline agent found"* is not.
+Never mention the machinery in the reveal or in anything posted. That means leaving out "baseline agent", "reviewer", skill names, and mask jargon. *"Not already raised on this thread"* is fine, and *"my baseline agent found"* is not.
 
 **(a) One sentence.** What the PR does + the differential outcome (*"3 findings beyond what's already on the thread, 1 endorsement of an open comment"* / *"nothing novel to add"*). Then AskUserQuestion with header "Proceed?" and the options **Continue (Recommended)** / **Stop**.
 
@@ -388,7 +392,7 @@ On post:
 6. **Nothing-novel is success.** Say it, recommend approve, stop. Never manufacture findings to justify the run.
 7. **The focus map directs depth, never scope.** Go deep in the user's areas, and keep full scope everywhere.
 8. **Hide the machinery.** Keep agent names, "baseline", and mask jargon out of the reveal and everything posted.
-9. **Don't let `code-reviewer` bail on size.** The Step 10 brief keeps the explicit scoping language.
+9. **Don't let a reviewer bail on size.** Every Step 10 brief keeps the explicit scoping language.
 10. **Never post without the Step 14 ack, and unattended never posts at all.** The printed Step 13 draft is exactly what posts.
 11. **The slop pass changes wording only.** The meaning, severity, and anchors are fixed.
 12. **Writes are bounded** to `~/.claude/context/<project>/review-focus.md` and the scratchpad payload. Those are the only files this skill writes.

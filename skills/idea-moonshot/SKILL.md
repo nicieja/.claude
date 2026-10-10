@@ -16,7 +16,7 @@ allowed-tools:
 # Moonshot
 Imagine the platonic ideal on one artifact. The output is two short pieces of prose and a list of differences. The prose covers where the artifact sits today and what 10x of it would look like, and the list covers the gap between them. The skill paints the picture and stops. What to do with the gap is the user's call.
 
-This skill is *generative*. It does not grill or challenge, and it does not tell the user they're settling. The adversarial register belongs to `founder` and `/idea-challenge`. The planning register belongs to `/idea-spec`. `/idea-moonshot` is for one move: vivid possibility-painting.
+This skill is *generative*. It does not grill or challenge, and it does not tell the user they're settling. The adversarial register belongs to `/idea-challenge`. The planning register belongs to `/idea-spec`. `/idea-moonshot` is for one move: vivid possibility-painting.
 
 ## Arguments
 
@@ -28,7 +28,7 @@ This skill is *generative*. It does not grill or challenge, and it does not tell
 
 ## Cases for another skill
 
-- They want to *challenge* a claim or proposal → use `/idea-challenge` or the `founder` subagent
+- They want to *challenge* a claim or proposal → use `/idea-challenge`
 - They want to *refine into a plan* → use `/idea-spec`
 - They're diagnosing a bug or production issue → use `/production-incident`
 - They want the full 1→11 ladder, not just the apex → not this skill (apex-only by design)

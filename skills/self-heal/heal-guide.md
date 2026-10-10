@@ -48,12 +48,10 @@ Lean and ephemeral, it speaks *to* Claude for one bounded run. It skips persona 
 **Agent (`agents/*.md`)**
 ```
 frontmatter: name, description, tools, model
-persona framing       — "## What you believe" / role & philosophy
-operational sections  — how it thinks, what it checks, areas of focus
-## How to deliver …   — the output shape it must produce
-closing line          — its verdict / sign-off pattern
+one short paragraph   — what the agent cannot see or do, and why
+numbered rules        — which skill it loads, what it may touch, its output
 ```
-A system prompt written *as* the persona, dispatched as a subagent. Rich voice is correct here, so don't strip it toward a skill's terse step list.
+An agent is a capability boundary: a constrained context and a tool list. Its expertise comes from the skill that its brief points to, so the prompt is short and has no role, philosophy, or areas of focus. Heal an agent prompt that grows those back by moving them into a skill. The exception is `persona`, a buyer written *as* that person. Rich voice is correct there, so don't strip it toward a step list, and re-run `persona.evals.md` after any change.
 
 ## The coverage ledger
 

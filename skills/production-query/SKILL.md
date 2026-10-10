@@ -1,6 +1,6 @@
 ---
 name: production-query
-version: 1.2.0
+version: 1.3.0
 description: |
   Generate one read-only diagnostic script (Rails console, SQL,
   EXPLAIN) to verify or refute a specific claim about runtime state.
@@ -29,6 +29,18 @@ This skill is **one-shot**. It does not iterate or chain follow-ups, and it does
 - Multi-round diagnostic chains (a hypothesis, a query, a refinement, another query, and so on) → use `/production-incident`
 - Generating a fix or any mutation → never use `/production-query`; that's `/production-incident` Step 4
 - Free-form exploration ("what does the data look like?") → that's exploration, not a claim. Refine to a claim first.
+
+## Verification discipline for reviews
+
+Review skills (`/pr-critique`, `/idea-primitive`, `/idea-spec`) send claims here under one discipline. A claim about runtime state that the code and schema don't settle is a hypothesis, never a finding. Verify it when **all three** of these hold:
+
+- The claim is about migration behavior at runtime, the data, query plans against live tables, lock behavior, or other state the schema and code alone don't settle.
+- The claim changes the verdict or a severity. A Blocking finding that would drop to FYI if disproven deserves verification, and a Nit does not.
+- Verification is practical in the user's environment (a console, a read replica, a staging DB, or a confirmed query MCP).
+
+Skip it for small changes, UI-only diffs, greenfield work that doesn't have a production system to query yet, and claims that the schema alone answers.
+
+The caller states the finding only after the verdict comes back. A `Refuted` claim becomes a dropped finding, noted in the review so the next reader sees what was checked. An `Inconclusive` claim, or a claim the user can't verify, gets the prefix `Unverified —` and names the query, plan, or count that would settle it. Never state an unverified claim as if it were verified.
 
 ## Instructions
 
@@ -109,6 +121,7 @@ Queries only: `find`, `find_by`, `where`, `pluck`, `count`, `exists?`, `EXPLAIN`
 - Single-purpose: query exactly what's needed for the verdict, nothing else
 - Under 30 lines
 - `puts` with clear section labels (`puts "=== Counts ==="`)
+- One comment line per section that says what the section reads, for the person who pastes it into a production console
 - Wrapped in `begin/rescue => e` with `puts e.full_message`
 - For early exits, use `raise "descriptive message"`. Never use `next`, `break`, or `return`, which are syntax errors inside `begin/rescue` in Rails console
 - Copy-paste ready, without `<FILL_IN>` placeholders or setup instructions beyond "paste this"

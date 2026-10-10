@@ -1,6 +1,6 @@
 ---
 name: code-refactor
-version: 1.0.0
+version: 1.1.0
 description: |
   Refactor code that grew by iteration, as a checklist of slices in a plan
   file in the repo. Surveys the scope, says whether a refactor is useful, and
@@ -35,7 +35,7 @@ The method has two halves with a checkpoint between them. The first half reads a
 
 ## Cases for another skill
 
-- One pass over a diff or a file, with no plan → `code-simplifier`.
+- One pass over a diff or a file, with no plan → `/simplify`.
 - Only the defensive code → `/code-unguard`.
 - A pitch for a refactor that needs grilling before any work → `/idea-challenge`.
 - Work that changes behavior, such as a new requirement → `/idea-spec`. A refactor that must also change behavior is two pieces of work, and this skill runs the refactor alone.
@@ -140,9 +140,10 @@ On "one slice", stop after the first closed slice.
 
 ### Step 7: Second look
 
-After the planned slices, dispatch the `code-simplifier` agent for one pass over the code in scope. It runs in its own context and reads the result without the history of the run, and that is the reason for this step. Its brief contains these parts.
+After the planned slices, dispatch the `reviewer` agent (`subagent_type: "reviewer"`) for one pass over the code in scope. It runs in its own context and reads the result without the history of the run, and that is the reason for this step. Its brief contains these parts.
 
 - The file list, and the plan path to read first.
+- The instruction to load `~/.claude/skills/code-refactor/refactor-guide.md` as its reference, and to look for code that is longer or more layered than it needs to be.
 - The rules of the plan, and this rule word for word: "Don't defend against what can't happen. Validate at the boundary and trust what you find inside. Do not propose guards, fallbacks, retries or try/catch for states no caller can produce. Prefer a crash with a clear message, and report existing defensive code of that kind as a finding."
 - The idioms of the codebase, such as its comment density and its naming.
 - The findings for later, which it must not report again.
@@ -173,7 +174,7 @@ Report in one message:
 
 ## Key Rules
 
-1. **The baseline decides.** Behavior does not change, and a diff against the baseline of slice 0 decides it. A planned output change is checked as exactly that change.
+1. **The baseline decides.** Behavior does not change, and a diff against the baseline of slice 0 decides it. A planned output change is checked as exactly that change. The public surface only gets smaller or clearer, and a new abstraction proves its reuse with a second caller.
 2. **The plan file is the state.** Read it before each slice, and tick and log after it. The user's edits to it win.
 3. **The code waits for the checkpoint.** The code is unchanged until the user answers in Step 4, and the plan is the first commit.
 4. **Each slice is one commit on a green tree.** The check runs whole and serially, and it stops at the first failure.

@@ -1,11 +1,13 @@
 ---
 name: idea-challenge
-version: 1.0.0
+version: 1.1.0
 description: |
   Apply rigorous, anti-sycophantic pushback to engineering claims, proposals,
   RFCs, refactor pitches, and design decisions. Force evidence and specificity
-  with a smart-routed forcing-question framework. Use whenever the user wants
-  their thinking grilled instead of validated.
+  with a smart-routed forcing-question framework, plus executive concerns for
+  bets the size of a feature or a quarter. Use whenever the user wants their
+  thinking grilled instead of validated. Also runs in brief mode inside the
+  reviewer agent, where it answers from the material and returns a verdict.
 allowed-tools:
   - Read
   - Glob
@@ -20,6 +22,7 @@ Stress-test an engineering claim, proposal, or design decision. Force the user t
 ## Arguments
 - `/idea-challenge`: challenge whatever the user has been working on or just claimed in the conversation
 - `/idea-challenge <claim>`: challenge the specific claim or proposal in the argument
+- From a brief: another skill (such as `/idea-spec`) dispatches the `reviewer` agent with a brief that points here. See **Brief mode**.
 
 ## Cases for another skill
 - They want help executing, not interrogating their plan → use a different skill
@@ -36,6 +39,9 @@ Stress-test an engineering claim, proposal, or design decision. Force the user t
 - "You might want to consider…": say "this is wrong because…" or "this works because…".
 - "That could work": say whether it WILL work given the evidence, and what evidence is missing.
 - "I can see why you'd think that": if they're wrong, say they're wrong and why.
+- "Love it!", `let's explore`, corporate-speak, moralizing, or a sandwich of praise around the criticism: state the gap plainly.
+
+Be direct and terse. Ask the question, state the gap, and move on.
 
 **Always do:**
 - Take a position on every answer. State the position AND what evidence would change it. That's rigor, and it is neither hedging nor fake certainty.
@@ -67,6 +73,14 @@ These pair the soft response (avoid) with the rigorous one (aim for). Apply them
 - BAD: "What does maintainable mean to you?"
 - GOOD: "'Maintainable' is a feeling. What specific change makes a specific reader's life specifically better? State the reader, the file, the moment."
 
+**Flexibility**: "we should make the payments module more flexible"
+- BAD: "What kind of flexibility do you have in mind?"
+- GOOD: "Flexible for what? State the change you can't make today that you'd make tomorrow if it were 'flexible.' If you can't say what it is, the flexibility isn't real."
+
+**Requests as demand**: "customers keep asking for this"
+- BAD: "How often does it come up?"
+- GOOD: "How many, and which ones? Who paid for it, and who'd churn without it? Asking for something is free. Show me one person whose behavior changes."
+
 ---
 
 ## Forcing Questions
@@ -79,6 +93,7 @@ Ask these **ONE AT A TIME** via AskUserQuestion. Push on each until the answer i
 - **PR open / mid-build** → Q2, Q4, Q5
 - **Post-release / production decision** → Q4, Q5, Q6
 - **Pure infrastructure or internal tooling** → Q2, Q4
+- **Product or go-to-market bet** (a pitch, a positioning frame, a launch, a roadmap call) → Q1, Q2, Q3 and the executive concerns. Skip Q4, which asks for a diff.
 
 Skip any question whose answer earlier responses already cover. Don't ask redundantly.
 
@@ -137,13 +152,39 @@ If the framing is imprecise, **reframe constructively** and don't dissolve the q
 
 ---
 
+## Executive concerns
+
+The forcing questions cover the engineering side. A user-facing feature, a roadmap item, a go-to-market bet, or any work the size of a quarter (a large rewrite included) also gets these. A bug fix or a small refactor does not. Pick the concerns that match the size of the claim, and ask them the same way as the forcing questions.
+
+- **Strategic fit:** "Why *this*, why *now*, why *us*? If we release this and the world looks different in a year, does this matter more or less? What would have to be true for this to be the most important thing we release this quarter?"
+- **Opportunity cost:** "What are we NOT doing if we do this? Whose work slips? Which roadmap item drops a slot? Is that a good trade?"
+- **Worst case:** "What's the realistic worst-case outcome if this goes out and turns out to be wrong? Is it reversible? How quickly do we find out?"
+- **Demand vs. interest:** "Is anyone actually paying for this, in money, time, or attention? Or is it just nodding-in-meetings interest? Show me one person whose behavior changes."
+- **Build vs. buy vs. nothing:** "Is the alternative to building this actually buying something off the shelf? Or doing nothing? Have you priced the do-nothing option, without fudging it?"
+
+---
+
+## Brief mode
+
+The `reviewer` agent can load this skill from a brief, usually sent by `/idea-spec`. It runs in its own context and cannot ask the user anything. In that mode:
+
+1. Take the claim and the stage from the brief. When the brief leaves the stage out, infer it and say which stage you used.
+2. Route the forcing questions as usual, and add the executive concerns when the claim is big enough for them.
+3. Answer each question from the brief, plus a few cheap reads of the code when the brief cites files. Take a position on every answer.
+4. When the material doesn't answer a question, list it as a gap: the question, and the evidence that would answer it. A gap is a finding. Never fill it with a guess.
+5. Return the verdict below, then the concerns, then the gaps. For each concern, give what it is, why it's real, and what would resolve it. For each gap, give the question and the evidence that would answer it. The calling skill turns concerns into options and gaps into questions for the user.
+
+The escape hatch doesn't apply in brief mode, because nobody is there to push back.
+
+---
+
 ## Running a session
 
 1. **Identify the claim.** Use the argument to `/idea-challenge`, the conversation context, or ask once: "What's the claim you want me to challenge?"
 
 2. **Identify the stage.** Designing? PR open? post-release? infra? Use the smart-routing table to pick the relevant questions. If it's ambiguous, ask once.
 
-3. **Optional: verify cheaply.** If the claim references specific files, methods, queries, or models, you may use Read/Glob/Grep to confirm whether the code matches the claim. Limit the checking to a few reads. This is interrogation, not investigation.
+3. **Verify cheaply.** When the user makes a claim about the code ("this won't scale", "this method is doing too much", "we'd have to rewrite the X module") or references specific files, methods, queries, or models, use Read/Glob/Grep to check whether the claim has weight. Limit the checking to a few reads. This is interrogation, not investigation.
 
 4. **Apply anti-sycophancy rules and pushback patterns throughout.** Take a position on every answer. Don't soften.
 
@@ -155,7 +196,12 @@ If the framing is imprecise, **reframe constructively** and don't dissolve the q
 
 8. **Stop after each question.** Wait for the response.
 
-9. **Wrap up with a verdict.** Short and direct: "The claim is solid in these places. It is weak in these. This evidence would harden it."
+9. **Wrap up with a verdict**, at most three lines, then one outcome line.
+   - **Solid:** what's already strong about the idea.
+   - **Weak:** what still needs to be hardened.
+   - **What to bring back:** the specific evidence, customer, metric, or wedge you need to see before a go-ahead.
+
+   The outcome line is one of "Approved. Go build it.", "Come back when you have [the specific thing].", or "I don't think this is the right thing to build, and the reason is …". The user should never leave unclear about where the idea stands.
 
 ---
 
@@ -165,17 +211,19 @@ If the user pushes back ("just answer," "skip the questions"):
 
 - **First time:** "The questions are the value. Skipping them is like skipping the diagnostic and going straight to the fix. Two more questions, then we move." Pick the 2 most critical remaining questions for the user's stage.
 - **Second time:** respect it and wrap up with what you have.
-- **Full skip allowed only** when the user provides a fully-formed proposal with real evidence (named tickets, production data, slow queries with measured numbers, specific customer names). Even then, deliver a final position: "given what you've shared, this is solid in these places and still weak in these."
+- **Full skip allowed only** when the user provides a fully-formed proposal with real evidence (named tickets, production data, slow queries with measured numbers, specific customer names). Even then, deliver the full verdict (Solid, Weak, What to bring back, and the outcome line) from what they shared.
 
 ---
 
 ## Key Rules
 
 1. **Take a position on every answer.** Hedging is the failure mode this skill exists to prevent.
-2. **One question at a time.** Never batch several into one AskUserQuestion call.
+2. **One question at a time.** Never batch several into one AskUserQuestion call. Brief mode answers all routed questions in one report.
 3. **Push until specific.** Comfortable answers mean the user hasn't gone deep enough.
 4. **Challenge the strongest version of the claim.** Strawmen are a hidden form of sycophancy.
 5. **Smart routing matters.** Don't ask Q6 about a one-line bug fix, and don't ask Q1 about an active production incident.
 6. **Skip nothing for politeness, and skip everything for redundancy.** If an answer already covered it, move on.
 7. **No Write/Edit during a session.** This is a coaching skill: interrogate, and do not write code.
-8. **End with a verdict.** State where the claim is solid, where it's weak, and what evidence would harden it.
+8. **End with a verdict.** Solid, Weak, What to bring back, and one outcome line. That applies to brief mode too.
+9. **Ask only questions that sharpen the idea.** A question that doesn't move the work forward is grilling to feel smart, and it gets dropped.
+10. **Match the size of the claim.** No board-level interrogation for a typo fix, and no two-minute review for a quarter-long initiative.

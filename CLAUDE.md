@@ -2,9 +2,9 @@
 
 Always use ASD-STE100 Simplified Technical English when responding unless asked not to. This applies in every project, also when the project has its own CLAUDE.md. It covers everything you say to me, including questions you ask via AskUserQuestion and responses while a skill runs. Artifacts (drafts, summaries, commit messages, code) use their own voice.
 
-# Surface skills, commands, and subagents when context matches
+# Surface skills and commands when context matches
 
-I have a small library of skills, commands, and subagents. They only help if I remember they exist. Watch the conversation and **suggest the relevant one when context matches**. I'll decide whether to invoke it.
+I have a small library of skills and commands. They only help if I remember they exist. Watch the conversation and **suggest the relevant one when context matches**. I'll decide whether to invoke it.
 
 ### How to suggest
 
@@ -13,19 +13,25 @@ I have a small library of skills, commands, and subagents. They only help if I r
 - **At most one suggestion per turn.** If two fit, pick the better one. Stacking suggestions is noise.
 - **Skip when I'm clearly mid-task in a different direction**, when a skill is already running, or when the suggestion would just restate what I asked for.
 - **Don't suggest the same skill twice in a row** if I declined or ignored it the first time.
-- **Prefer the closest fit, and break ties toward the agent.** When an agent and a skill both seem to match, prefer the agent. It's the smaller commitment, and I can move up to the skill if I want the workflow around it. Only suggest a skill over a matching agent when the skill's surrounding work (orchestration, bucketing, multi-step state) is the reason to use it. A skill that only wraps the agent does not qualify.
-- **For subagents, frame it as pulling in a specialist.** *"Want me to pull in `code-reviewer` for a second pass?"* or *"This looks like `security-auditor` territory."*
+- **Prefer the closest fit.** When two skills seem to match, suggest the one whose output is what I asked for.
 
 ### Trigger map
-
-#### Skills
 
 | If the conversation involves… | Suggest |
 |---|---|
 | A half-formed task idea, "how should we approach X", refining scope before coding | `/idea-spec` |
 | Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/work-triage` |
-| An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling | `/idea-challenge` |
+| An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling, or a strategic bet or roadmap call that needs executive grilling | `/idea-challenge` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/idea-moonshot` |
+| System design, a new module or abstraction, a technology choice, coupling concerns | `/idea-primitive` |
+| A vague goal, or a build / rank / launch / kill call that needs a measurable target and one recommendation | `/idea-goal` |
+| An epic, feature, or plan to break into stories or milestones that each deliver value | `/idea-slice` |
+| Building a feature or a slice of code from a plan, a spec, or a request | `/code-build` |
+| Reviewing a meaty code change before merge, a second opinion on a diff (correctness, security, performance) | `/pr-critique` |
+| Test strategy, what to test, missing coverage, flaky tests | `/test-design` |
+| Positioning, category naming, a pitch, a landing page, launch copy | `/market-pitch` |
+| Channel choice, traction, a launch plan | `/market-launch` |
+| Testing a pitch, a frame, or a draft on a simulated buyer before it meets a real one | `/market-rehearse` |
 | Reviewing a PR assigned to me that already has bot/human feedback, then deciding what I can add and posting my review | `/pr-review` |
 | Looking back on a completed PR/commit/issue, lessons learned, waste, debt | `/work-retrospective` |
 | Work built with AI is about to go out, checking I can defend every decision in the PR/doc before review | `/pr-readiness` |
@@ -34,31 +40,17 @@ I have a small library of skills, commands, and subagents. They only help if I r
 | Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden), or a PR/code stuffed with obvious comments | `/edit-deslop` |
 | Code that guards states that can't happen: needless rescues, fallbacks, retries, armor I didn't ask for | `/code-unguard` |
 | Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/prune-tests` |
+| Working but tangled code that needs one cleanup pass | `/simplify` |
 | Code that grew by iteration and needs a cleanup too big for one pass, run as a checklist of slices | `/code-refactor` |
+| A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
 | Posting investigation findings as a Linear comment | `/linear-comment` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
 | Committing / pushing / opening a PR | `/commit`, `/push` |
 
-#### Agents
-
-| If the conversation involves… | Suggest |
-|---|---|
-| Reviewing a meaty code change before merge, second opinion on a diff | `code-reviewer` |
-| Cleaning up working but tangled code, reducing complexity | `code-simplifier` |
-| Building a feature, principled refactoring, or design decisions during build that need an opinionated builder | `software-engineer` |
-| System design, architectural decisions, technology choices, coupling concerns | `architect-reviewer` |
-| Security-sensitive changes (auth, money, PII, crypto, file uploads, external input) | `security-auditor` |
-| Slow endpoint, N+1, memory blow-up, scaling concerns | `performance-engineer` |
-| Test strategy, missing coverage, flaky tests, framework choice | `quality-engineer` |
-| Product strategy, prioritization tradeoffs, roadmap, opportunity cost | `product-manager` |
-| Positioning, category naming, launch copy, pitch narrative, channel choice | `product-marketer` |
-| Talking to a proxy customer, testing a pitch on a simulated buyer whose temperament the brief sets (usually driven by `product-marketer`) | `persona` |
-| A strategic bet, roadmap call, or cross-cutting proposal that needs executive grilling on top of engineering pushback | `founder` |
-
 ### Anti-patterns
 
-- Do not invent skills or subagents. Only suggest ones in the tables above (or ones I've explicitly invoked this session).
+- Do not invent skills. Only suggest ones in the table above (or ones I've explicitly invoked this session).
 - Do not pad responses with *"by the way, you have a `/foo` skill"* when the current task is already on rails.
 - Do not turn every reply into a skill-discovery menu. Most turns should not include a suggestion at all.
 
@@ -75,14 +67,15 @@ Repos I work in may have their own skills (`skills/`, `.claude/skills/`, `.agent
 
 `~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and decision log. Tracked `context.example/` documents each file's format. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer to scaffold it from its template. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Mechanism is public, and configuration is private.
 
-# Hand plans off to software-engineer, then code-simplifier
+# Hand plans off to /code-build, then /simplify
 
-When you're writing a plan in native Plan mode **and the plan involves writing or changing code**, state the handoff. The build pass goes through the `software-engineer` agent first, and the cleanup pass goes through the `code-simplifier` agent second.
+When you're writing a plan in native Plan mode **and the plan involves writing or changing code**, state the handoff. The build pass follows the `/code-build` skill first, and the cleanup pass runs `/simplify` second.
 
-- **Code only.** Ruby, TypeScript, Go, SQL, etc. It does **not** include prose, prompts, skills (`skills/**/SKILL.md`), slash commands (`commands/*.md`), agent definitions (`agents/*.md`), `CLAUDE.md`, plan files, READMEs, or other prose/config artifacts. For prose work, just do the edits yourself. The software-engineer agent's value (naming, abstraction discipline, method length) doesn't apply to markdown.
+- **Code only.** Ruby, TypeScript, Go, SQL, etc. It does **not** include prose, prompts, skills (`skills/**/SKILL.md`), slash commands (`commands/*.md`), agent definitions (`agents/*.md`), `CLAUDE.md`, plan files, READMEs, or other prose/config artifacts. For prose work, just do the edits yourself. What `/code-build` adds (local conventions, the divergence ladder for a plan, the handoff with rollback) doesn't apply to markdown.
 - **Shape is your call.** There is no mandated section name or template. Pick what reads best for that plan, such as a dedicated section, a line at the end of Verification, or an inline note in the build steps.
 - **Skip when there's nothing to build.** Pure research, investigation, retro, doc-only, or prompt-engineering plans don't need the handoff at all.
-- **Stage 2 is optional on thin surface area.** If there's not enough code to clean up, drop the simplifier. Decide this case by case. There is no fixed rule.
+- **Stage 2 is optional on thin surface area.** If there's not enough code to clean up, drop `/simplify`. Decide this case by case. There is no fixed rule.
+- **Verify after the cleanup.** `/simplify` doesn't run tests. After it, run the checks from `/code-build` Step 4 again, and report them under "What you ran".
 - **Native Plan mode only.** `/idea-spec` runs its own workflow and is unaffected.
 
 # Don't defend against what can't happen

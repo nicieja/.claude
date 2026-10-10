@@ -1,6 +1,6 @@
 ---
 name: work-triage
-version: 1.2.0
+version: 1.3.0
 description: |
   Fetch Linear issues with no PR attached, orchestrate parallel subagents
   through staged pipelines (explore → plan → build → test → review),
@@ -202,20 +202,20 @@ The pipeline is a sequence of **work phases**, and the agent types are not fixed
 - **Isolation:** `worktree` (each issue gets its own isolated copy of the repo)
 - **Goal:** write the code
 - **Work:** write the code described in the plan. Write clean code following existing codebase patterns. Do NOT commit, just write the files.
-- **Agent selection:** pick the agent best suited for writing production code. If the issue is primarily a refactor, prefer an agent specialized in simplification/refactoring if one exists.
+- **Agent selection:** pick the agent best suited for writing production code, and tell it to load the `code-build` skill before it writes anything. Its handoff matches the evidence bundle below, with its `Design rationale` section titled `Why this shape`. If the issue is primarily a refactor, also tell it to keep behavior the same and to follow the slice rules in `~/.claude/skills/code-refactor/refactor-guide.md`, without that skill's plan file, checkpoint, or commits.
 - **Diagnostic scripts for bugs:** for a bug or customer-reported issue, the Build agent also produces `tmp/diagnostic_<issue_id>.rb`. This is a read-only Rails console script that targets the records and identifiers listed in the Linear issue. The user runs it in production to verify that the fix addresses the real issue. When Diagnose moved into Build, this script is the diagnosis.
 - **Evidence bundle:** the Build agent's completion report must end with five short sections: `What changed`, `Why this shape`, `What you ran`, `Residual risk`, and `Rollback`. Verify and Review receive it, and the PR body's How-to-test section contains its verified commands.
 
 #### Phase: Verify
 - **Goal:** ensure the code works
 - **Work:** write and run tests for the changes. Ensure adequate coverage. Run the test suite and fix any failures.
-- **Agent selection:** pick the agent best suited for test automation and quality assurance.
+- **Agent selection:** pick the agent best suited for test automation, and tell it to load the `test-design` skill. Each test it adds comes with the red-then-green proof from that skill. Build's changes are uncommitted in the worktree, so prove red with a mutation, or stash only the production files under test and pop them before continuing. Never revert or check out over the Build work.
 - **Stage deference:** when Step 0.2 recorded a project skill for this stage, instruct the stage agent to run that skill (via the Skill tool) inside the worktree instead of improvising a test plan. Its output is passed to the pipeline exactly like the built-in stage's would be.
 
 #### Phase: Review
 - **Goal:** catch issues before PR
 - **Work:** review all changes for code quality, security, correctness, adherence to codebase patterns, and missing edge cases.
-- **Agent selection:** pick the agent best suited for code review. If the issue touches security-sensitive areas, also consider a security-focused agent.
+- **Agent selection:** prefer the `reviewer` agent, with a brief that loads the `pr-critique` skill. If the issue touches security-sensitive areas, add a security focus line to the brief, as `/pr-review` Step 10 does.
 - **Output requirement:** the Review must group findings by severity (`Blocking` / `Should fix` / `Suggestion`) and end with a verdict (`approve` / `approve with non-blocking comments` / `request changes` / `rework`). The auto-fix loop in Step 4.5 keys off these labels. Instruct the agent to use them explicitly.
 - **Deterministic pre-checks (fail closed):** before the review agent runs, the orchestrator checks: (a) diff size within the project's norm (default: flag above ~500 changed lines or 20 files), (b) no deny-listed T3 surface touched (else raise the tier per Step 1.5 and pause auto-advance for the issue), (c) tests changed alongside behavior, or the Build report justifies why not. Failures become mandatory Review findings. The review agent may tighten these outcomes but never loosen them. Stage deference applies here too when recorded.
 

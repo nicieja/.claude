@@ -13,7 +13,7 @@ allowed-tools: Read, Grep, Glob, Edit, Agent, Bash(git fetch:*), Bash(git diff:*
 
 ## Your task
 
-Find the tests that a slice of work added, and cut the ones that don't protect a behavior. `quality-engineer` rules on each test. Agents write more tests than a change needs, and this command removes the surplus. It never adds a test or rewrites one.
+Find the tests that a slice of work added, and cut the ones that don't protect a behavior. The `reviewer` agent rules on each test with the `test-design` skill. Agents write more tests than a change needs, and this command removes the surplus. It never adds a test or rewrites one.
 
 A test stays when it protects a behavior that a user or a caller depends on, and no other kept test already protects that behavior. Cheap tests of real behavior stay too, because "essential" is too strict a word for this bar.
 
@@ -35,7 +35,9 @@ Open with one line that gives the resolved range, the path filter, and the numbe
 
 **Find the new tests.** In scope are the test files the range adds, plus the test cases (`it`, `test`, `specify`, `scenario`, `def test_`, `func Test`, `@Test`, and the like) that the range adds to files that already existed. A test declared before the range is out of scope, even when the range changes its body, and it goes under *Out of scope* in the report. If the slice doesn't add a test, say so and stop.
 
-**Dispatch `quality-engineer`.** The verdicts come from the agent's own heuristics. Do not restate them in the brief. The brief contains:
+**Dispatch the `reviewer` agent** (`subagent_type: "reviewer"`). The verdicts come from the heuristics in the `test-design` skill. Do not restate them in the brief. The brief contains:
+
+- The skill to load: "Load the `test-design` skill and rule in report mode."
 
 - The range, and the list of new tests as `file:line · name`.
 - The non-test part of the diff. The agent judges each test against the behavior the slice adds.

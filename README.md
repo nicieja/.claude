@@ -4,7 +4,7 @@ My personal [Claude Code](https://claude.com/claude-code) configuration: agents,
 
 Open-sourced so others can crib from it. It's opinionated: most pieces reflect how I prefer to work, not best practices. Treat it as a reference and not as a drop-in.
 
-Agents, skills, and commands are the kinds of thing here. Agents are _who_ you ask. Skills are _how_ the work gets run. Commands just remove typing.
+Skills, commands, and two agents are the kinds of thing here. Skills are _how_ the work gets run, and commands just remove typing. An agent gives a skill a context of its own.
 
 ## Install
 
@@ -25,19 +25,21 @@ for each. It runs nothing itself.
 
 ## Agents
 
-An agent is a named professional with an opinion, pulled in for one question,
-then gone. The purpose is disagreement rather than extra hands: each takes a
-position and defends it with evidence, because an assistant that agrees with you
-is useless on the decision you're about to get wrong.
+There are two agents, and each exists because a skill needs a context smaller
+than the conversation's.
 
-Some build a slice with taste in naming and abstraction, then clean it
-without changing behavior. Others review from one named angle, because a change
-can be wrong in ways that don't overlap; the generalist takes correctness and
-dispatches the specialists in parallel. Some run read-only, on the theory that
-finding a gap and closing it are different jobs. The rest aren't engineering,
-split on purpose: one makes a proposal its strongest version, one
-works out how it gets sold, one breaks it. An agent that both strengthens and
-breaks does neither.
+`persona` plays one buyer for `/market-rehearse`. It has no tools and knows only
+its brief. A buyer who could read the repo would hand your own value
+proposition back to you as a discovery.
+
+`reviewer` takes a brief from a skill and applies the skill that the brief
+points to, such as `/idea-challenge` or `/pr-critique`. It can read code and run
+tests, and it can't change a file. It never sees the reasoning that produced the
+work, so its challenge or review is independent.
+
+The expertise is in the skills, and the agents add only the isolation. Any
+tool that reads skills can run them. A tool without subagents runs the same
+skill inline, with a weaker check.
 
 ## Skills
 

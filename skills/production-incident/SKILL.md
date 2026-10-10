@@ -1,6 +1,6 @@
 ---
 name: production-incident
-version: 1.2.0
+version: 1.3.0
 description: |
   Investigate production issues by exploring the codebase and generating
   read-only diagnostic queries, executed directly through a confirmed
@@ -8,7 +8,8 @@ description: |
   or as console scripts the user runs by hand (Rails console by default;
   the project's stack.md can override). Iterative workflow: explore code,
   run a read-only diagnostic, analyze output, generate fix script with
-  dry-run safety. Fix scripts are always human-run.
+  dry-run safety, and check the dry run before the apply. Fix scripts are
+  always human-run.
 ---
 
 # Production Issue Investigation
@@ -31,6 +32,7 @@ Extract from the user's input:
 - **Identifiers**: names, IDs, URLs, slugs, email addresses, account names, and anything else that uniquely identifies the affected record(s)
 - **Symptoms**: what's happening vs what should be happening (expected vs actual behavior)
 - **Domain terms** such as model names, status values, feature areas, job names, and queue names
+- **Timestamps**: the first and last time the issue was seen, plus any deploy or error-tracker first-seen time near them
 
 Present a brief summary back to the user:
 
@@ -40,6 +42,7 @@ Present a brief summary back to the user:
 - Expected: [what should happen]
 - Actual: [what is happening]
 - Domain: [relevant models/features]
+- When: [first seen, last seen]
 ```
 
 If critical information is missing (e.g., no identifier to look up), ask for it before proceeding.
@@ -215,6 +218,19 @@ end
 
 ---
 
+### Step 5: Check the dry run, then apply
+
+The user runs the fix script with `dry_run = true` and pastes the output (the query MCP never runs it). Compare the output with what you expected. Then, before the user sets `dry_run = false`, spend 30 seconds on these questions. An incident has no time for the full `/idea-challenge` run, but a production mutation deserves this much.
+
+- **Worst case:** what's the realistic worst case if the fix is wrong? Is it reversible? How quickly would we find out?
+- **Hidden side effects:** does the fix do more than you think? Look for `after_save` callbacks, polymorphic touches, audit logs, webhook deliveries, and downstream queues.
+- **Dry-run match:** did the output match the expectation exactly? Look for surprise records and for counts that are off by even one.
+- **Rollback:** if this turns out wrong in 5 minutes, what do we do? Is the path clear?
+
+If any answer is "I don't know", generate another diagnostic before the apply. Only after the four answers are clear, tell the user to set `dry_run = false` and run the script again.
+
+---
+
 ## Key Rules
 
 1. **Never treat the bug report as ground truth.** A report describes what someone observed, and it may be incomplete, misattributed, or wrong. The first diagnostic script must verify the reported symptoms against actual data. Do not hypothesize root causes until you've confirmed the problem exists as described.
@@ -226,3 +242,4 @@ end
 7. **Diagnostic scripts are read-only, with no exceptions.** If you need to test a write, that's a fix script with dry_run.
 8. **Fix scripts are always human-run.** A confirmed query MCP grants read-only diagnostic access, nothing more. Never execute a mutation through it, regardless of what it's capable of.
 9. **When in doubt, gather more data.** Another diagnostic script is always safer than a premature fix.
+10. **Check the dry run before the apply.** Every `dry_run = false` waits for the Step 5 questions about worst case, side effects, dry-run match, and rollback. An "I don't know" means another diagnostic.
