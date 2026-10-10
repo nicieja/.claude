@@ -1,7 +1,3 @@
-# Style
-
-Always use ASD-STE100 Simplified Technical English when responding unless asked not to. This applies in every project, also when the project has its own CLAUDE.md. It covers everything you say to me, including questions you ask via AskUserQuestion and responses while a skill runs. Artifacts (drafts, summaries, commit messages, code) use their own voice.
-
 # Surface skills and commands when context matches
 
 I have a small library of skills and commands. They only help if I remember they exist. Watch the conversation and **suggest the relevant one when context matches**. I'll decide whether to invoke it.
@@ -46,7 +42,6 @@ I have a small library of skills and commands. They only help if I remember they
 | Posting investigation findings as a Linear comment | `/linear-comment` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
-| Committing / pushing / opening a PR | `/commit`, `/push` |
 
 ### Anti-patterns
 
