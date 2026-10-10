@@ -1,10 +1,10 @@
 ---
 name: code-refactor
-version: 1.1.0
+version: 2.0.0
 description: |
   Refactor code that grew by iteration, as a checklist of slices in a plan
   file in the repo. Surveys the scope, says whether a refactor is useful, and
-  writes the plan, then stops for your edits. After the go-ahead it pins
+  writes and prints the plan, then continues unless you interrupt. It pins
   today's behavior in a baseline, proves that the check can fail, and commits
   one slice at a time. Bugs it finds wait in a list for you. A later run
   continues from the plan.
@@ -24,14 +24,14 @@ allowed-tools:
 
 Take code whose layout still shows how it was built, with requirements that changed and experiments that became the product, and refactor it to the same behavior in less code, with each concept in one module. The work runs from a plan file in the repo. The plan is a checklist of slices, each one commit, with the rules and the checks at the top and a log at the end. The file is the memory of the run. It is still there after a context compaction or in a new session, and the user can edit it between slices.
 
-The method has two halves with a checkpoint between them. The first half reads and plans, and the code does not change. The second half pins the current behavior in a baseline, then changes the code one slice at a time and compares each result with the baseline. A survey can end with the verdict that a refactor is not useful here, and that is a finished result.
+The method has two halves. The first half reads and plans, and the code does not change until the plan is published and committed. The second half pins the current behavior in a baseline, then changes the code one slice at a time and compares each result with the baseline. A survey can end with the verdict that a refactor is not useful here, and that is a finished result.
 
 ## Arguments
 
 - `/code-refactor <scope>`: plan and run a refactor of the scope. A scope is a path or a list of files, a feature or module by name, a branch, or a PR by number or URL. For a PR, the scope is the files it changes, and the slices commit to its branch. Ask before a checkout.
 - `/code-refactor <plan path>`: continue the plan at its first open slice.
-- `/code-refactor` (bare): if the plans directory has a refactor plan with open slices, offer to continue it. If it has none, ask once: "What code should I refactor?"
-- Steers in plain words. "Plan only" stops after the checkpoint in Step 4. "One slice" runs the next open slice and stops.
+- `/code-refactor` (bare): if the plans directory has a refactor plan with open slices, continue it and say which plan. If it has none, ask once: "What code should I refactor?"
+- Steers in plain words. "Plan only" stops after the plan is published in Step 4. "One slice" runs the next open slice and stops. "You commit" stages each slice for you to commit. `--review` / "ask first" waits for your go-ahead after Step 4.
 
 ## Cases for another skill
 
@@ -42,7 +42,7 @@ The method has two halves with a checkpoint between them. The first half reads a
 
 ## Instructions
 
-Follow these steps in order. Steps 0 to 4 plan, and the code is unchanged until the checkpoint in Step 4. Steps 5 to 9 run the plan.
+Follow these steps in order. Steps 0 to 4 plan, and the code is unchanged until Step 4 commits the plan. Steps 5 to 9 run the plan. Acting and confirming follow `~/.claude/AGENTS.md` ("When to act and when to confirm").
 
 ---
 
@@ -91,19 +91,19 @@ Write the plan from the template in the guide, as `<plans dir>/<area>-refactor.m
 
 ---
 
-### Step 4: Checkpoint
+### Step 4: Publish the plan
 
-Present the plan in one message. Give the path and a table of the slices, with the number, the title and the change of each. Then list the planned output changes and the preconditions, and the findings for later so far. Tell the user that they can edit or reorder the plan file before they answer.
+Print the plan in one message. Give the path and a table of the slices, with the number, the title and the change of each. Then list the planned output changes and the preconditions, and the findings for later so far. Tell the user that they can edit or reorder the plan file at any time, because each slice reads it again first.
 
-Then ask with AskUserQuestion:
+Set the commit policy without asking:
 
-- **The commit policy.** The options:
-  - **I commit each slice on a new branch** (Recommended on the default branch).
-  - **I commit each slice on this branch.**
-  - **You commit.** Each slice then stops with its changes staged, and the user commits.
-- **Preconditions**, only when the survey found one: may slice 0 fix it as its first commit?
+- On the default branch, create a new branch and commit each slice there.
+- On any other branch, commit each slice on it.
+- On the "you commit" steer, each slice stops with its changes staged, and the user commits.
 
-On "plan only", stop here. Otherwise, after the answers, read the plan file again for the user's edits, and commit it alone as the first commit.
+Slice 0 fixes each precondition the survey found, as its first commit, and the report says so.
+
+On "plan only", stop here. With `--review`, wait for the go-ahead. Otherwise commit the plan alone as the first commit, and continue to Step 5.
 
 ---
 
@@ -168,7 +168,8 @@ Report in one message:
 - the changes by area, and the test count before and after;
 - each measured gain in the form that matters to its reader, such as the gzipped size of a bundle next to the raw size;
 - the checks of each slice and the mutation test, and each manual check with its limits;
-- the findings for later, one line each, for the user to decide.
+- the findings for later, one line each, for the user to decide;
+- **Undo**: the command that removes the run. On a new branch, that is deleting the branch. On the current branch, it is `git revert <first>^..<last>`.
 
 ---
 
@@ -176,12 +177,12 @@ Report in one message:
 
 1. **The baseline decides.** Behavior does not change, and a diff against the baseline of slice 0 decides it. A planned output change is checked as exactly that change. The public surface only gets smaller or clearer, and a new abstraction proves its reuse with a second caller.
 2. **The plan file is the state.** Read it before each slice, and tick and log after it. The user's edits to it win.
-3. **The code waits for the checkpoint.** The code is unchanged until the user answers in Step 4, and the plan is the first commit.
+3. **The code waits for the plan.** The code is unchanged until Step 4 publishes the plan, and the plan is the first commit.
 4. **Each slice is one commit on a green tree.** The check runs whole and serially, and it stops at the first failure.
 5. **Trust a check after it fails once.** Slice 0 mutation-tests the harness.
 6. **Bugs wait for the user.** A bug that the refactor finds goes to the findings for later, unfixed. Each finding says what shows it, such as a failing test or a reproduction, and a bug found by reading says so.
 7. **Tests move with their code.** A test changes only when the code it tests moves or gets a new name.
 8. **Do not write defensive code.** Validate at the boundaries and trust the data inside. Keep the crashes that exist, and put this rule in every agent brief.
-9. **Push only on request.** Commit as the chosen policy says, and push only when the user asks.
+9. **Push only on request.** Commit as the policy from Step 4 says, and push only when the user asks.
 10. **Git ignores the harness.** It is in an ignored directory inside the repo, and it is never committed.
 11. **Load `refactor-guide.md` every run.** The catalog and the recipe come from that file and never from memory.

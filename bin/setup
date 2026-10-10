@@ -38,6 +38,18 @@ report $? "config symlink" "$link_fix"
 [ -d "$repo/vale/styles/ai-tells" ] && [ -d "$repo/vale/styles/ai-tells-commits" ]
 report $? "style packages" "(cd $repo/vale && vale sync)"
 
+if [ -d "$HOME/.codex" ]; then
+  printf '\nCodex\n'
+
+  codex_rules="$HOME/.codex/AGENTS.md"
+  rules_fix="ln -s $repo/AGENTS.md '$codex_rules'"
+  if [ -e "$codex_rules" ] || [ -L "$codex_rules" ]; then
+    rules_fix="rm '$codex_rules' && $rules_fix"
+  fi
+  [ "$(readlink "$codex_rules")" = "$repo/AGENTS.md" ]
+  report $? "global rules symlink" "$rules_fix"
+fi
+
 printf '\nLocal config\n'
 
 for example in "$repo/settings.json.example" "$repo/codex/config.toml.example"; do

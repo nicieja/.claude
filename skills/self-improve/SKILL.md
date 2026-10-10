@@ -1,12 +1,13 @@
 ---
 name: self-improve
-version: 2.0.0
+version: 3.0.0
 description: |
   Turn the current session into durable harness improvements. Harvest
   corrections, failed paths, and repeated instructions; generalize each into a
   class-level lesson; route every lesson to the smallest durable home: global
-  CLAUDE.md, an existing skill/command/agent, the project's context directory,
-  or the project's own learning skill. Diagnose-first: proposes before writing.
+  AGENTS.md, an existing skill/command/agent, the project's context directory,
+  or the project's own learning skill. Applies the lessons and commits them,
+  with each lesson listed in the commit message.
 allowed-tools:
   - Read
   - Edit
@@ -29,6 +30,7 @@ generalization become nothing. An honest "no durable learning" is a valid result
 
 - `/self-improve`: harvest the current session.
 - `/self-improve <hint>`: focus the harvest on one thread of the session.
+- Steers in plain words: `--review` / "ask first" stops after the Step 4 table and waits for your pick.
 
 ## Cases for another skill
 
@@ -39,7 +41,7 @@ generalization become nothing. An honest "no durable learning" is a valid result
 
 ## Instructions
 
-Follow in order.
+Follow in order. Acting and confirming follow `~/.claude/AGENTS.md` ("When to act and when to confirm").
 
 ### Step 1: Harvest
 
@@ -66,7 +68,7 @@ existing file already says.
 
 In order of preference:
 
-1. **Global CLAUDE.md**: only for behavior that should change in every repo.
+1. **Global `~/.claude/AGENTS.md`**: only for behavior that should change in every repo. Claude Code loads it through `CLAUDE.md`, and a rule that only Claude Code can follow goes in `~/.claude/CLAUDE.md` itself.
 2. **An existing global skill, command, or agent**: when the lesson is a gap in a
    workflow this library already covers.
 3. **`~/.claude/context/<project>/`**: project-specific facts and preferences.
@@ -83,10 +85,14 @@ In order of preference:
 Never create a new skill from one session. A workflow gap justifies a skill when it has
 recurred. Until then it is a note in `decisions.md`.
 
-### Step 4: Propose and wait for approval
+### Step 4: Prune and route
 
-Present a table (lesson → home → one-line patch summary) and ask which to apply
-(multi-select). The checkpoint is the reason for this step. Wait for the answer before any write.
+Print a table (lesson → home → one-line patch summary), then continue to Step 5 and
+apply every lesson that has a home. The user can interrupt to drop a lesson. With
+`--review`, ask which to apply (multi-select) and wait for the answer before any write.
+
+Route 4 stays an offer, because the project's learning skill edits the project's repo.
+Route 5 stays a written proposal.
 
 ### Step 5: Apply
 
@@ -96,6 +102,11 @@ Present a table (lesson → home → one-line patch summary) and ask which to ap
   customer, or industry-domain vocabulary, and neutral SaaS examples only.
   Project-specific content goes to `context/<project>/`, never to tracked files.
 - Context files are created from their `context.example/` templates when missing.
+- A tracked file that already has uncommitted changes is being edited now. Skip its
+  lesson, apply the rest, and ask about it at the end of the run.
+- Commit the tracked writes in `~/.claude` in one commit. Its message lists each lesson
+  and its home. Writes to `context/<project>/` are gitignored, so they stay out of the
+  commit.
 
 ### Step 6: Report
 
@@ -103,12 +114,17 @@ Write one line per lesson: installed where, or why not (skipped / proposal / evi
 only). If an edited file contained a rule that now looks obsolete, flag it as a
 question and never silently drop it.
 
+End with **Check** and **Undo**. Check quotes each new or changed rule, because a bad
+lesson changes every later session. It also quotes each line added under
+`context/<project>/`. Undo is `git revert <sha>` for the commit, and deleting the
+quoted lines for the context files.
+
 ## Key Rules
 
 1. **Harness-first.** A lesson that changes future behavior is better than a note that
    describes past behavior. Notes are only the fallback.
 2. **One strong lesson beats five weak ones.** Prune before proposing.
-3. **Diagnose-first.** No writes before the Step 4 checkpoint.
+3. **Prune before writing, then apply and commit.** The commit message lists every lesson, and the report quotes every new rule.
 4. **Publishability applies to every tracked write.** Project specifics live in
    `context/`, which is gitignored.
 5. **Never edit another repo's files.** Repo-owned lessons route to the repo's own

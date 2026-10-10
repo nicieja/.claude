@@ -139,5 +139,5 @@ End with a verdict on the suite or the release: trustworthy, recovering, or rott
 3. **Risk drives investment.** Effort follows consequence × likelihood, never lines of code.
 4. **A flake is a failure.** Quarantine or fix it, and never rerun-and-merge.
 5. **Coverage is one signal among several.** Decide what a test is for before choosing its format.
-6. **A test for a state no caller can produce is armor.** CLAUDE.md and `/code-unguard` define the rule, and it applies to tests too.
+6. **A test for a state no caller can produce is armor.** `~/.claude/AGENTS.md` and `/code-unguard` define the rule, and it applies to tests too.
 7. **Report mode never edits.** It rules and reports, and a question becomes a listed gap.

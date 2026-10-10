@@ -44,9 +44,11 @@ skill inline, with a weaker check.
 ## Skills
 
 A skill is a workflow I don't trust myself to improvise, usually because the
-moment it runs is the moment I'm in a hurry. Each is multi-step, most stop at a
-checkpoint instead of running to the end, and each is allowed to come back with
-nothing.
+moment it runs is the moment I'm in a hurry. Each is multi-step, and each is
+allowed to come back with nothing. A skill acts on what it finds, then reports
+what changed, what to check, and the command that undoes it. It waits for me
+only when the undo would cost real work, or when other people would see the
+result. `AGENTS.md` has the rule, under "When to act and when to confirm".
 
 Together they cover the arc of a piece of work: refining an idea and grilling it
 while it's still cheap to change, then dispatching and diagnosing once it's
@@ -103,6 +105,13 @@ detects overlap and asks once, then remembers the answer per repo. Nothing proje
 employer-specific ever appears in tracked files.
 
 ## Other agents
+
+The global rules are in `AGENTS.md`, which most coding agents read. Claude Code
+reads `CLAUDE.md`, so that file imports them with `@AGENTS.md` and adds the
+Claude-only rules. Codex reads them through a symlink at `~/.codex/AGENTS.md`,
+and `bin/setup` reports when it is missing. Cursor has no global rules file. Add
+a User Rule in Cursor's settings that says "Read ~/.claude/AGENTS.md at the
+start of every task."
 
 `codex/` holds a default Codex config: `config.toml` (model, reasoning
 effort, approvals reviewer) and `rules/default.rules` (approval prefix rules).

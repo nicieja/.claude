@@ -36,6 +36,7 @@ frontmatter: name, version, description: |, allowed-tools (dash list)
 ## Key Rules                    — numbered non-negotiables, one each
 (optional) a companion .md loaded every run for the evolving spec
 ```
+A skill that edits acts on its findings and ends its report with Changed, Check, and Undo, per `~/.claude/AGENTS.md` ("When to act and when to confirm"). A stop before the edit is not a default part of the template. It belongs only where the undo costs real work, where other people see the result, or behind a `--review` steer.
 
 **Command (`commands/*.md`)**
 ```

@@ -1,6 +1,6 @@
 ---
 name: test-prune
-version: 1.0.0
+version: 1.1.0
 description: |
   Cut the tests a slice added that don't protect a behavior. Takes the current
   branch by default, or a branch, a PR, a commit range, or a sha, and paths can
@@ -39,7 +39,7 @@ Find the tests that a slice of work added, and cut the ones that don't protect a
 - `/test-prune` (bare): the current branch, from its merge base with the default branch to the working tree.
 - `/test-prune <branch | PR number | PR url | range | sha>`: that slice. Step 1 maps each form to a range.
 - Paths after any form, or after `--`, limit the slice to those paths.
-- Steers in plain words. `report`, `--report`, or "just tell me" rules and reports, and edits nothing.
+- Steers in plain words. `report`, `--report`, or "just tell me" rules and reports, and edits nothing. `--review` / "ask first" rules, then waits for the go-ahead before cutting.
 
 ## Cases for another skill
 
@@ -49,7 +49,7 @@ Find the tests that a slice of work added, and cut the ones that don't protect a
 
 ## Instructions
 
-Follow these steps in order.
+Follow these steps in order. Acting and confirming follow `~/.claude/AGENTS.md` ("When to act and when to confirm").
 
 ### Step 0: Read the repo state
 
@@ -100,7 +100,7 @@ In a tool without subagents, load `test-design` yourself and rule in its report 
 
 ### Step 5: Apply the cuts
 
-Skip this step in report mode. Delete each Cut. Then remove what the slice added that only the cut tests used: `let` blocks, fixtures, factories, helpers, and imports. Remove a `describe` or `context` block that the cuts leave empty, and delete a new test file that the cuts leave empty. Do not touch pre-existing tests or production code.
+Skip this step in report mode. Before the first edit, copy each test file that has uncommitted changes to the backup path in `~/.claude/AGENTS.md`. The bare target is uncommitted work, so this is the usual case. Then delete each Cut. Then remove what the slice added that only the cut tests used: `let` blocks, fixtures, factories, helpers, and imports. Remove a `describe` or `context` block that the cuts leave empty, and delete a new test file that the cuts leave empty. Do not touch pre-existing tests or production code.
 
 ### Step 6: Verify
 
@@ -115,8 +115,9 @@ Leave the edits in the working tree, and do not commit.
 - **Follow-ups**: the rewrites and coverage gaps the agent flagged. None of them were applied.
 - **Out of scope**: the pre-existing tests that the range changed.
 - **Verification**: what ran, and the result.
+- **Undo**: `git restore <files>` for clean files, or `cp <backup> <file>` for each file that had uncommitted changes.
 
-In report mode, the Cut list holds proposed cuts, and there is no Verification section.
+In report mode, the Cut list holds proposed cuts, and there is no Verification or Undo section.
 
 A run that cuts nothing says so plainly, and names the weakest Keep and what would flip it. On tests an agent wrote, that result is unusual, so it shows its work.
 

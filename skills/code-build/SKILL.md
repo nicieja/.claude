@@ -1,6 +1,6 @@
 ---
 name: code-build
-version: 1.0.0
+version: 1.1.0
 description: |
   Build a slice of code from a plan, a spec, or a request, in the style of the
   codebase that receives it. Frames the smallest slice and reads the local
@@ -27,6 +27,7 @@ Build the slice so that it reads as if one careful engineer wrote both the featu
 - `/code-build <plan path>`: build the plan in that file.
 - `/code-build <request>`: build what the request describes.
 - `/code-build` (bare): build the plan or request under discussion. If there is none, ask once: "What should I build?"
+- Steers in plain words: `--review` / "ask first" stops after Step 2 and waits for the go-ahead before building.
 
 ## Cases for another skill
 
@@ -47,7 +48,7 @@ Taste is only a tiebreaker (see Step 1), and it runs in this direction:
 - **Fixed time, variable scope.** When the budget is tight, cut scope before you extend time. Decide which way before you start, not after.
 - **Done means running in production, not merged.** A change isn't finished until it's verified end-to-end and small enough to roll back cleanly.
 
-Guards follow the rule in CLAUDE.md ("Don't defend against what can't happen") and `/code-unguard`. Comments follow `/code-deslop` Key Rule 5. By default there is no comment. Write one only to explain a why, a gotcha, an invariant, an external constraint, or a workaround. Step 5 checks both rules.
+Guards follow the rule in `~/.claude/AGENTS.md` ("Don't defend against what can't happen") and `/code-unguard`. Comments follow `/code-deslop` Key Rule 5. By default there is no comment. Write one only to explain a why, a gotcha, an invariant, an external constraint, or a workaround. Step 5 checks both rules.
 
 ## Instructions
 
@@ -72,8 +73,8 @@ When you do push back, state the harm specifically. Give the file, the failure m
 Skip this step when there is no plan. Plans, specs, design notes, and recommendations are a starting point. They are not a binding contract, but don't smuggle deviations either. Anything you change from the plan gets stated clearly in the handoff.
 
 - **Cosmetic divergence: fix inline and flag it.** This covers names, file layout, and helper extraction. If a spec calls for `OrderCancellationService.execute(order)` and a verb on the noun reads better in this codebase, use the better name and flag the swap. Whoever wrote the plan was most likely not married to the exact API signature.
-- **Structural divergence: raise it before building.** This covers new layers, extra abstractions, and changes to where logic is defined. Write up what the plan proposes, what you'd do instead, and the concrete cost of each, then ask before deviating. Don't drop a layer that was specifically requested.
-- **Behavioral divergence: never deviate without explicit confirmation.** If building the plan as written would change what the system does, stop and ask.
+- **Structural divergence: build the plan, and record the alternative.** This covers new layers, extra abstractions, and changes to where logic is defined. Build what the plan says. In the handoff, write what you'd do instead and the concrete cost of each, so the plan's author can decide. Don't drop a layer that was specifically requested.
+- **Behavioral divergence: the call belongs to the user.** If building the plan as written would change what the system does in a way the request didn't ask for, leave that part unbuilt. Build the rest, then ask about it at the end, per "Decisions that are mine" in `~/.claude/AGENTS.md`.
 
 ### Step 3: Build the vertical slice
 
@@ -95,13 +96,13 @@ Write a concise summary with these sections:
 - **Design rationale**: the local patterns you matched and any deliberate taste decisions. Also list each divergence from the upstream plan, with the swap stated.
 - **What you ran**: tests, type checker, linter, security tooling, and their outcomes.
 - **Residual risk**: what you didn't cover and why. List each open decision about failure behavior (retry, degrade, alert, drop) with its options, because that call belongs to the user.
-- **Rollback**: how to undo the change cleanly.
+- **Rollback**: the exact command that undoes the change, such as `git restore <files>` or `git revert <sha>`.
 
 ## Key Rules
 
 1. **The codebase's conventions apply by default.** Taste only breaks ties.
 2. **Push back only on active harm,** with the file, the failure mode, and the concrete cost.
 3. **Take the smallest plausible interpretation,** and state the assumption in writing.
-4. **Follow the divergence ladder.** Fix and flag a cosmetic change. Ask before a structural change. Never make a behavioral change without confirmation.
+4. **Follow the divergence ladder.** Fix and flag a cosmetic change. Build a structural disagreement as planned, and record the alternative. Never make a behavioral change without confirmation, and ask about it at the end.
 5. **No speculative abstractions and no unrequested guards.**
 6. **Exit criteria.** The slice is shippable. The change is small and respects the surrounding conventions, and intent-carrying names replace generic ones. Verification ran with evidence, and the handoff is concrete enough that someone else could release or revert it.

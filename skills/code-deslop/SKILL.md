@@ -1,12 +1,13 @@
 ---
 name: code-deslop
-version: 1.0.0
+version: 2.0.0
 description: |
   Strip AI-slop from prose and code comments, restoring information density and
   honesty, without changing meaning or code logic. Takes text, a file, or a PR.
-  Diagnoses first and waits for your call, then converges through verify-and-repeat
-  passes until it hits the predicted cut or proves the rest is essential. For
-  comments the default is none, and each must justify its place.
+  Diagnoses, then converges through verify-and-repeat passes until it hits the
+  predicted cut or proves the rest is essential, and applies the result. The
+  report says what to check and how to undo it. For comments the default is
+  none, and each must justify its place.
 allowed-tools:
   - Read
   - Edit
@@ -33,10 +34,10 @@ The method uses the compression test and the convergence loop. The **compression
 ## Arguments
 
 - `/code-deslop <text>`: deslop the pasted text (prose).
-- `/code-deslop <file path>`: read the file and deslop it. A prose file gets the prose treatment, and a code file gets the comment treatment. **Diagnose first, and write back only after the checkpoint** (Step 2).
+- `/code-deslop <file path>`: read the file and deslop it. A prose file gets the prose treatment, and a code file gets the comment treatment. Diagnose first, then write the result back (Step 5).
 - `/code-deslop <PR number | url | branch>`: fetch the PR with `gh`, then deslop the description (prose) and rank the comments the diff **adds**. Read-only by default. Never push or post without an explicit ask.
 - `/code-deslop` (bare): deslop the text or file under discussion. If there's nothing obvious, ask once: "What should I deslop?"
-- Steers in plain words. `--surface` / "just the tells" means Vale only: run it and show the alerts, then apply them on the go-ahead and stop. Skip the estimate and the loop. `--deep` / "go hard" means aggressive structural rework.
+- Steers in plain words. `--surface` / "just the tells" means Vale only: apply its alerts and stop. Skip the estimate and the loop. `--deep` / "go hard" means aggressive structural rework. `--review` / "ask first" stops after the Step 2 diagnosis and waits for the go-ahead.
 
 If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails with a permission error, tell the user that the iCloud path is blocked by macOS privacy controls. Ask them to paste the text or point at a non-iCloud copy (e.g. under `~/Documents/…`).
 
@@ -48,7 +49,7 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 
 ## Instructions
 
-Follow in order.
+Follow in order. Acting and confirming follow `~/.claude/AGENTS.md` ("When to act and when to confirm"). This skill applies its edits and reports them, and it never posts or pushes.
 
 ### Step 0: Resolve the input
 
@@ -62,7 +63,7 @@ Resolve per **Arguments**: text, file, PR, or bare.
 
 Read `~/.claude/skills/code-deslop/slop-guide.md` in full **before diagnosing**. It contains the marker taxonomy, the comment rubric, and the worked before/after examples. Load it every run, because it is the file tuned over time. Don't work from memory.
 
-### Step 2: Declare the goal and diagnose, then stop
+### Step 2: Declare the goal and diagnose
 
 Scan the input and build the diagnosis. **Do not edit yet.**
 
@@ -77,17 +78,17 @@ Then build the itemized diagnosis, and **state the passages you're targeting** s
 
 **Reconcile** the estimate against the itemized findings before presenting. If the listed cuts total much less than the predicted range, either the prediction was inflated or the scan missed slop. Resolve it now, before editing. That delta is the first turn of the loop, done on paper.
 
-Present the diagnosis, goal first and then the specifics, and **stop for the user's input**:
+Print the diagnosis, goal first and then the specifics:
 
 - A few prose findings as **before/after** pairs drawn from their actual text (quote → tightened → one-line why).
 - Surface, from Vale: one line per distinct check, such as `OverusedVocabulary ×4: delve, leverage, tapestry, testament`. Skip the pairs, because the fix is mechanical.
 - For comments, a compact table: `comment · verdict · one-line reason`.
 
-Let the user interject, correct a verdict, adjust the goal, or veto a change. This checkpoint is the point of the skill, and the diagnosis is a proposal that is still open to change. It is also the **only** gate: once you have the go-ahead, Step 3 runs to convergence on its own.
+Then continue to Step 3 without waiting. The user can interrupt to correct a verdict or to veto a change. With the `--review` steer, stop here and wait for the go-ahead instead.
 
 ### Step 3: Converge (pass, verify, repeat)
 
-With the goal declared and the go-ahead given, work the input in passes until it converges. **Do not stop at the first pass.**
+With the goal declared, work the input in passes until it converges. For file input, make the backup before Pass 1, because the passes edit the file: if it has uncommitted changes or isn't tracked, copy it to the backup path in `~/.claude/AGENTS.md`. **Do not stop at the first pass.**
 
 **Pass N (apply).** Cut the slop the diagnosis identified:
 
@@ -122,7 +123,7 @@ Fix anything that fails, silently.
 ### Step 5: Output
 
 - **Text input:** print the deslopped prose in a fenced code block with a short lead-in ("Deslopped:").
-- **File input:** write the result back to the file (the Step 2 checkpoint was the gate), then confirm the path. Print instead if the user preferred.
+- **File input:** the passes already wrote the result to the file, so confirm the path. The backup from Step 3 is the Undo source. Print instead if the user asked for that, and leave the file unchanged.
 - **PR, branch checked out:** apply the edits to the working tree (remove cut comments, and tighten the description if it is stored in a file). Do not commit or push. Summarize what changed.
 - **PR, not checked out:** print a ranked report (the comment table plus suggested removals) that the user can apply. Offer to post it as PR review comments only if they ask.
 
@@ -130,9 +131,11 @@ Report **how the loop converged**, not a bare gap. Prose gets the percent reduce
 
 Close with **one honest line** separating *cosmetic* from *substantive* changes. If a passage is empty (form with no substance to recover), say so plainly. Deslop can tighten prose but cannot supply judgment that was never there.
 
+The convergence report above is the Changed part. End with **Check** and **Undo**. Check lists each passage where the meaning could have shifted, and each jargon claim flagged for the author. Undo is the command that restores the original, such as `git restore <file>` or `cp <backup> <file>`. Printed text and a report-only PR run don't need an Undo.
+
 ## Key Rules
 
-1. **Diagnose before you touch a word.** Present findings and let the user correct them. The checkpoint is the skill.
+1. **Diagnose before the first pass, then apply.** Print the diagnosis and continue. The report says what to check and how to undo it.
 2. **The compression test is the measure.** Lead with structure and treat surface tells as cosmetic.
 3. **Never change meaning or code logic.** Preserve every fact and claim. Flag unverifiable jargon instead of faking a plain version.
 4. **Jargon density is not information density.** Specific-sounding nouns are not the same as transferred understanding.

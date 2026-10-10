@@ -1,12 +1,13 @@
 ---
 name: code-unguard
-version: 2.0.0
+version: 3.0.0
 description: |
   Cut over-defensive code, such as a guard for a state no caller can produce, a
   rescue that swallows, or a retry or flag nobody asked for. Takes a file, the
   current diff, or a PR. Maps the trust boundaries per value, then rules on every
   guard Cut / Convert / Ask / Keep. Uncertainty resolves to Convert (make the guard
   loud), never to leaving it alone. Keep is rare and must cite a real trigger.
+  Applies the Cuts and Converts with an undo command, then asks the Asks at the end.
 allowed-tools:
   - Read
   - Edit
@@ -115,7 +116,8 @@ into the Keep column as if it had been examined.
   Whether the branch is the current checkout decides edit or report.
 - Steers in plain words: `--report` / "just tell me" (rule and stop, and do not write
   anything), `--deep` / "the whole file" (on a diff target, audit the surrounding file
-  too).
+  too), `--review` / "ask first" (stop after the Step 3 table and wait for the
+  go-ahead).
 
 ## Cases for another skill
 
@@ -128,6 +130,8 @@ into the Keep column as if it had been examined.
   invoke it.
 
 ## Instructions
+
+Acting and confirming follow `~/.claude/AGENTS.md` ("When to act and when to confirm").
 
 ### Step 0: Resolve the target
 
@@ -158,7 +162,7 @@ These rules stop the boundary map from swallowing the audit:
 - **Another service you own is a soft boundary.** It gets one loud validation at entry.
   It does not turn every method behind that entry into boundary code.
 
-### Step 3: Rule on every guard, then stop
+### Step 3: Rule on every guard
 
 Find candidates with the guide's searches, then rule on each. **Do not edit yet.**
 
@@ -176,15 +180,21 @@ Then, before presenting, two required self-checks:
   fails.
 - **The weakest Keep.** State the Keep you are least sure of and say exactly what
   evidence would flip it. If you cannot point to one, you have not ruled. You have agreed.
+  When the run has no Keeps, state the weakest Cut or Convert instead.
 
-Present the boundary map, the summary line, the table, and the weakest Keep, and **stop
-for the user's call.** The user can flip a verdict or veto a cut, and can answer the Asks.
-This checkpoint is the skill.
+Print the boundary map, the summary line, the table, and the weakest Keep, then continue
+to Step 4. The user can interrupt to flip a verdict or veto a cut. The Asks wait for the
+end of the run (Step 5). With `--report`, stop here. With `--review`, stop here and wait
+for the go-ahead.
 
-### Step 4: Apply the approved changes and verify
+### Step 4: Apply the changes and verify
 
-Apply what was approved, **cuts and converts only**, without refactoring, renaming, or
-tidying the neighborhood.
+Before the first edit, copy each target file that has uncommitted changes to the backup
+path in `~/.claude/AGENTS.md`. The bare target is the user's own uncommitted diff, so this is
+the usual case.
+
+Apply the Cuts and Converts **only**, without refactoring, renaming, or tidying the
+neighborhood. Leave the Ask guards as they are until the user answers.
 
 Verify with what the project already configures, such as targeted tests, the typechecker,
 and the linter. Say what you ran.
@@ -206,11 +216,16 @@ Edits remain in the working tree. Do not commit, push, or post a review.
 
 - **Cut**: count and one line each.
 - **Converted**: the loudest half of the work, what was silent and what it says now.
-- **Open Asks**: the product decisions still unanswered.
 - **Kept**: with the cited trigger, one line each.
 - **Out of scope**: pre-existing guards you did not rule on.
 - **Verification**: what ran and what passed, plus what a failure showed you.
 - **Residual risk**: one honest line.
+- **Check**: the weakest Keep, and each Cut whose call-site search was thin. When the run
+  has no Keeps, state its weakest Cut here instead.
+- **Undo**: `git restore <files>` for clean files, or `cp <backup> <file>` for each file
+  that had uncommitted changes.
+- **Open Asks**: the failure policies that are the user's call. They come last, asked
+  together, because they are the last thing the run does.
 
 **If the run did not produce any cuts or converts, it owes an audit of itself.** Say which
 named patterns were absent from the target and which were present but were kept, state

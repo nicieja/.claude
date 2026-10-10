@@ -89,7 +89,7 @@ A test stays when it protects a behavior that a user or a caller depends on, and
 - It tests the framework, a library, or the language instead of this code.
 - It restates what the type system or the schema already guarantees.
 - It pins internal details instead of behavior.
-- It builds a state that no production caller can produce. That test is armor, the same as a guard for that state (see CLAUDE.md and `/code-unguard`).
+- It builds a state that no production caller can produce. That test is armor, the same as a guard for that state (see `~/.claude/AGENTS.md` and `/code-unguard`).
 - It is green whether or not the change is present, so it does not exercise the change.
 - It covers several topics at once and a focused test already covers the one that matters.
 - It is a near-duplicate of a clearer test.

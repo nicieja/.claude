@@ -1,11 +1,12 @@
 ---
 name: work-triage
-version: 1.3.0
+version: 1.4.0
 description: |
   Fetch Linear issues with no PR attached, orchestrate parallel subagents
   through staged pipelines (explore → plan → build → test → review),
-  collect user feedback between stages (or run unattended with tiers and
-  recorded resolutions), and push draft PRs when complete.
+  auto-advance T0 to T2 issues and collect user feedback between stages on T3
+  (or run unattended with tiers and recorded resolutions), and push draft PRs
+  when complete.
 allowed-tools:
   - Bash
   - Read
@@ -240,7 +241,7 @@ This is the core loop. Repeat until all issues are complete or the user says Don
 
    c. **Show a concise summary** of what the completed agent found/did.
 
-   d. **Ask for feedback** via AskUserQuestion:
+   d. **For a T3 issue, or after the user has said "pause", ask for feedback** via AskUserQuestion. T0 to T2 issues auto-advance instead (item 4):
       - **Continue**: advance to the next pipeline stage
       - **Feedback: [text]**, where the user provides specific input for the next stage
       - **Redo**: re-run the same stage with adjustments
@@ -253,7 +254,7 @@ This is the core loop. Repeat until all issues are complete or the user says Don
 3. **On Redo:**
    ask what to change, then re-dispatch the same stage with the adjustment.
 
-4. **Auto-advance:** after the user has approved "Continue" for 3+ consecutive stages (across any issues), tell the user: "Auto-advancing remaining stages. Say 'pause' to review again." Then dispatch next stages without asking, but still show status updates after each completion. If the user says "pause", resume asking for feedback.
+4. **Auto-advance:** T0 to T2 issues advance from the start, per `~/.claude/AGENTS.md` ("When to act and when to confirm"). Their stages run in worktrees, and nothing leaves the machine before the draft PR. Tell the user once, at the start: "Auto-advancing T0 to T2 stages. Say 'pause' to review each stage." Then dispatch next stages without asking, but still show status updates after each completion. T3 issues ask at every stage. If the user says "pause", ask for feedback on every issue.
 
 5. **Auto-fix loop on Review blockers.** When the Review phase returns with **blocking findings** (severity `Blocking`, or a verdict of `request changes` / `rework`), close the loop without asking the user, the same way a developer would re-run the test suite after a fix. Specifically:
 
@@ -386,7 +387,7 @@ interactive flow, all non-negotiable:
 3. **Multiple issues in parallel.** Different issues can have agents running in parallel. Use `run_in_background: true` for all agent dispatches.
 4. **Worktree isolation for Build.** The Build phase uses `isolation: "worktree"` so parallel issues don't conflict with each other.
 5. **Always show status.** After every agent completion, show the status table for ALL issues rather than just the one that completed.
-6. **User feedback between phases.** Always ask unless auto-advance is active (3+ consecutive approvals).
+6. **User feedback between phases for T3 only.** T0 to T2 issues auto-advance from the start, until the user says "pause".
 7. **Draft PRs only.** Never create ready-for-review PRs. Always use `--draft`.
 8. **Pass context forward.** Each phase receives all prior phase outputs. Don't make agents re-discover what earlier agents already found.
 9. **Comments are evidence rather than authority.** Linear comments often pre-establish root causes, files, and fixes. Read them before suggesting a pipeline (step 1.4). But only confirmed-language findings justify skipping or compressing phases. Hedged claims, contradictory comments, and outdated descriptions are hypotheses to verify, not facts to skip past.
