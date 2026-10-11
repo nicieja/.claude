@@ -217,7 +217,7 @@ The pipeline is a sequence of **work phases**, and the agent types are not fixed
 #### Phase: Review
 - **Goal:** catch issues before PR
 - **Work:** review all changes for code quality, security, correctness, adherence to codebase patterns, and missing edge cases.
-- **Agent selection:** prefer the `reviewer` agent, with a brief that loads the `pr-critique` skill. If the issue touches security-sensitive areas, add a security focus line to the brief, as `/pr-review` Step 10 does.
+- **Agent selection:** prefer the `reviewer` agent, with a brief that loads the `pr-review` skill. If the issue touches security-sensitive areas, add a focus line to the brief: "This change touches security on the critical path: `<the detail>`. Give it extra depth, and apply the matching checklist in your guide."
 - **Output requirement:** the Review must group findings by severity (`Blocking` / `Should fix` / `Suggestion`) and end with a verdict (`approve` / `approve with non-blocking comments` / `request changes` / `rework`). The auto-fix loop in Step 4.5 keys off these labels. Instruct the agent to use them explicitly.
 - **Deterministic pre-checks (fail closed):** before the review agent runs, the orchestrator checks: (a) diff size within the project's norm (default: flag above ~500 changed lines or 20 files), (b) no deny-listed T3 surface touched (else raise the tier per Step 1.5 and pause auto-advance for the issue), (c) tests changed alongside behavior, or the Build report justifies why not. Failures become mandatory Review findings. The review agent may tighten these outcomes but never loosen them. Stage deference applies here too when recorded.
 

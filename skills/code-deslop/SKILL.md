@@ -40,7 +40,7 @@ If a path is under `~/Library/Mobile Documents/` (iCloud) and the Read fails wit
 ## Cases for another skill
 
 - They want a *claim, proposal, or design* grilled, not the prose edited → `/idea-challenge`.
-- They want code reviewed for **bugs or correctness** → `/pr-critique`. Deslop never reads for logic.
+- They want code reviewed for **bugs or correctness** → `/pr-review`. Deslop never reads for logic.
 - They want code **restructured** or dead code removed → `/simplify` or `/code-refactor`.
 - They want **code comments or lint suppressions** cut → `/code-uncomment`.
 

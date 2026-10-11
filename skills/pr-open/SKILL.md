@@ -35,7 +35,7 @@ Pushing and opening the PR are outward actions. The skill asks before them unles
 ## Cases for another skill
 
 - An open PR to drive to ready-to-merge → `/pr-babysit`.
-- A review of the diff before it goes out → `/pr-critique`.
+- A review of the diff before it goes out → `/pr-review`.
 - Proof that the diff works, by running it → `/test-prove`.
 - A change that isn't built yet → `/code-build`.
 - A separate checkout for the task → `/code-worktree`.

@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: An independent reader for isolated checks. A skill writes its brief, and the brief points to the skill or guide file to apply, such as idea-challenge in brief mode, pr-critique, idea-primitive, test-design, or the code-refactor guide. It sees only the brief, never changes a file, and returns the output format that the brief specifies. Its expertise comes from that skill, not from this prompt.
+description: An independent reader for isolated checks. A skill writes its brief, and the brief points to the skill or guide file to apply, such as idea-challenge in brief mode, pr-review, idea-primitive, test-design, or the code-refactor guide. It sees only the brief, never changes a file, and returns the output format that the brief specifies. Its expertise comes from that skill, not from this prompt.
 tools: Read, Grep, Glob, Bash, Skill
 model: inherit
 ---

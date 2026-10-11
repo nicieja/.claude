@@ -144,7 +144,7 @@ Work in this order, because each item changes what the next one sees.
 
 1. **One commit per failing check or per cluster of threads about one problem.** Write a failing test first when one is cheap, and use `/test-design` when it isn't clear which test the fix needs. Follow the project's commit convention from `stack.md`.
 2. **Verify locally** before anything leaves the machine. Run the project's test commands from `stack.md`. Then run each executable in `~/.claude/context/<project>/checks/`, with the changed files as arguments. When a test can't show the fix works, prove it with `/test-prove`.
-3. **Independent review.** Follow `~/.claude/skills/pr-critique/independent-review.md` on the commits this run wrote. The lenses are `/trace-requirement` on the diff, with each fix's thread as its source, and `/code-simplify` in report mode. Skip it when the push has no commit this run wrote.
+3. **Independent review.** Follow `~/.claude/skills/pr-review/independent-review.md` on the commits this run wrote. The lenses are `/trace-requirement` on the diff, with each fix's thread as its source, and `/code-simplify` in report mode. Skip it when the push has no commit this run wrote.
 4. **Push once.** Batch the commits into one push, and ask me first, unless a steer or `escalation.md` widened the tier. Re-arm the watcher on the new head (Step 2).
 5. **Reply after the push.** Each reply cites the pushed commit that fixes the finding, or gives the disproof behind a dismissal, and ends with the signature line. Then resolve each thread a pushed commit fixed, with its `id` from the Step 3 query:
 
@@ -169,7 +169,7 @@ The report has these parts:
 - **Status**: a table of the PR's state with its evidence. Its rows cover CI on the head SHA and mergeability, plus one row per reviewer and one for unpushed commits.
 - **Fixed**: each finding with the commit that fixed it.
 - **Dismissed**: each finding with its disproof.
-- **Reviewed**: the independent review's part, as `~/.claude/skills/pr-critique/independent-review.md` sets it.
+- **Reviewed**: the independent review's part, as `~/.claude/skills/pr-review/independent-review.md` sets it.
 - **Pending**: checks still running, and reviewers who haven't finished.
 - **Needs you**: the push to approve and my questions, asked together at the end. The review's Ask findings are among the questions.
 - **Check**: the weakest dismissal, and what evidence would flip it.

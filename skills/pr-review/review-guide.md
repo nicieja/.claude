@@ -1,6 +1,6 @@
-# Critique guide
+# Review guide
 
-The standard `pr-critique` loads every run. It defines the bar and the order of the checks. It also covers the language reflexes, comment tone, pushback, and the closing recommendation. Tune it over time, because it is the spec.
+The standard `pr-review` loads every run. It defines the bar and the order of the checks. It also covers the language reflexes, comment tone, pushback, and the closing recommendation. Tune it over time, because it is the spec.
 
 ## The bar
 

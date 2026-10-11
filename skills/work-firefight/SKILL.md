@@ -112,7 +112,7 @@ Run `/production-incident` for each issue that is handled directly. It covers th
 
 Other tools for the rotation:
 
-- A code change or a fix script that needs review before it's applied → dispatch the `reviewer` agent (`subagent_type: "reviewer"`) with a brief that loads `pr-critique` and contains the script text or the diff. A fix script exists only in chat, so it goes into the brief in full.
+- A code change or a fix script that needs review before it's applied → dispatch the `reviewer` agent (`subagent_type: "reviewer"`) with a brief that loads `pr-review` and contains the script text or the diff. A fix script exists only in chat, so it goes into the brief in full.
 - A quality issue that is a refactor → `/simplify`, or `/code-refactor` across many files.
 - A decision that needs more pushback than the pre-apply check gives → `/idea-challenge`.
 

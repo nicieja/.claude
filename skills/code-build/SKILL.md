@@ -34,7 +34,7 @@ Build the slice so that it reads as if one careful engineer wrote both the featu
 
 - The idea is half-formed and needs a plan first → `/idea-spec`.
 - The change needs a cleanup pass → `/code-simplify`, or `/code-refactor` for a restructure across many files.
-- The diff needs a review before merge → `/pr-critique`.
+- The diff needs a review before merge → `/pr-review`.
 - Defensive code, or an addition with no caller, to cut → `/code-simplify`.
 - The tests for the change need design → `/test-design`.
 
@@ -98,7 +98,7 @@ For a change a user would notice, passing tests don't prove the feature works, s
 
 Read your own diff as a sharp reviewer would. Cut anything you wouldn't defend. Check each guard the diff adds against the armor rule, and each comment it adds against the keep list above. Check each name it adds against the naming rules in `~/.claude/skills/idea-primitive/design-guide.md`.
 
-Then follow `~/.claude/skills/pr-critique/independent-review.md` on the slice's diff, with the plan or the request as its source. The lenses are `/pr-critique` and `/trace-requirement`. `/code-simplify` isn't one of them, because it runs after the build as its own stage.
+Then follow `~/.claude/skills/pr-review/independent-review.md` on the slice's diff, with the plan or the request as its source. The lenses are `/pr-review` and `/trace-requirement`. `/code-simplify` isn't one of them, because it runs after the build as its own stage.
 
 ### Step 6: Hand off
 
@@ -107,7 +107,7 @@ Write a concise summary with these sections:
 - **What changed**: the files touched and a high-level outline of the change.
 - **Design rationale**: the local patterns you matched and any deliberate taste decisions. Also list each divergence from the upstream plan, with the swap stated.
 - **What you ran**: tests, type checker, linter, security tooling, and their outcomes.
-- **Reviewed**: the independent review's part, as `~/.claude/skills/pr-critique/independent-review.md` sets it.
+- **Reviewed**: the independent review's part, as `~/.claude/skills/pr-review/independent-review.md` sets it.
 - **Residual risk**: what you didn't cover and why. List each open decision about failure behavior (retry, degrade, alert, drop) with its options, because that call belongs to the user.
 - **Needs you**: the review's Ask findings and the open decisions, asked together.
 - **Undo**: the exact command that undoes the change, such as `git restore <files>` or `git revert <sha>`.

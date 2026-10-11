@@ -45,7 +45,7 @@ Find the tests that a slice of work added, and cut the ones that don't protect a
 
 - Deciding what to test, or writing new tests → `/test-design`.
 - Guards in production code for states no caller can produce → `/code-simplify`.
-- A whole diff read for correctness → `/pr-critique`.
+- A whole diff read for correctness → `/pr-review`.
 
 ## Instructions
 

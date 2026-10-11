@@ -32,7 +32,7 @@ This skill is **one-shot**. It does not iterate or chain follow-ups, and it does
 
 ## Verification discipline for reviews
 
-Review skills (`/pr-critique`, `/idea-primitive`, `/idea-spec`) send claims here under one discipline. A claim about runtime state that the code and schema don't settle is a hypothesis, never a finding. Verify it when **all three** of these hold:
+Review skills (`/pr-review`, `/idea-primitive`, `/idea-spec`) send claims here under one discipline. A claim about runtime state that the code and schema don't settle is a hypothesis, never a finding. Verify it when **all three** of these hold:
 
 - The claim is about migration behavior at runtime, the data, query plans against live tables, lock behavior, or other state the schema and code alone don't settle.
 - The claim changes the verdict or a severity. A Blocking finding that would drop to FYI if disproven deserves verification, and a Nit does not.

@@ -26,8 +26,6 @@ Files:
 - `resolutions.md`: remembered answers to project-skill conflicts. Written by skills.
   `bin/hooks/compose_notes.py` hands its compose notes to the repo's own skills.
 - `decisions.md`: a dated log of non-obvious calls and why they were made.
-- `review-focus.md`: cached map of the code areas the user is responsible for and actively
-  touches, used to focus a review. Written by `/pr-review`. Refreshes after ~30 days.
 - `routines/`: prompt sources for scheduled runs (private by nature).
 - `rules.md`: the project's rules that agents keep breaking, each with what enforces it.
 - `checks/`: private checks that enforce those rules for my agents, without changing the

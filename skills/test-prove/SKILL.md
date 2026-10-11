@@ -56,7 +56,7 @@ the old code runs in a worktree at the base.
 - Building the verify harness for a project → `/test-verify`.
 - Deciding which tests stay in the suite, and writing them → `/test-design`.
 - A claim about production data → `/production-query`.
-- Design or correctness review of the diff → `/pr-critique`.
+- Design or correctness review of the diff → `/pr-review`.
 
 ## Instructions
 

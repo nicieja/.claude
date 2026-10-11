@@ -278,7 +278,7 @@ Be detailed but not overly verbose.
 
 For each step or slice in `Implementation`, add the command or test that shows it works once built, or the observation that would. For a UI change, say what to look at and where. A slice whose proof you can't state is either not needed or not yet understood, so settle it in Step 5 or cut it.
 
-The plan doesn't go to a reviewer panel. Review happens on the built code, with `/pr-critique`, when there is something real to review.
+The plan doesn't go to a reviewer panel. Review happens on the built code, with `/pr-review`, when there is something real to review.
 
 ---
 

@@ -33,7 +33,7 @@ Feature requests arrive named after the feature: *"build an onboarding module."*
 ## Cases for another skill
 
 - The claim needs grilling for evidence, such as demand, the status quo, or "this won't scale" → `/idea-challenge`.
-- The diff needs a full review for correctness → `/pr-critique`.
+- The diff needs a full review for correctness → `/pr-review`.
 - A half-formed idea needs a plan → `/idea-spec`.
 - A claim about live data, row counts, or query plans needs proof → `/production-query`.
 - A settled design that's ready to build → `/code-build`.

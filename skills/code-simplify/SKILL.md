@@ -173,12 +173,12 @@ into the Keep column as if it had been examined.
 
 ## Cases for another skill
 
-- Code read for **bugs or correctness** → `/pr-critique` or `/code-review`.
+- Code read for **bugs or correctness** → `/pr-review` or `/code-review`.
 - Code **restructured**, dead functions removed → `/simplify`.
 - A **restructure across many files**, run as a checklist of slices → `/code-refactor`.
 - **Comments or lint suppressions** → `/code-uncomment`. **Prose** → `/code-deslop`.
 - **Tests** a slice added past what its behavior needs → `/test-prune`.
-- A **missing** guard on a boundary → `/pr-critique`, with the boundary stated when you
+- A **missing** guard on a boundary → `/pr-review`, with the boundary stated when you
   invoke it.
 
 ## Instructions

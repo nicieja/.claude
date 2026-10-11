@@ -4,7 +4,7 @@ I have a library of skills and commands, and it only helps when it gets used. **
 
 ### When to suggest instead
 
-Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/pr-review`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, `/work-bootstrap`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
+Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, `/work-bootstrap`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
 
 ### Limits
 
@@ -31,7 +31,7 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | A plan, spec, brief, PR, or existing code whose requirements need an owner, or "where did this requirement come from?" | `/trace-requirement` |
 | An epic, feature, or plan to break into stories or milestones that each deliver value | `/idea-slice` |
 | Building a feature or a slice of code from a plan, a spec, or a request | `/code-build` |
-| Reviewing a meaty code change before merge, a second opinion on a diff (correctness, security, performance) | `/pr-critique` |
+| Reviewing a meaty code change before merge, mine or a teammate's, a second opinion on a diff (correctness, security, performance) | `/pr-review` |
 | A finished branch to publish as a PR | `/pr-open` |
 | My own open PR whose CI, bot reviews, or review threads need work to reach ready-to-merge | `/pr-babysit` |
 | Test strategy, what to test, missing coverage, flaky tests | `/test-design` |
@@ -40,7 +40,6 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | Positioning, category naming, a pitch, a landing page, launch copy | `/market-pitch` |
 | Channel choice, traction, a launch plan | `/market-launch` |
 | Testing a pitch, a frame, or a draft on a simulated buyer before it meets a real one | `/market-rehearse` |
-| Reviewing a PR assigned to me that already has bot/human feedback, then deciding what I can add and posting my review | `/pr-review` |
 | Looking back on a completed PR/commit/issue, lessons learned, waste, debt | `/work-retrospective` |
 | A production issue that needs diagnosing: errors, a stuck job, data that looks wrong | `/production-incident` |
 | One claim about live runtime state to verify, such as a count, a flag, or whether a row exists | `/production-query` |
@@ -108,7 +107,7 @@ A project can widen or narrow these lists in `context/<project>/escalation.md`. 
 
 **Prototype before asking.** Before you ask me anything, sort the question. When running something would answer it, as with behavior, output, timing, layout, or performance, settle it with `/idea-prototype` and report what it showed. Only product and preference calls come to me.
 
-**Interactive skills keep their questions.** `/idea-challenge` and the per-issue choice in `/pr-review` exist to get my input.
+**Interactive skills keep their questions.** `/idea-challenge` exists to get my input.
 
 **A steer brings the stop back.** When I say "ask first", "show me first", or `--review`, stop after the diagnosis and wait for me.
 

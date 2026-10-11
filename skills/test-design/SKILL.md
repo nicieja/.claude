@@ -34,7 +34,7 @@ Load `test-guide.md` (next to this file) at the start of every run. It holds the
 
 - Tests a slice added past what its behavior needs → `/test-prune`. That skill sends this one to the `reviewer` agent for its rulings.
 - Guards for states no caller can produce → `/code-simplify`.
-- A whole diff read for correctness → `/pr-critique`.
+- A whole diff read for correctness → `/pr-review`.
 - A claim about live data or the current state of production → `/production-query`.
 
 ## Report mode
