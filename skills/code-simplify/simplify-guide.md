@@ -1,6 +1,6 @@
-# Guard guide
+# Simplify guide
 
-The reference `unguard` loads every run. It defines what armor is, both tests, how a
+The reference `/code-simplify` loads every run. It defines what armor is, both tests, how a
 boundary is scoped, the pattern taxonomy with its default verdicts, the worked cases that
 tuned this file, and the searches that find a candidate fast. Tune it over time, because
 it is the spec.
@@ -219,6 +219,20 @@ are the highest-value cuts.
 
 Then scope by the boundary rules: the same hit is usually a loud-guard Keep at a first
 boundary read, and a Convert or a Cut two layers in.
+
+**Additions.** List what the diff adds, then search for each one's readers outside the
+diff:
+
+- New parameters and options: the added lines of each changed signature, then every call
+  site that passes the new argument.
+- New response or serializer fields: the added keys, then the clients, views, or tests
+  that read them.
+- New config keys and flags: the added names, then every place that sets or reads them,
+  including environment files and deploy config.
+- New fallbacks: the added `||`, `??`, `or`, and default arguments, then the caller that
+  ever leaves the primary value empty.
+
+A name whose only readers are the new code and its tests has no caller.
 
 ## The citation list
 

@@ -36,7 +36,7 @@ The method has two halves. The first half reads and plans, and the code does not
 ## Cases for another skill
 
 - One pass over a diff or a file, with no plan → `/simplify`.
-- Only the defensive code → `/code-unguard`.
+- Only the defensive code, or additions with no caller → `/code-simplify`.
 - A pitch for a refactor that needs grilling before any work → `/idea-challenge`.
 - Work that changes behavior, such as a new requirement → `/idea-spec`. A refactor that must also change behavior is two pieces of work, and this skill runs the refactor alone.
 

@@ -91,7 +91,7 @@ When a `/work-log` is open for this run, log the dispatch.
 1. **List the delegated work** the way `delegation.md` says, such as the issues assigned to me and delegated to the cloud agent. For local executors, list the worktrees this skill created.
 2. **For each PR without a review from me since its last push:**
    - Check it out in a worktree, named as `delegation.md` says.
-   - Run `/pr-critique` through the `reviewer` agent, and `/test-prune` and `/code-unguard` in report mode. Run the private checks in `~/.claude/context/<project>/checks/`, and the project's verify skill when it has one (the repo's own, or `~/.claude/context/<project>/verify/SKILL.md`).
+   - Run `/pr-critique` through the `reviewer` agent, and `/test-prune` and `/code-simplify` in report mode. Run the private checks in `~/.claude/context/<project>/checks/`, and the project's verify skill when it has one (the repo's own, or `~/.claude/context/<project>/verify/SKILL.md`).
    - Post one comment on the PR with the findings, written as a follow-up per the brief guide, because the executor already has the task's context. A PR from my delegated issue is my own thread. The comment goes ahead without asking, signed per `~/.claude/AGENTS.md`.
    - Collect what the executor asked me to decide, such as its "Decisions for you" comments.
    - Hand the PR to the project's babysit skill when it has one, per the project-skill rules in `~/.claude/AGENTS.md`.

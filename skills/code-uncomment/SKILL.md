@@ -36,7 +36,7 @@ skill checks its work.
 ## Cases for another skill
 
 - Prose that reads AI-generated → `/code-deslop`.
-- Guards for states no caller can produce → `/code-unguard`.
+- Guards for states no caller can produce → `/code-simplify`.
 - Code that needs restructuring beyond a flagged symbol → `/simplify`, or `/code-refactor` across many files.
 - Tests a slice added past what its behavior needs → `/test-prune`.
 

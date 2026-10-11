@@ -1,13 +1,15 @@
 ---
-name: code-unguard
-version: 3.0.0
+name: code-simplify
+version: 4.0.0
 description: |
-  Cut over-defensive code, such as a guard for a state no caller can produce, a
-  rescue that swallows, or a retry or flag nobody asked for. Takes a file, the
-  current diff, or a PR. Maps the trust boundaries per value, then rules on every
-  guard Cut / Convert / Ask / Keep. Uncertainty resolves to Convert (make the guard
-  loud), never to leaving it alone. Keep is rare and must cite a real trigger.
-  Applies the Cuts and Converts with an undo command, then asks the Asks at the end.
+  Cut what a change doesn't need. That means over-defensive code, such as a guard
+  for a state no caller can produce or a rescue that swallows, and additions with
+  no caller, such as a parameter, field, flag, or fallback nobody uses. Takes the
+  current diff, a file, or a PR. Maps the trust boundaries per value, then rules on
+  every guard and every addition Cut / Convert / Ask / Keep. Uncertainty resolves
+  to Convert (make the guard loud), never to leaving it alone. Keep is rare and
+  must cite a real trigger or caller. Applies the Cuts and Converts with an undo
+  command, then asks the Asks at the end.
 allowed-tools:
   - Read
   - Edit
@@ -18,10 +20,18 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# Unguard
+# Simplify
 
-Take a file, a diff, or a PR and cut its **armor**: defense written for states the code
-cannot reach, and defense that hides the states it does reach. A nil check no call site
+Take a diff, a file, or a PR and cut what the change doesn't need: unearned additions
+and armor.
+
+**Unearned additions** are the parameters, response fields, config flags, fallbacks,
+callbacks, state, and abstractions a diff adds without a current caller. Each one is
+something the next reader has to trace and the next change has to keep working. The
+section *Additions with no caller* below covers them.
+
+**Armor** is defense written for states no caller can produce, and defense that hides
+the states callers do produce. A nil check no call site
 can trigger. A `return` on a bad argument that silently does nothing. A `rescue` that
 logs and continues. A retry, a timeout, a kill-switch flag nobody asked for. The same
 validation repeated three layers inside one trust boundary.
@@ -103,16 +113,58 @@ and say which reason you rejected.
 9. **"Crashing here would be worse."** That is an *Ask* and not a Keep. Usually the
    choice is between crashing and lying.
 
+## Additions with no caller
+
+A diff's additions get the same scrutiny as its guards. For each parameter, response
+field, config flag, fallback, callback, piece of state, or abstraction the diff adds,
+state its current caller or the invariant it serves, and what breaks without it. Search
+for the caller the way the call-site test does.
+
+- **Cut**: no current caller and no invariant. Delete it. A parameter for later and a field
+  that only its own test reads both qualify.
+- **Ask**: the addition works, but the request didn't need it. Rollout UI, compatibility
+  repair, a fallback lookup, and a response field a client might want are scope the user
+  didn't ask for. State the addition, the simpler alternative, and the tradeoff.
+- **Keep**: a cited caller or invariant, with the same evidence a guard's Keep needs.
+
+An addition is needed when the user asked for it, when the request can't work without
+it, or when an existing pattern in the codebase requires it. A tradeoff the user already
+confirmed counts as asked for.
+
+**Derive before adding.** Deriving the total from the selected order is simpler than a new
+`total` parameter that every caller has to keep consistent with the order.
+
+**Split candidates.** The report lists a needed change that could go out on its own under
+*Split candidates*. A rename inside a bug fix is the usual case. The user decides whether
+to split it.
+
+**Downstream effects.** When the scope of an addition is unclear, check what lies
+downstream before ruling, and list any effect the change leaves out of scope in the
+report with an owner:
+
+- readers and writers of the changed data, including the ones outside the new code path
+- jobs and integrations
+- derived or mirrored fields
+- records already in flight
+- sensitive outcomes, like billing, permissions, or notifications
+
+**Routine choices never become an Ask.** Helper names and focused tests are the author's
+call.
+
+Additions exist only in a diff. On a whole-file target, the skill rules on guards alone.
+
 **Pre-existing code is out of scope, and you do not rule on it.** If a guard predates the
 diff, don't rule on it. List it under *Out of scope* with one line, so it isn't smuggled
 into the Keep column as if it had been examined.
 
 ## Arguments
 
-- `/code-unguard` (bare): the current diff, `git diff HEAD`. If the tree is clean, the file
-  under discussion. If neither, ask once: "What should I unguard?"
-- `/code-unguard <file path>`: read the file and audit all of it.
-- `/code-unguard <PR number | url | branch>`: fetch with `gh` and audit what the diff **adds**.
+- `/code-simplify` (bare): the uncommitted diff, `git diff HEAD`. When the tree is clean,
+  the branch's diff from its merge-base with the default branch, because `/code-build` may
+  already have committed. When the branch has no changes either, the file under
+  discussion. Failing all three, ask once: "What should I simplify?"
+- `/code-simplify <file path>`: read the file and audit its guards.
+- `/code-simplify <PR number | url | branch>`: fetch with `gh` and audit what the diff **adds**.
   Whether the branch is the current checkout decides edit or report.
 - Steers in plain words: `--report` / "just tell me" (rule and stop, and do not write
   anything), `--deep` / "the whole file" (on a diff target, audit the surrounding file
@@ -135,15 +187,16 @@ Acting and confirming follow `~/.claude/AGENTS.md` ("When to act and when to con
 
 ### Step 0: Resolve the target
 
-Per **Arguments**. For a diff: `git diff HEAD` (`--staged` if they say staged); audit
-added and changed lines, plus the surrounding file under `--deep`. For a PR: `gh pr view`
+Per **Arguments**. For a diff: `git diff HEAD` (`--staged` if they say staged), or
+`git diff $(git merge-base HEAD origin/<default>)` for a committed branch. Audit added and
+changed lines, plus the surrounding file under `--deep`. For a PR: `gh pr view`
 and `gh pr diff`, read-only. State the target and its size in one line.
 
 ### Step 1: Load the guide
 
-Read `~/.claude/skills/code-unguard/guard-guide.md` in full **before ruling on anything**, and
-read it every run. It contains the pattern taxonomy, the boundary rules, the per-language
-searches, and the worked Convert examples.
+Read `~/.claude/skills/code-simplify/simplify-guide.md` in full **before ruling on anything**,
+and read it every run. It contains the pattern taxonomy, the boundary rules, the
+per-language searches, the searches for additions, and the worked Convert examples.
 
 ### Step 2: Map the boundaries per value (not per file)
 
@@ -162,12 +215,12 @@ These rules stop the boundary map from swallowing the audit:
 - **Another service you own is a soft boundary.** It gets one loud validation at entry.
   It does not turn every method behind that entry into boundary code.
 
-### Step 3: Rule on every guard
+### Step 3: Rule on every guard and every addition
 
 Find candidates with the guide's searches, then rule on each. **Do not edit yet.**
 
 Open with a summary of the target. Say how many guards are in scope, how many are silent,
-and how many are on a first boundary read. Then one row each: `location · pattern ·
+and how many are on a first boundary read, then how many additions the diff makes. Then one row each: `location · pattern ·
 verdict · evidence`.
 
 Evidence is symmetric. **A Cut cites the search, and a Keep cites the trigger.** Prose is
@@ -214,10 +267,12 @@ Never delete a test to protect a change.
 
 Edits remain in the working tree, uncommitted. Under the stepping-away steer in `~/.claude/AGENTS.md`, commit them instead. Never push or post a review without an explicit ask.
 
-- **Cut**: count and one line each.
+- **Cut**: count and one line each, guards and additions together.
 - **Converted**: the loudest half of the work, what was silent and what it says now.
 - **Kept**: with the cited trigger, one line each.
-- **Out of scope**: pre-existing guards you did not rule on.
+- **Out of scope**: pre-existing guards you did not rule on, and downstream effects the
+  change leaves out, each with an owner.
+- **Split candidates**: needed changes that could go out on their own.
 - **Verification**: what ran and what passed, plus what a failure showed you.
 - **Residual risk**: one honest line.
 - **Check**: the weakest Keep, and each Cut whose call-site search was thin. When the run
@@ -246,7 +301,9 @@ work shown, never as a victory lap.
 6. **Never guess a failure policy.** Retry, degrade, alert, or drop is the user's call.
    Verdict *Ask*.
 7. **Cuts and converts only.** No refactoring while you're in there.
-8. **Load `guard-guide.md` every run.**
+8. **Load `simplify-guide.md` every run.**
 9. **Leave the edits uncommitted, and never push or post a review** without an explicit ask. The stepping-away steer pre-approves the commit.
-10. **A zero-change run shows its work.** State the weakest Keep and what would flip it.
+10. **Each addition states its caller.** No caller is a Cut. A caller the request didn't
+    need is an Ask.
+11. **A zero-change run shows its work.** State the weakest Keep and what would flip it.
     A skill that only ever agrees with the code is not an instrument.

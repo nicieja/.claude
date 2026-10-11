@@ -32,9 +32,9 @@ Build the slice so that it reads as if one careful engineer wrote both the featu
 ## Cases for another skill
 
 - The idea is half-formed and needs a plan first → `/idea-spec`.
-- The code works and needs a cleanup pass → `/simplify`, or `/code-refactor` for a restructure across many files.
+- The change needs a cleanup pass → `/code-simplify`, or `/code-refactor` for a restructure across many files.
 - The diff needs a review before merge → `/pr-critique`.
-- Defensive code to cut → `/code-unguard`.
+- Defensive code, or an addition with no caller, to cut → `/code-simplify`.
 - The tests for the change need design → `/test-design`.
 
 ## Taste
@@ -48,7 +48,7 @@ Taste is only a tiebreaker (see Step 1), and it runs in this direction:
 - **Fixed time, variable scope.** When the budget is tight, cut scope before you extend time. Decide which way before you start, not after.
 - **Done means running in production, not merged.** A change isn't finished until it's verified end-to-end and small enough to roll back cleanly.
 
-Guards follow the rule in `~/.claude/AGENTS.md` ("Don't defend against what can't happen") and `/code-unguard`. Comments follow the keep list in `~/.claude/skills/code-uncomment/comment-guide.md`. By default there is no comment, and a surprise in our own code gets a clearer name or shape instead of a comment. Step 5 checks both rules.
+Guards follow the rule in `~/.claude/AGENTS.md` ("Don't defend against what can't happen") and `/code-simplify`. Comments follow the keep list in `~/.claude/skills/code-uncomment/comment-guide.md`. By default there is no comment, and a surprise in our own code gets a clearer name or shape instead of a comment. Step 5 checks both rules.
 
 ## Instructions
 
