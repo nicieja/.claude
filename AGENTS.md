@@ -4,7 +4,7 @@ I have a library of skills and commands, and it only helps when it gets used. **
 
 ### When to suggest instead
 
-Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/pr-readiness`, `/pr-review`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
+Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/pr-readiness`, `/pr-review`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, `/work-bootstrap`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
 
 ### Limits
 
@@ -22,6 +22,7 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 |---|---|
 | A half-formed task idea, "how should we approach X", refining scope before coding | `/idea-spec` |
 | Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/work-triage` |
+| A repo with no `context/<project>/` yet, or setting a project up so agents can work in it with little hand-holding | `/work-bootstrap` |
 | An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling, or a strategic bet or roadmap call that needs executive grilling | `/idea-challenge` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/idea-moonshot` |
 | Designing or reviewing a new module, resource, or abstraction, naming a concept, a technology choice, coupling concerns | `/idea-primitive` |
@@ -72,7 +73,7 @@ Repos I work in may have their own skills (`skills/`, `.claude/skills/`, `.agent
 
 # The context layer
 
-`~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and decision log. Tracked `context.example/` documents each file's format. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer to scaffold it from its template. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Tracked files don't credit where an idea came from either. Mechanism is public, and configuration is private.
+`~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and decision log. Tracked `context.example/` documents each file's format. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer `/work-bootstrap`, which drafts it from the repo. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Tracked files don't credit where an idea came from either. Mechanism is public, and configuration is private.
 
 # Don't defend against what can't happen
 

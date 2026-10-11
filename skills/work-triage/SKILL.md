@@ -127,9 +127,9 @@ Follow these steps in order. Do NOT skip steps.
    ```
 
    Assign each issue a **tier** from `context/<project>/risk-tiers.md` by matching
-   the issue's likely surfaces to the tier lists. Unlisted or unknown surfaces
-   are T2 minimum, and when the surfaces are in more than one tier the highest
-   tier applies. Tier consequences:
+   the issue's likely surfaces to the tier lists. An unlisted or unknown surface
+   takes the file's Unlisted tier, and T2 when the file has none. When the
+   surfaces are in more than one tier, the highest tier applies. Tier consequences:
    T3 issues are excluded from unattended runs and from auto-advance. Every stage
    gate waits for the user, and the status table marks them `requires you in the loop`. If
    work-in-flight reveals a T3 surface the ticket didn't (a deny-listed path shows

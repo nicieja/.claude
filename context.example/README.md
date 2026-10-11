@@ -5,7 +5,9 @@ configuration is stored in `~/.claude/context/<project>/`, which is gitignored, 
 project, named after the repo's directory name. Skills load what they need from the
 active project's context directory at runtime.
 
-Copy any template here into `context/<project>/` and fill it in. When a skill needs a
+`/work-bootstrap` drafts the missing files for a repo from what the repo shows, and asks
+once about the rest. To start by hand, copy a template here into `context/<project>/`
+and fill it in. When a skill needs a
 file that doesn't exist, it degrades gracefully. It asks once and offers to scaffold the
 file from these templates, and it defaults to the conservative behavior (unknown risk =
 high risk, unknown metric = ask).
