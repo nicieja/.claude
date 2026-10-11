@@ -20,6 +20,20 @@ fix for each. It runs nothing itself.
 ~/.claude/bin/setup
 ```
 
+## Phone notifications
+
+`bin/hooks/notify_phone.py` sends a push to your phone through
+[ntfy](https://ntfy.sh) when an agent stops for you. Claude Code sends one when
+a session waits on a permission prompt, or has sat idle at its prompt for about
+a minute. Codex sends one at the end of every turn, from a `Stop` hook in
+`codex/hooks.json`, because Codex has no idle event.
+
+The topic is the only line of `ntfy-topic` in this directory, which git
+ignores. Use one topic on every machine, and subscribe to it once in the ntfy
+app. ntfy.sh is a public server where anyone who knows the topic can read it.
+The push contains only the folder name and the event, never conversation text,
+and `bin/check` fails a commit that contains the topic.
+
 ## Prose linting
 
 Vale lints the prose in this repo and the prose Claude writes anywhere else. It
@@ -46,7 +60,8 @@ A rule an agent can skip is a weaker rule than one that fails when it's broken.
 mechanism is:
 
 - `bin/check` lints the library itself: references between skills, the trigger
-  map, frontmatter, and words that belong to a private project.
+  map, frontmatter, and words that belong to a private project or to the ntfy
+  topic.
 - `.githooks/` runs `bin/check` and Vale on every commit, and Vale on the commit
   message, whichever agent or person commits.
 - `bin/hooks/outward_guard.py` is a pre-tool hook. It denies a comment posted
@@ -55,7 +70,7 @@ mechanism is:
 - `bin/hooks/compose_notes.py` adds the compose notes in
   `context/<project>/resolutions.md` to the context when a session starts and
   when the repo skill they name loads.
-- `bin/hooks/test_hooks.py` tests both hooks, and `bin/check` runs it.
+- `bin/hooks/test_hooks.py` tests the hooks, and `bin/check` runs it.
 
 ## The context layer
 
@@ -80,10 +95,10 @@ start of every task."
 
 `codex/` holds a default Codex config: `config.toml` (model, reasoning
 effort, approvals reviewer) and `rules/default.rules` (approval prefix rules).
-It also holds `hooks.json`, which runs the outward guard and, at session start,
-the compose notes. `~/.codex/hooks.json`
-is a symlink to it, and Codex runs it only after you trust it once with
-`/hooks`. Cursor has no equivalent hook yet.
+It also holds `hooks.json`, which runs the outward guard, the compose notes at
+session start, and the phone notification at the end of each turn.
+`~/.codex/hooks.json` is a symlink to it, and Codex runs it only after you trust
+it with `/hooks`, and again after each change to it. Cursor has no equivalent hook yet.
 
 Codex does not load the agents, skills, or commands from this repo. Per-machine
 project trust entries stay out. Codex adds them to the live file itself.

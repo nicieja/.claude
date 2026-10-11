@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Tests for the hooks in this directory, outward_guard.py and compose_notes.py.
+"""Tests for the hooks in this directory: outward_guard.py, compose_notes.py, and
+notify_phone.py.
 
 Each failure prints as `path: problem. Fix: ...`, the format bin/check uses,
 and the exit code is 1 when anything fails. bin/check runs this file.
@@ -21,6 +22,7 @@ sys.path.insert(0, str(HOOKS))
 for key in [k for k in os.environ if k.startswith("GIT_")]:
     del os.environ[key]
 import compose_notes  # noqa: E402
+import notify_phone  # noqa: E402
 import outward_guard  # noqa: E402
 
 DENY = [
@@ -140,9 +142,25 @@ def check_compose():
                "a cwd outside a repo")
 
 
+def check_notify():
+    cases = [
+        ("claude", {"cwd": "/w/acme", "message": "Claude is waiting for your input"},
+         "acme: Claude is waiting for your input"),
+        ("codex", {"cwd": "/w/acme", "hook_event_name": "Stop",
+                   "last_assistant_message": "the customer's card number is 4242"},
+         "acme: Codex finished a turn"),
+    ]
+    for agent, event, wanted in cases:
+        got = notify_phone.body(agent, event)
+        if got != wanted:
+            fail("bin/hooks/notify_phone.py", f"{agent} body: got {got!r}, wanted {wanted!r}",
+                 "send only the cwd's folder and the event, never conversation text")
+
+
 def main():
     check_guard()
     check_compose()
+    check_notify()
     for line in failures:
         print(line)
     return 1 if failures else 0

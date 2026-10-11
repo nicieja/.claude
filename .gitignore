@@ -5,6 +5,7 @@
 settings.local.json
 settings.json
 codex/config.toml
+ntfy-topic
 
 # Caches
 cache/

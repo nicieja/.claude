@@ -18,6 +18,7 @@ impossible. Add a row here when a rule gets its mechanism.
 | A skill's frontmatter `name` matches its directory, and an agent's matches its file | README | `bin/check` |
 | A `~/.claude/skills/<skill>/<file>` path that a file cites exists | This file | `bin/check` |
 | Tracked files don't contain project- or employer-specific words | `AGENTS.md`, "The context layer" | `bin/check` and `.githooks/commit-msg`, with the words from each `context/<project>/private-terms` |
+| Tracked files and commit messages don't contain the ntfy topic | README, "Phone notifications" | `bin/check` and `.githooks/commit-msg`, with the topic from `ntfy-topic` |
 | Tracked files outside `docs/references/` don't credit where an idea came from | `AGENTS.md`, "The context layer" | `bin/check` |
 | A command in the trigger map has no `allowed-tools` line, because the model can't load such a command through the Skill tool | This file | `bin/check` |
 | A skill that acts, then reports (its Instructions open with "Acting and confirming follow"), has Check and Undo parts in its report | `AGENTS.md`, "When to act and when to confirm" | `bin/check` |
@@ -37,7 +38,7 @@ impossible. Add a row here when a rule gets its mechanism.
 - **The outward guard** is configured per tool. Claude Code loads it from
   `settings.json`, whose `hooks` block is in `settings.json.example`. Codex loads
   it from `~/.codex/hooks.json`, a symlink to `codex/hooks.json`, after you trust
-  it once with `/hooks`. Cursor has no hook yet, so the prose rule is its only
+  it with `/hooks`, and again after each change to the file. Cursor has no hook yet, so the prose rule is its only
   guard.
 - **The compose-notes hook** runs in Claude Code on SessionStart,
   UserPromptExpansion, and PostToolUse for the Skill tool, from the same

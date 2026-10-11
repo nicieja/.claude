@@ -8,8 +8,9 @@ when anything fails. The rules come from docs/enforcement.md.
   bin/check --terms FILE…   only the private-terms rule, over the files given,
                             where - reads stdin (the commit-msg hook uses it)
 
-Stdlib only. Reads context/*/private-terms, which is gitignored, so a machine
-without a context/ directory skips that rule.
+Stdlib only. The private terms are each line of context/*/private-terms, plus
+the ntfy topic in ntfy-topic. Both are gitignored, so a machine without them
+skips that rule.
 """
 import re
 import subprocess
@@ -178,7 +179,7 @@ def check_hooks():
 
 def private_terms():
     terms = []
-    for path in sorted((REPO / "context").glob("*/private-terms")):
+    for path in sorted((REPO / "context").glob("*/private-terms")) + list(REPO.glob("ntfy-topic")):
         for line in path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if line and not line.startswith("#"):
@@ -201,7 +202,8 @@ def check_terms(paths, terms):
             m = pattern.search(line)
             if m:
                 fail(path, n, f"contains the private term {m.group(0)!r}",
-                     "move the project-specific content to context/<project>/")
+                     "keep it in a gitignored file: context/<project>/ for project content, "
+                     "ntfy-topic for the ntfy topic")
 
 
 def main(argv):

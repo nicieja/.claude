@@ -1,5 +1,5 @@
 {
-  "description": "Signature and always-OK guard for posts made under the user's account, and the compose notes for a repo's own skills. See ~/.claude/AGENTS.md.",
+  "description": "Signature and always-OK guard for posts made under the user's account, the compose notes for a repo's own skills, and a phone ping at the end of each turn. See ~/.claude/AGENTS.md and README.md.",
   "hooks": {
     "PreToolUse": [
       {
@@ -29,6 +29,17 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/bin/hooks/compose_notes.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/bin/hooks/notify_phone.py --agent codex",
             "timeout": 30
           }
         ]

@@ -49,6 +49,12 @@ report $? "Claude Code outward guard" "copy the \"hooks\" block from settings.js
 grep -q 'conversation_mode' "$repo/settings.json" 2>/dev/null
 report $? "Claude Code conversation mode" "copy the \"hooks\" block from settings.json.example into settings.json"
 
+grep -q 'notify_phone' "$repo/settings.json" 2>/dev/null
+report $? "Claude Code phone pings" "copy the \"hooks\" block from settings.json.example into settings.json"
+
+[ -s "$repo/ntfy-topic" ]
+report $? "ntfy topic for phone pings" "copy ntfy-topic from another machine, or start a topic with: echo cc-\$(openssl rand -hex 8) > $repo/ntfy-topic. Then subscribe to it in the ntfy app"
+
 grep -q 'compose_notes' "$repo/settings.json" 2>/dev/null
 report $? "Claude Code compose notes" "copy the \"hooks\" block from settings.json.example into settings.json"
 
@@ -69,7 +75,7 @@ if [ -d "$HOME/.codex" ]; then
     hooks_fix="rm '$codex_hooks' && $hooks_fix"
   fi
   [ "$(readlink "$codex_hooks")" = "$repo/codex/hooks.json" ]
-  report $? "outward guard symlink (trust it once with /hooks)" "$hooks_fix"
+  report $? "hooks symlink (trust it again with /hooks after each change)" "$hooks_fix"
 fi
 
 printf '\nLocal config\n'
