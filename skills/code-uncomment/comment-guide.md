@@ -1,8 +1,7 @@
 # Comment guide
 
 The rules `/code-uncomment` applies, through the `comment-editor` agent or
-inline. They come from Comment Sicko in Lauren Tan's pstack, without the
-persona.
+inline.
 
 ## Deletion by default
 

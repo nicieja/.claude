@@ -66,7 +66,7 @@ Repos I work in may have their own skills (`skills/`, `.claude/skills/`, `.agent
 
 # The context layer
 
-`~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and decision log. Tracked `context.example/` documents each file's format. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer to scaffold it from its template. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Mechanism is public, and configuration is private.
+`~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and decision log. Tracked `context.example/` documents each file's format. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer to scaffold it from its template. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Tracked files don't credit where an idea came from either. Mechanism is public, and configuration is private.
 
 # Don't defend against what can't happen
 

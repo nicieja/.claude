@@ -28,6 +28,10 @@ SKILL_REF = re.compile(r"`/([a-z][a-z0-9-]*(?::[a-z0-9-]+)?)(?=[`\s])")
 SKILL_PATH = re.compile(r"~/\.claude/(skills/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+)")
 # The line an act-then-report skill opens its Instructions with.
 ACT_RULE = "Acting and confirming follow"
+# Phrasing that credits where an idea came from. docs/references/ keeps source notes.
+CREDIT = re.compile(r"(?i:\b(?:ported|adapted|borrowed|copied|lifted|taken)\s+from\b"
+                    r"|\binspired\s+by\b|\bcourtesy\s+of\b|\bcredit(?:s|ed)?\s+to\b)"
+                    r"|\b(?:in|from|by)\s+[A-Z][a-z]+\s+[A-Z][a-z]+['’]s\b")
 
 failures = []
 
@@ -143,6 +147,16 @@ def check_act_then_report(skills):
                      f"add the **{part}** part to the report, as AGENTS.md requires")
 
 
+def check_credits(files):
+    for rel in files:
+        if rel.startswith("docs/references/"):
+            continue
+        for n, line in enumerate((read(rel) or "").splitlines(), 1):
+            if CREDIT.search(line):
+                fail(rel, n, "credits a source",
+                     "delete the credit, and state the rule in this library's own words")
+
+
 def private_terms():
     terms = []
     for path in sorted((REPO / "context").glob("*/private-terms")):
@@ -184,6 +198,7 @@ def main(argv):
         check_trigger_map(skills, names)
         check_frontmatter(files, skills)
         check_act_then_report(skills)
+        check_credits(files)
         check_terms(files, private_terms())
     for line in failures:
         print(line)
