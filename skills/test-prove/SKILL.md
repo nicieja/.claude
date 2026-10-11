@@ -36,7 +36,7 @@ The skill never edits your working tree. Scripts and evidence go to
 `~/.cache/agent-evidence/<project>/<slug>/`, where `<project>` is the repo's
 directory name and `<slug>` names the target, such as `pr-412` or
 `retry-double-charge`. Anything that writes files, such as a migration, a schema
-dump, or a build, runs in a detached scratch worktree under the evidence directory, which the run removes at the end. `/work-worktree` is for a task's own checkout, not for these. The repro on
+dump, or a build, runs in a detached scratch worktree under the evidence directory, which the run removes at the end. `/code-worktree` is for a task's own checkout, not for these. The repro on
 the old code runs in a worktree at the base.
 
 ## Arguments

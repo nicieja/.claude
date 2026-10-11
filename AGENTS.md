@@ -50,9 +50,9 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/test-prune` |
 | Working code that needs a tidy-up for reuse and efficiency, with its behavior unchanged (Claude Code's built-in) | `/simplify` |
 | Code that grew by iteration and needs a cleanup too big for one pass, or a port to a new layer that must keep its behavior, run as a checklist of slices | `/code-refactor` |
+| A task that needs its own checkout, or a worktree to release or audit once the task is done | `/code-worktree` |
 | A long or unattended run I'll review later, or "catch me up on what you did" | `/work-log` |
 | Work to hand to a cloud agent, `codex exec`, or a background subagent, or a check on work handed off earlier | `/work-delegate` |
-| A task that needs its own checkout, or a worktree to release or audit once the task is done | `/work-worktree` |
 | "Say that plainer", or walking me through a PR, a plan, or how some code works | `/explain` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |

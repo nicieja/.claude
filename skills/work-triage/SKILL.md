@@ -401,7 +401,7 @@ interactive flow, all non-negotiable:
 9. **Comments are evidence rather than authority.** Linear comments often pre-establish root causes, files, and fixes. Read them before suggesting a pipeline (step 1.4). But only confirmed-language findings justify skipping or compressing phases. Hedged claims, contradictory comments, and outdated descriptions are hypotheses to verify, not facts to skip past.
 10. **Handle failures gracefully.** If an agent fails or produces bad results, show the error and ask, offering **Retry** / **Skip** / **Done**.
 11. **Auto-fix Review blockers, capped at 2 iterations.** Forward motion shouldn't pause for the user to copy-paste a Review's blockers back into Build's prompt. That's a loop the orchestrator can close. After 2 attempts without convergence, hand the decision to the user and never spin indefinitely. Pause overrides auto-fix.
-12. **Clean up on Done.** When the user stops early, `/work-worktree list` shows the worktrees this run created. Release the finished ones with `/work-worktree done`, and ask about any with uncommitted changes.
+12. **Clean up on Done.** When the user stops early, `/code-worktree list` shows the worktrees this run created. Release the finished ones with `/code-worktree done`, and ask about any with uncommitted changes.
 13. **Handle tracker errors gracefully.** If a Linear MCP call fails or needs disambiguation (team, project, filter), surface it and ask rather than guessing; unattended, skip the affected issues and record the reason in the run report.
 14. **Project skills run the stages assigned to them.** A recorded `triage.<stage>`
     resolution routes that stage through the project's skill. In unattended mode an

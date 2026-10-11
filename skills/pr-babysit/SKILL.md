@@ -40,7 +40,7 @@ Get my open PR to the point where the only thing left is my merge. The head comm
 - A fix to prove by running it, beyond the tests → `/test-prove`.
 - Which test a fix needs → `/test-design`.
 - A reviewer asks for new scope rather than a fix → `/code-build`, after I agree to the scope.
-- The PR merged and its checkout can go → `/work-worktree done`.
+- The PR merged and its checkout can go → `/code-worktree done`.
 
 ## Instructions
 
@@ -151,7 +151,7 @@ Repeat Steps 2 to 4 until the PR reaches an end state.
 The run ends in one of these states:
 
 - **Ready**: the head is green and mergeable, and each finding has a fix or an answer. The merge is mine.
-- **Merged**: hand the checkout to `/work-worktree done`.
+- **Merged**: hand the checkout to `/code-worktree done`.
 - **Blocked**: the report gives the evidence and the exact action that would let the run continue. "Approve the push of 3 commits" is one such action.
 
 The report has these parts:

@@ -72,7 +72,7 @@ Before dispatch, search the brief for a fenced code block. A brief that has one 
 Follow the dispatch recipe in `delegation.md` for the executor:
 
 - **A cloud executor through a tracker.** Create or update the issue as the recipe says. Creating an issue is outward, so it goes ahead only when `escalation.md` allows it. Otherwise show the brief and ask.
-- **`codex exec`.** Create a locked worktree with `/work-worktree`, then run `codex exec -C <path> "<brief>"` in the background.
+- **`codex exec`.** Create a locked worktree with `/code-worktree`, then run `codex exec -C <path> "<brief>"` in the background.
 - **A local subagent.** Use the Agent tool with `isolation: "worktree"` and `run_in_background: true`, and the brief as its prompt.
 
 When a `/work-log` is open for this run, log the dispatch.
@@ -90,7 +90,7 @@ When a `/work-log` is open for this run, log the dispatch.
 
 1. **List the delegated work** the way `delegation.md` says, such as the issues assigned to me and delegated to the cloud agent. For local executors, list the worktrees this skill created.
 2. **For each PR without a review from me since its last push:**
-   - Check it out in a worktree with `/work-worktree`, named as `delegation.md` says.
+   - Check it out in a worktree with `/code-worktree`, named as `delegation.md` says.
    - Run `/pr-critique` through the `reviewer` agent, and `/test-prune` and `/code-simplify` in report mode. Run the private checks in `~/.claude/context/<project>/checks/`, and the project's verify skill when it has one (the repo's own, or `~/.claude/context/<project>/verify/SKILL.md`).
    - Post one comment on the PR with the findings, written as a follow-up per the brief guide, because the executor already has the task's context. A PR from my delegated issue is my own thread. The comment goes ahead without asking, signed per `~/.claude/AGENTS.md`.
    - Collect what the executor asked me to decide, such as its "Decisions for you" comments.

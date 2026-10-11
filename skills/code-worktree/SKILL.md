@@ -1,5 +1,5 @@
 ---
-name: work-worktree
+name: code-worktree
 version: 1.0.0
 description: |
   Give a task that writes code its own git checkout, and keep it until the task
@@ -26,9 +26,9 @@ The lock is the record of whose checkout it is. `git worktree remove` and `git w
 
 ## Arguments
 
-- `/work-worktree <task>`: start the task in its own checkout, or resume it when a worktree locked for this task exists.
-- `/work-worktree done`: release the task's checkout. It acts on the worktree the session is in, or on the one given as `/work-worktree done <path | branch>`.
-- `/work-worktree list`: a read-only audit of every worktree.
+- `/code-worktree <task>`: start the task in its own checkout, or resume it when a worktree locked for this task exists.
+- `/code-worktree done`: release the task's checkout. It acts on the worktree the session is in, or on the one given as `/code-worktree done <path | branch>`.
+- `/code-worktree list`: a read-only audit of every worktree.
 
 ## Cases for another skill
 

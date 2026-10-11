@@ -36,11 +36,13 @@ frontmatter: name, version, description: |, allowed-tools (dash list)
 ## Key Rules                    — numbered non-negotiables, one each
 (optional) a companion .md loaded every run for the evolving spec
 ```
+A skill's name starts with its area. `idea-` shapes work before code exists, and `code-` changes code, or manages the git checkout the code is in. `test-` decides and proves behavior, and `pr-` moves a pull request through review. `production-` diagnoses live systems, and `market-` positions and launches a product. `work-` runs the job around the code, such as triage, delegation, firefighting, logs, and retros. `self-` maintains this library.
+
 A skill that edits acts on its findings and ends its report with Changed, Check, and Undo, per `~/.claude/AGENTS.md` ("When to act and when to confirm"). A stop before the edit is not a default part of the template. It belongs only where the undo costs real work, where other people see the result, or behind a `--review` steer.
 
 **Command (`commands/*.md`)**
 ```
-frontmatter: description (required), allowed-tools?, argument-hint?
+frontmatter: description (required), allowed-tools? (never on a trigger-map command), argument-hint?
 ## Context     — ambient state, often embedded ! bash
 ## Your task   — the instruction; optional ### Step N
 ```
