@@ -1,10 +1,11 @@
 ---
 name: code-worktree
-version: 1.0.0
+version: 1.1.0
 description: |
   Give a task that writes code its own git checkout, and keep it until the task
   is done. Start records a completion condition that can pass or fail, creates
-  a worktree on a new branch from the freshly fetched default branch, and locks
+  a worktree on a new branch from the freshly fetched default branch, or on an
+  existing branch such as an open PR's head, and locks
   it with the task and the condition as the reason. `done` releases the
   checkout only when the condition is met or the user ends the work. It tears
   down the task's runtime and removes the checkout when it is clean and merged,
@@ -63,7 +64,7 @@ For work that writes code, record these before creating anything:
 - **The task**, in one line.
 - **The completion condition**, concrete enough to pass or fail, such as "the PR merged and the deploy verified". When the user gave none, propose one, state it, and let the user correct it. Don't add follow-up nobody asked for. A request to fix a bug doesn't become "fix the bug and clean up the module".
 - **The slug**, a few lowercase words from the task joined by hyphens, such as `refund-rounding`.
-- **The branch and the path**, from the naming in Step 0.
+- **The branch and the path**, from the naming in Step 0. A task on an open PR's head, or on any branch that already exists, keeps that branch. Its slug comes from the branch name.
 
 ### Step 2: Check the worktrees that exist
 
@@ -77,8 +78,8 @@ When the path or the branch is already taken, pick another slug.
 
 ### Step 3: Create and lock the checkout
 
-1. `git fetch origin <default>`.
-2. For source-only work, run `git worktree add --no-track -b <branch> <path> origin/<default>`. `--no-track` leaves the new branch without an upstream until `/pr-open` pushes it with `-u`. For work that needs services, run the project's command from the Worktrees line, which may create the checkout itself.
+1. `git fetch origin <default>`, or `git fetch origin <branch>` for a branch that already exists.
+2. For source-only work, run `git worktree add --no-track -b <branch> <path> origin/<default>`. `--no-track` leaves the new branch without an upstream until `/pr-open` pushes it with `-u`. For a branch that already exists, run `git worktree add <path> <branch>`, which creates the local branch from `origin/<branch>` when there's none. For work that needs services, run the project's command from the Worktrees line, which may create the checkout itself.
 3. Lock it right away with `git worktree lock --reason "<task>: <condition>" <path>`.
 4. Confirm that `git worktree list --porcelain` shows `locked <task>: <condition>` under the path.
 
