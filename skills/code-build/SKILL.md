@@ -1,6 +1,6 @@
 ---
 name: code-build
-version: 1.1.0
+version: 1.2.0
 description: |
   Build a slice of code from a plan, a spec, or a request, in the style of the
   codebase that receives it. Frames the smallest slice and reads the local
@@ -83,7 +83,7 @@ An open question in the plan that running something would answer goes to `/idea-
 
 Build it end-to-end, in the style of the surrounding code, with intent-carrying names. Don't add a speculative abstraction or an unrequested guard.
 
-**A bug fix starts with a repro.** Reproduce the bug on the layer where it shows, as `/test-prove` Step 5 describes, and commit the failing repro before the fix. When a test isn't practical, use the closest executable check, such as a script or a request against the running app, and say why. Test one hypothesis at a time, and revert the code written for a hypothesis the evidence refuted. Each line of the fix needs evidence behind it, so code that only might help stays out. Never weaken an assertion or edit a test to match the code.
+**A bug fix starts with a repro.** Reproduce the bug on the layer where it shows, as `/test-prove` Step 5 describes, and commit the failing repro before the fix. When a test isn't practical, use the closest executable check, such as a script or a request against the running app, and say why. Test one hypothesis at a time, and revert the code written for a hypothesis the evidence refuted. Each line of the fix needs evidence behind it, so code that only might help stays out. Never weaken an assertion or edit a test to match the code. When two fixes that rest on the same assumption have both failed, stop fixing. Write the assumption down as one sentence, and test it before trying a third fix.
 
 ### Step 4: Verify
 
@@ -95,7 +95,7 @@ For a change a user would notice, passing tests don't prove the feature works, s
 
 ### Step 5: Self-review
 
-Read your own diff as a sharp reviewer would. Cut anything you wouldn't defend. Check each guard the diff adds against the armor rule, and each comment it adds against the keep list above.
+Read your own diff as a sharp reviewer would. Cut anything you wouldn't defend. Check each guard the diff adds against the armor rule, and each comment it adds against the keep list above. Check each name it adds against the naming rules in `~/.claude/skills/idea-primitive/design-guide.md`.
 
 ### Step 6: Hand off
 

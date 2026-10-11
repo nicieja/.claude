@@ -1,12 +1,14 @@
 ---
 name: idea-primitive
-version: 1.1.0
+version: 2.0.0
 description: |
   Review a design, plan, RFC, or diff for the concept underneath the feature.
   Asks first whether the change adds a new primitive or composes existing
   ones, and sets the scrutiny by the answer. Models the primitive (a checklist,
   a ledger) instead of the feature named in the request, and builds only its
   smallest version. Ends with findings on one severity scale and a verdict.
+  `design` works forward instead, for a concept that doesn't exist yet, and
+  returns its meaning, owner, smallest contract, and names on every layer.
 allowed-tools:
   - Read
   - Bash
@@ -18,13 +20,14 @@ allowed-tools:
 
 # Primitive
 
-Feature requests arrive named after the feature: *"build an onboarding module."* This skill checks a design, a plan, or a diff for the concept underneath that feature, which may be broader than the feature itself. The same check sets the depth of the review: composition of existing primitives gets a fast pass, and a new or altered primitive gets the slow review.
+Feature requests arrive named after the feature: *"build an onboarding module."* This skill checks a design, a plan, or a diff for the concept underneath that feature, which may be broader than the feature itself. The same check sets the depth of the review: composition of existing primitives gets a fast pass, and a new or altered primitive gets the slow review. The `design` mode asks the same questions before anything exists, and returns a design in place of a verdict.
 
 ## Arguments
 
 - `/idea-primitive`: review the design or proposal under discussion in the conversation.
 - `/idea-primitive <path | PR | branch>`: review the plan file or design doc at the path, or the diff of the PR or branch.
 - `/idea-primitive <text>`: review the proposal in the argument.
+- `/idea-primitive design <concept | request>`: design the concept, or rename a settled one across layers (see **Design**). Bare `design` takes the concept under discussion.
 - **Report mode.** When the `reviewer` agent loads this skill from a brief, the brief is the whole input. Each question that would go to the user becomes a listed gap, and the output uses the format that the brief specifies.
 
 ## Cases for another skill
@@ -33,6 +36,8 @@ Feature requests arrive named after the feature: *"build an onboarding module."*
 - The diff needs a full review for correctness → `/pr-critique`.
 - A half-formed idea needs a plan → `/idea-spec`.
 - A claim about live data, row counts, or query plans needs proof → `/production-query`.
+- A settled design that's ready to build → `/code-build`.
+- A choice between designs that running something would answer → `/idea-prototype`.
 
 ## Instructions
 
@@ -98,6 +103,26 @@ Avoid diluting the list with cosmetic items. If a finding can't be tied to a rea
 
 End with a verdict. Either the change can go out as it is or after the blockers are fixed, or it needs rework before re-review. Don't equivocate. In report mode, list the open questions as gaps after the verdict.
 
+## Design
+
+`/idea-primitive design` builds the concept instead of reviewing it. It's read-only, and the report at the end is its output.
+
+1. **Context.** Read `~/.claude/skills/idea-primitive/design-guide.md`. Then read the vocabulary the codebase already uses, in its routes, models and modules, published API objects and events, ID prefixes, and migrations, plus the Naming line in `~/.claude/context/<project>/stack.md`. Use the decisions already made in the conversation, a spec, or the code, and design only what's still open. A rename of a settled concept goes straight to the names.
+2. **Meaning and primitive.** Write one sentence on what the concept means to the person who uses it. Then ask whether the feature is the concept itself or one instance of a broader one, as Step 2 does. When the concept is still unsettled, compare 2 or 3 alternatives on what the user gets, who owns it, a stable identity, its place in the API, its lifecycle, and how it recovers from a failure. Pick one, and say why the others lost.
+3. **Owner.** Say which module keeps the source of truth and runs the lifecycle. The model enforces its invariants, and neither the code that coordinates several models nor the boundary takes that job. Settle each choice the concept forces with the guide's decision table.
+4. **Contract.** Work through every bullet of the guide's contract sketch, from the variants to the external effects.
+5. **Names.** Run the guide's naming rules on each layer the concept touches, and finish with its pass over the layers.
+6. **Report.**
+   - the meaning, in one sentence
+   - the chosen design, and why each alternative lost
+   - the owner and the lifecycle
+   - the variants tested, including the extreme one
+   - the minimum write, the read, and the example call
+   - a table of the names by layer
+   - the open decisions
+
+   Routine choices follow the codebase's conventions and don't go on the list. A choice that changes scope, behavior, or a released contract does, with its tradeoff. Offer `/code-build` as the next step.
+
 ## Key Rules
 
 1. **Ask "new primitive or new composition?" first.** The answer sets the scrutiny.
@@ -106,3 +131,4 @@ End with a verdict. Either the change can go out as it is or after the blockers 
 4. **Primitives are deployment-agnostic.** They remain in the monolith until a concrete reason calls for a service.
 5. **Take a position.** Pair each recommendation with specific evidence and the tradeoff it costs, tie each finding to a failure mode or a measurable improvement, and end the review with a verdict.
 6. **Claims about runtime state go through `/production-query`,** or they get the `Unverified —` prefix.
+7. **Design mode builds nothing and edits nothing.** It ends with the open decisions instead of a verdict.

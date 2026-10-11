@@ -24,7 +24,7 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/work-triage` |
 | An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling, or a strategic bet or roadmap call that needs executive grilling | `/idea-challenge` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/idea-moonshot` |
-| System design, a new module or abstraction, naming a concept, a technology choice, coupling concerns | `/idea-primitive` |
+| Designing or reviewing a new module, resource, or abstraction, naming a concept, a technology choice, coupling concerns | `/idea-primitive` |
 | A design or behavior question that running something would answer, such as which layout or whether it's fast enough | `/idea-prototype` |
 | A vague goal, or a build / rank / launch / kill call that needs a measurable target and one recommendation | `/idea-goal` |
 | A plan, spec, brief, or PR whose requirements need an owner, or "where did this requirement come from?" | `/trace-requirement` |

@@ -39,6 +39,15 @@ Order the slices so that each one works on code in its final place.
 
 New slices from the second look go before the docs slice, and their numbers continue from the highest number in the plan. A slice that splits gets a letter, such as 2b, and goes right after its parent. The run order is the order in the file, and the numbers only identify the slices.
 
+## Repeated edits
+
+An edit repeated across many files, such as a rename or a change to every call site, goes through a script instead of hand edits. A codemod or a short program both work, and so does a `sed` command.
+
+1. Edit the first file by hand.
+2. Run the script on a clean copy of that file, and diff the result against the hand edit. Fix the script until the diff is empty.
+3. Run the script on the rest of the files.
+4. Keep the script in the harness directory, and give its name in the slice's log line, so a reviewer can rerun it.
+
 ## The baseline harness
 
 The harness pins every output of the code in scope before slice 1. After each slice, a diff against it decides whether the behavior is the same.

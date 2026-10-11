@@ -1,6 +1,6 @@
 ---
 name: code-refactor
-version: 2.1.0
+version: 2.2.0
 description: |
   Refactor code that grew by iteration, or port it to a new layer while
   keeping its behavior, as a checklist of slices in a plan file in the repo. Surveys the scope, says whether a refactor is useful, and
@@ -124,7 +124,7 @@ On "plan only", stop here. With `--review`, wait for the go-ahead. Otherwise com
 Take the open slices in file order, one after another. The run pauses between slices only under the "You commit" policy, where each slice waits for the user's commit. For each slice:
 
 1. **Read the plan again.** Read the rules and this slice, and the last lines of the log. After a compaction or in a new session, the file is the only state that counts, and the user's edits to it win over your memory of it.
-2. **Make the change.** A test changes only when the code it tests moves or gets a new name, and a moved test keeps its notes. After a move, search for unused imports and for names without a definition. Read the lint config to learn what the linter checks, because a config without `no-undef` misses an undefined name.
+2. **Make the change.** Use a script for an edit repeated across many files, as the guide's "Repeated edits" says. A test changes only when the code it tests moves or gets a new name, and a moved test keeps its notes. After a move, search for unused imports and for names without a definition. Read the lint config to learn what the linter checks, because a config without `no-undef` misses an undefined name.
 3. **Update the harness with the API.** When a probe or a script in the harness calls an API that the slice changes, update it in the same slice. Its outputs must still match the baseline.
 4. **Run the whole check**, one step after another, and let it stop at the first failure. To make it pass, fix the code and leave the baseline as it is.
 5. **Apply planned output changes to the baseline.** When the slice declares an output change, apply exactly that change to the baseline, and require equality with the new output. Then save the new output as the baseline, and write the change in the log.

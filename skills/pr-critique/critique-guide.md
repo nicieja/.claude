@@ -10,7 +10,7 @@ Perfection is not the bar. The bar is whether this change leaves the codebase he
 
 **Design.** Does this belong in the codebase, and does it integrate cleanly with what's around it? Is now the right time? A wrong-shape change wastes everything below this line. Raise design problems immediately so the author isn't building on a foundation you'll ask them to rip out, and so you don't waste your own time line-reviewing code that's about to disappear.
 
-**Correctness.** Does the code do what the diff claims? Check the edge cases the system can actually produce (nil, empty, negative, very large), and trace one to a real call site before you ask for a guard. Look for error handling that swallows or logs without acting, off-by-one errors in pagination, missing transaction boundaries, and inverted booleans. Run the new code paths in your head with edge inputs. For an operation that writes, ask what happens if it runs twice and what happens if it crashed halfway, because jobs retry and webhooks arrive more than once.
+**Correctness.** Does the code do what the diff claims? Check the edge cases the system can actually produce (nil, empty, negative, very large), and trace one to a real call site before you ask for a guard. Look for error handling that swallows or logs without acting, off-by-one errors in pagination, missing transaction boundaries, and inverted booleans. Run the new code paths in your head with edge inputs. For an operation that writes, ask what happens if it runs twice and what happens if it crashed halfway, because jobs retry and webhooks arrive more than once. Look for types that let impossible states through. A cast or a forced unwrap can skip a check the code needs, and a match over variants can miss a case. A pair of fields that must agree is a finding too, and the variants row in `~/.claude/skills/idea-primitive/design-guide.md` has the fix.
 
 **Concurrency.** Race conditions, deadlocks, and ordering bugs are nearly invisible from reading code. If the change introduces parallel work (threads, goroutines, async coordination, locks, shared mutable state), slow down. Walk through the interleavings, check atomicity boundaries, and verify the synchronization primitives match the access patterns. Where the model is non-trivial, flag the category for a specialist or an in-person review rather than rubber-stamping.
 
@@ -52,7 +52,7 @@ Large changes are sometimes fine, such as entire-file deletions or mechanical re
 Use the idioms of the language under review:
 
 - **Ruby and Rails.** ActiveRecord callbacks versus service objects, strong params, N+1 via `includes` and `preload`, transaction boundaries, `after_commit` ordering.
-- **TypeScript and JavaScript.** Type narrowing, async/await error propagation, immutability assumptions, bundle size, server versus client component boundaries.
+- **TypeScript and JavaScript.** Type narrowing, `as` casts, `!` non-null assertions, `any`, a `switch` over a union with no `never` check, async/await error propagation, immutability assumptions, bundle size, server versus client component boundaries.
 - **Python.** Mutable defaults, exception swallowing, GIL implications for threading versus multiprocessing, the memory cost of a list compared with a generator.
 - **Go.** Nil receivers, goroutine leaks, error wrapping, context propagation, mutex scope.
 - **SQL.** Index alignment, query plans, lock scope, NULL semantics, deadlock-prone update orderings.
