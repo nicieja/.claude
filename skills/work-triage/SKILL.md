@@ -304,13 +304,13 @@ When all pipeline stages complete for an issue:
      --head <branch_name>
    ```
 
-   **PR body format.** The PR description must read like an investigation report. Synthesize outputs from ALL pipeline phases (Understand, Diagnose, Build, Review) into one standalone document. Someone reading the PR tomorrow should understand the problem, root cause, reasoning, and solution without any other context. **Do NOT include the Linear issue ID anywhere in the PR body.** That rules out `**Issue:** ENG-123 —` prefixes and "Resolves ENG-123" footers. Linear links the PR automatically via the issue-ID-bearing branch name.
+   **PR body format.** The PR description must read like an investigation report. Synthesize outputs from ALL pipeline phases (Understand, Diagnose, Build, Review) into one standalone document. Someone reading the PR tomorrow should understand the problem, root cause, reasoning, and solution without any other context. The sections are the ones `/pr-open` uses (its Step 3), with an Investigation section after Why. **Do NOT include the Linear issue ID anywhere in the PR body.** That rules out `**Issue:** ENG-123 —` prefixes and "Resolves ENG-123" footers. Linear links the PR automatically via the issue-ID-bearing branch name.
 
    **IMPORTANT (shell escaping):** use a single-quoted HEREDOC delimiter (`<<'EOF'`) so that backticks and dollar signs pass through literally, as do other special characters. Do NOT escape backticks with backslashes. Inside `<<'EOF'`, backticks are plain text and render as inline code on GitHub. Never use double-quoted HEREDOC (`<<EOF`) or bare strings for PR bodies.
 
    ```bash
    gh pr create --draft --title "..." --body "$(cat <<'EOF'
-   ## Context
+   ## Why
 
    <Problem statement from the Linear issue: what was observed vs expected.
    Include the affected records, environment, and reproduction steps if available from the ticket.>
@@ -321,21 +321,22 @@ When all pipeline stages complete for an issue:
    Key files examined, data model relationships, the specific gap or bug identified.
    If Diagnose ran: what production data confirmed.>
 
-   ## Approach
+   ## What changed
 
-   <What was changed and why this approach was chosen.
-   For each file modified, explain the reasoning — not just what was done but why.
+   <What was changed and why this approach was chosen, file by file.
    If alternatives were considered, briefly note why they were rejected.>
 
-   ## Files changed
+   ## Scope
 
-   <Bulleted list of modified files with one-line descriptions>
+   <What this PR leaves out.>
 
    ## How to test
 
-   <Test commands (project test suite, targeted specs)>
-   <Manual verification steps>
-   <Diagnostic script if applicable>
+   <Manual checks a person can observe.>
+
+   ## Verification
+
+   <Test commands that ran, with results, and the diagnostic script if applicable.>
 
    🤖 Generated with [Claude Code](https://claude.com/claude-code)
    EOF
@@ -400,7 +401,7 @@ interactive flow, all non-negotiable:
 9. **Comments are evidence rather than authority.** Linear comments often pre-establish root causes, files, and fixes. Read them before suggesting a pipeline (step 1.4). But only confirmed-language findings justify skipping or compressing phases. Hedged claims, contradictory comments, and outdated descriptions are hypotheses to verify, not facts to skip past.
 10. **Handle failures gracefully.** If an agent fails or produces bad results, show the error and ask, offering **Retry** / **Skip** / **Done**.
 11. **Auto-fix Review blockers, capped at 2 iterations.** Forward motion shouldn't pause for the user to copy-paste a Review's blockers back into Build's prompt. That's a loop the orchestrator can close. After 2 attempts without convergence, hand the decision to the user and never spin indefinitely. Pause overrides auto-fix.
-12. **Clean up on Done.** When the user stops early, list any worktrees with uncommitted changes and ask if they should be cleaned up.
+12. **Clean up on Done.** When the user stops early, `/work-worktree list` shows the worktrees this run created. Release the finished ones with `/work-worktree done`, and ask about any with uncommitted changes.
 13. **Handle tracker errors gracefully.** If a Linear MCP call fails or needs disambiguation (team, project, filter), surface it and ask rather than guessing; unattended, skip the affected issues and record the reason in the run report.
 14. **Project skills run the stages assigned to them.** A recorded `triage.<stage>`
     resolution routes that stage through the project's skill. In unattended mode an

@@ -66,6 +66,8 @@ Apply the checks in the guide, in its order. Design comes first, because a wrong
 
 Verify claims against the code, and don't trust commit messages alone. A claim about live data, migration runtime behavior, or a query plan that changes a finding's severity goes to `/production-query` before you state it. Skip this for small changes, UI-only diffs, and claims the schema alone answers. A `Refuted` claim becomes a dropped finding, listed in the review so the next reader sees what was checked. An `Inconclusive` verdict, or a claim the user can't verify, gets the `Unverified —` prefix and the query, plan, or count that would settle it. `/production-query` ("Verification discipline for reviews") defines the full rule.
 
+When you run interactively, `/test-prove` settles a claim about runtime behavior that would change a finding's severity. Whether a retry can charge twice is that kind of claim. In report mode, which runs in the read-only `reviewer` agent, the finding gets the `Unverified —` prefix and states the `/test-prove` check that would settle it.
+
 ### Step 5: Flag the limits of a code read
 
 - **What users see.** For UI, animation, perceived performance, accessibility behavior, or layout under real data, say that a human needs to review screenshots or a running build before approval. A code read doesn't cover UX.

@@ -1,6 +1,6 @@
 ---
 name: self-improve
-version: 4.0.0
+version: 4.1.0
 description: |
   Turn the current session, or the corrections that recur across past
   sessions, into durable harness improvements. Generalizes each correction into
@@ -54,6 +54,7 @@ Re-read the session for the moments that cost something:
 - instructions the user had to give that a file could have contained
 - missing context that caused a wrong assumption
 - tool/command incantations that took several attempts to get right
+- context the user pasted that a connected tool, such as an MCP server or `gh`, could have fetched
 
 Each candidate keeps a pointer to its evidence (the message or output that shows it).
 
@@ -67,8 +68,8 @@ Each candidate keeps a pointer to its evidence (the message or output that shows
 
 ### Step 2: Generalize
 
-For each candidate, strip the session's specifics (branch names, ticket IDs,
-customer names, feature nouns) and restate the lesson at the class level: *when
+For each candidate, strip the session's specifics (branch names, ticket IDs, PR
+numbers, paths, customer names, feature nouns) and restate the lesson at the class level: *when
 <trigger>, do <behavior>, because <cost it avoids>*. If the lesson stops making
 sense without its specific nouns, it is not general enough to install; keep it as
 evidence only. Drop generic advice ("write tests", "read the code") and anything an
@@ -89,7 +90,12 @@ A rule an agent can skip is weaker than a check that fails. For each lesson, pic
    5. **A proposal**, for a repo-owned lesson without a project learning skill. Write the suggested patch into the report for the user to hand to the repo's owners.
    6. **Nothing**: useful history without a durable rule. Say so.
 
-**A repeat moves up a level.** Search `AGENTS.md`, the skills, and the project's context for the lesson's rule before writing it. When the rule is already there as prose and the session broke it anyway, write the mechanism, not a second copy of the rule.
+**A repeat moves up a level.** Search `AGENTS.md`, the skills, and the project's context for the lesson's rule before writing it. When the rule is already there as prose and the session broke it anyway, write the mechanism, not a second copy of the rule. First find out why the existing rule failed, and fix that cause too:
+
+- **Routing.** The skill that contains the rule didn't load or didn't fire.
+- **Conflict.** Another rule said otherwise.
+- **Staleness.** The rule no longer matches the code or the workflow.
+- **Skipped.** The agent read the rule and skipped it anyway, which is the case a mechanism fixes.
 
 **Prove a check before keeping it.** Run it against the evidence where the mistake happened, such as the commit, the diff, or a file with the excerpt. It must report the mistake. A check that doesn't report its own evidence is wrong, so fix it or drop it.
 
@@ -116,6 +122,7 @@ Route 5 stays a written proposal.
 - A new check in this library gets a row in `docs/enforcement.md`. A private project check gets a row in `context/<project>/rules.md`.
 - A tracked file that already has uncommitted changes is being edited now. Skip its
   lesson, apply the rest, and ask about it at the end of the run.
+- A lesson that changes a workflow gets a minimal headless run (`claude -p` in a scratch repo) that sets up the situation without hinting at the answer. Report what the run did.
 - Commit the tracked writes in `~/.claude` in one commit. Its message lists each lesson
   and its home. Writes to `context/<project>/` are gitignored, so they stay out of the
   commit.
@@ -123,7 +130,7 @@ Route 5 stays a written proposal.
 ### Step 6: Report
 
 Write one line per lesson with its level and where it's installed. A lesson that wasn't installed says why (skipped / proposal / evidence
-only). If an edited file contained a rule that now looks obsolete, flag it as a
+only). A session that doesn't yield a lesson to install is a complete result. If an edited file contained a rule that now looks obsolete, flag it as a
 question and never silently drop it.
 
 End with **Check** and **Undo**. Check quotes each new or changed rule, because a bad

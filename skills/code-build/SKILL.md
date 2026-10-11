@@ -45,6 +45,7 @@ Taste is only a tiebreaker (see Step 1), and it runs in this direction:
 - **Names express intent.** The public API should read like the verb a caller would actually use, on the noun where the state is stored: `order.cancel()` and not `OrderCancellationService.execute(order)`. Reserve technical suffixes (`Manager`, `Handler`, `Service`, `Helper`) for nouns that do what the suffix promises.
 - **A new layer or helper needs a concrete second caller.** Without one, skip it. Inline first and extract second: three similar lines are better than a premature abstraction. Extract when the inline code hides a verb that deserves a name, or when the duplication is real and has stabilized.
 - **Grow the domain object, not a service layer.** When a domain object gets complicated, move its internals into cohesive supporting objects, and keep generic services out of it.
+- **Writes are safe to repeat.** Ask of each operation that changes state what happens if it runs twice, and what happens if the last run crashed halfway. A retried job and a webhook delivered twice are the usual cases.
 - **Fixed time, variable scope.** When the budget is tight, cut scope before you extend time. Decide which way before you start, not after.
 - **Done means running in production, not merged.** A change isn't finished until it's verified end-to-end and small enough to roll back cleanly.
 
@@ -82,6 +83,8 @@ An open question in the plan that running something would answer goes to `/idea-
 
 Build it end-to-end, in the style of the surrounding code, with intent-carrying names. Don't add a speculative abstraction or an unrequested guard.
 
+**A bug fix starts with a repro.** Reproduce the bug on the layer where it shows, as `/test-prove` Step 5 describes, and commit the failing repro before the fix. When a test isn't practical, use the closest executable check, such as a script or a request against the running app, and say why. Test one hypothesis at a time, and revert the code written for a hypothesis the evidence refuted. Each line of the fix needs evidence behind it, so code that only might help stays out. Never weaken an assertion or edit a test to match the code.
+
 ### Step 4: Verify
 
 Run the targeted tests, the type checker, the linter, and any security tooling already configured in the project. If nothing exercises the change, write a focused test that does.
@@ -103,6 +106,8 @@ Write a concise summary with these sections:
 - **What you ran**: tests, type checker, linter, security tooling, and their outcomes.
 - **Residual risk**: what you didn't cover and why. List each open decision about failure behavior (retry, degrade, alert, drop) with its options, because that call belongs to the user.
 - **Undo**: the exact command that undoes the change, such as `git restore <files>` or `git revert <sha>`.
+
+To publish the branch as a PR, `/pr-open` comes next.
 
 ## Key Rules
 

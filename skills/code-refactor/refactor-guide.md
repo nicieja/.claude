@@ -69,6 +69,35 @@ A check is trusted only after it fails once. In slice 0, change one constant in 
 
 The plan states each planned output change before its slice runs. An example is "the generated file loses the `total` field". The check then applies exactly that change to the baseline and compares. Strip the field from the old file, and the old and new files must be equal. After the slice, save the new output as the baseline and write the change in the log.
 
+## Ports and rewrites
+
+A port moves behavior to a new layer, framework, or service while callers see the same results. On top of the harness above, a port gets a contract pin in slice 0 and a parity run before merge.
+
+### The contract pin
+
+Slice 0 adds one committed test. Unlike the git-ignored harness, it stays in the repo after the port as the contract.
+
+- **Boundary.** Put it where the port won't touch, such as the HTTP endpoint or the public method callers use. The test names neither the old layer nor the new one.
+- **One literal.** Assert the whole decoded output as one literal. For a value that changes between runs, like a timestamp or a generated id, pin its format. When a collection's order isn't defined, assert one member as a literal and the rest with a check that ignores order.
+- **Refusals.** Cover not found, unauthorized, and invalid input, including an optional field that's missing. For an internal service, write each caller's failure branch first. When a callee stops raising and returns a result, the caller's error handling goes dead, and the failure looks like success.
+- **Timezone.** Run it in the app's real timezone, because a run in UTC hides shifted dates.
+- **Commit.** Commit it by itself once it passes on the old code, and write that commit's hash in the log.
+- **After the port.** The expected values must be byte-identical to the old ones. When the contract changes on purpose, the change gets its own commit, with the old output, the new output, and the reason. A pin written from the new code's output doesn't prove anything.
+
+Example: for an orders API, the pin asserts the whole JSON body of `GET /orders/:id` for one seeded order. It also asserts the 404 for a missing order and the 403 for another account's order.
+
+### The parity run
+
+When the base and the branch can both run, send them the same cases before merging.
+
+- **Cases.** Use more refusals than successes. Send each optional field once absent and once blank. Give normalization, such as case and whitespace, and duplicates a case each.
+- **Compare in order.** Compare the responses first, with ids and timestamps masked. Then compare the stored records, through one read-only query per side, keyed by a unique suffix for the run. Then compare the side effects: events, enqueued jobs, emails, and the audit trail.
+- **Each difference** gets fixed in the port, and then every case runs again. A difference you keep goes in the PR with both outputs and the reason it's acceptable.
+- **Behavior improvements wait** for a separate change after the port.
+- **Tests alone never count as parity.** When only tests ran, the PR says so.
+
+Example: the old orders API rejects an order without a currency, and the port accepts one where the field arrives blank. Only a case with the blank field finds the difference.
+
 ## Plan template
 
 Write the plan in the plans directory that Step 0 found, as `<area>-refactor.md`, from this skeleton. Replace the parts in angle brackets, and delete a rule that does not apply.

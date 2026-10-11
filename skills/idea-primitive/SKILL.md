@@ -1,6 +1,6 @@
 ---
 name: idea-primitive
-version: 1.0.0
+version: 1.1.0
 description: |
   Review a design, plan, RFC, or diff for the concept underneath the feature.
   Asks first whether the change adds a new primitive or composes existing
@@ -65,6 +65,8 @@ Other hand-waving ("this won't scale", "more flexible", "cleaner") gets the push
 
 ### Step 4: Check the choices around the primitive
 
+Read `~/.claude/skills/idea-primitive/design-guide.md` first. Settle the primitive with its decision table and contract sketch, and check each name the change adds against its naming rules.
+
 - **Boundaries and coupling.** Where do services or modules start and stop? Responsibilities split along business capability, or along technical convenience? Flag places where coupling exceeds cohesion. A boundary that "happens to work" hasn't been tested by a real change yet.
 - **Data.** Which component holds the source of truth, the consistency model, and the migration path when the schema changes. The data model is harder to change than the code, so review a schema change or a public API with more care.
 - **Scale.** Not "what if we 10x" but "what does the slowest path do at today's p99 plus 50%?"
@@ -73,6 +75,8 @@ Other hand-waving ("this won't scale", "more flexible", "cleaner") gets the push
 - **Live data.** A finding that rests on runtime state (row distributions, query plans, lock behavior) is a hypothesis. Send it to `/production-query` when it would change the verdict or a severity, or give it the `Unverified —` prefix and state what would confirm it. `/production-query` ("Verification discipline for reviews") defines the full rule.
 
 ### Step 5: Compare with what good looks like
+
+Run the guide's red flags against the design first, then compare it with this list.
 
 - Boundaries follow business capabilities, not technical accidents.
 - Features are composed from reusable primitives. A module named after one feature is a smell rather than a structure.

@@ -1,9 +1,9 @@
 ---
 name: code-refactor
-version: 2.0.0
+version: 2.1.0
 description: |
-  Refactor code that grew by iteration, as a checklist of slices in a plan
-  file in the repo. Surveys the scope, says whether a refactor is useful, and
+  Refactor code that grew by iteration, or port it to a new layer while
+  keeping its behavior, as a checklist of slices in a plan file in the repo. Surveys the scope, says whether a refactor is useful, and
   writes and prints the plan, then continues unless you interrupt. It pins
   today's behavior in a baseline, proves that the check can fail, and commits
   one slice at a time. Bugs it finds wait in a list for you. A later run
@@ -115,6 +115,7 @@ On "plan only", stop here. With `--review`, wait for the go-ahead. Otherwise com
 4. Save the baseline outputs, and run the check. It must pass.
 5. Mutation-test the check as the guide describes. It must fail on the change and pass after the revert.
 6. Record the timings, tick the box, write the log line with the hash of the commit that the baseline comes from, and commit.
+7. For a port or a rewrite, add the contract pin from the guide's *Ports and rewrites* section, committed by itself once it passes on the old code.
 
 ---
 
@@ -135,6 +136,8 @@ Take the open slices in file order, one after another. The run pauses between sl
 7. **Close the slice.** Tick its box (`### - [x]`). Add the log line with the date, what the slice found or deferred, and any measurement. The line leaves out the hash, because a commit cannot contain its own hash, and `git log -- <plan>` finds it. Commit the code and the plan together, as the policy says.
 
 On "one slice", stop after the first closed slice.
+
+For a port, the parity run from the guide comes after the last code slice and before the second look.
 
 ---
 

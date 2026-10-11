@@ -24,15 +24,18 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | Tracker issues already shaped and ready to build, which need dispatching and no more planning | `/work-triage` |
 | An engineering claim, refactor pitch, library/tech choice, or design decision that needs grilling, or a strategic bet or roadmap call that needs executive grilling | `/idea-challenge` |
 | "What would the platonic ideal of this look like?", ambition gap, stretching a plan | `/idea-moonshot` |
-| System design, a new module or abstraction, a technology choice, coupling concerns | `/idea-primitive` |
+| System design, a new module or abstraction, naming a concept, a technology choice, coupling concerns | `/idea-primitive` |
 | A design or behavior question that running something would answer, such as which layout or whether it's fast enough | `/idea-prototype` |
 | A vague goal, or a build / rank / launch / kill call that needs a measurable target and one recommendation | `/idea-goal` |
 | A plan, spec, brief, or PR whose requirements need an owner, or "where did this requirement come from?" | `/trace-requirement` |
 | An epic, feature, or plan to break into stories or milestones that each deliver value | `/idea-slice` |
 | Building a feature or a slice of code from a plan, a spec, or a request | `/code-build` |
 | Reviewing a meaty code change before merge, a second opinion on a diff (correctness, security, performance) | `/pr-critique` |
+| A finished branch to publish as a PR | `/pr-open` |
+| My own open PR whose CI, bot reviews, or review threads need work to reach ready-to-merge | `/pr-babysit` |
 | Test strategy, what to test, missing coverage, flaky tests | `/test-design` |
 | A project with no scripted way to run the app and prove a feature works, or a verify skill whose feature map has drifted | `/test-verify` |
+| Proving a change works by running it: reproducing a bug, checking what changed on the running app, "what could this break?" | `/test-prove` |
 | Positioning, category naming, a pitch, a landing page, launch copy | `/market-pitch` |
 | Channel choice, traction, a launch plan | `/market-launch` |
 | Testing a pitch, a frame, or a draft on a simulated buyer before it meets a real one | `/market-rehearse` |
@@ -46,9 +49,11 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | Code that guards states that can't happen, or adds parameters, fields, flags, or fallbacks no caller needs: needless rescues, retries, armor I didn't ask for | `/code-simplify` |
 | Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/test-prune` |
 | Working code that needs a tidy-up for reuse and efficiency, with its behavior unchanged (Claude Code's built-in) | `/simplify` |
-| Code that grew by iteration and needs a cleanup too big for one pass, run as a checklist of slices | `/code-refactor` |
+| Code that grew by iteration and needs a cleanup too big for one pass, or a port to a new layer that must keep its behavior, run as a checklist of slices | `/code-refactor` |
 | A long or unattended run I'll review later, or "catch me up on what you did" | `/work-log` |
 | Work to hand to a cloud agent, `codex exec`, or a background subagent, or a check on work handed off earlier | `/work-delegate` |
+| A task that needs its own checkout, or a worktree to release or audit once the task is done | `/work-worktree` |
+| "Say that plainer", or walking me through a PR, a plan, or how some code works | `/explain` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
 | Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
@@ -90,7 +95,7 @@ A skill's own report sections can serve as the Changed part. Check and Undo alwa
 
 **Outward-facing: it depends on whose thread it is.** People may see a post before you delete it.
 
-- **Go ahead:** signed comments and thread replies on my own PRs and issues, plus status changes on Linear issues assigned to me.
+- **Go ahead:** signed comments and thread replies on my own PRs and issues, plus status changes on Linear issues assigned to me. Rerunning a failed CI job on my own PR goes ahead too.
 - **Ask first:** pushing my branch or opening a draft PR. Posts anywhere else need my OK too, like a comment on a teammate's PR or a Slack message.
 - **Always my OK:** merges, deploys, force pushes, Approve or Request changes on a teammate's PR, customer messages, and production mutations. Fix scripts are human-run.
 
