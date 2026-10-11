@@ -6,7 +6,8 @@ It denies two kinds of call:
 - A comment or message with no signature. Its body must end with the line
   "Posted by <Agent> on <Name>'s behalf", where <Agent> comes from --agent
   and <Name> is the first word of `git config --global user.name`.
-- An action that always needs the user's OK: a merge, an approving or
+- An action that always needs the user's OK: a merge, including a stacked
+  merge through `gh stack` or Graphite's `gt`, an approving or
   change-requesting review, a force push, and Linear's merge_diff and
   submit_diff_review. They can run those themselves with `! <command>`.
 
@@ -41,11 +42,12 @@ COMMENT_PATH = re.compile(r"/(comments|reviews|replies)(/|$|\?)")
 GRAPHQL_POSTS = re.compile(r"\b(addComment|addPullRequestReview|addPullRequestReviewComment|"
                            r"addPullRequestReviewThreadReply|submitPullRequestReview|"
                            r"updateIssueComment|updatePullRequestReviewComment|addDiscussionComment)\b")
-GRAPHQL_MERGES = re.compile(r"\b(mergePullRequest|enablePullRequestAutoMerge|mergeBranch)\b")
+GRAPHQL_MERGES = re.compile(r"\b(mergePullRequest|enablePullRequestAutoMerge|mergeBranch|"
+                            r"enqueuePullRequest)\b")
 # Words that can start a shell command segment before the real command.
 PREFIXES = {"do", "then", "else", "elif", "if", "while", "until", "{", "}", "!", "time",
             "command", "exec", "nohup", "env", "sudo"}
-MERGE_PATH = re.compile(r"/pulls/\d+/merge(/|$|\?)")
+MERGE_PATH = re.compile(r"(/pulls/\d+/merge|/merges)(/|$|\?)")
 CONTROL = {"&&", "||", ";", "|", "&", "\n", "(", ")"}
 
 
@@ -115,6 +117,11 @@ def options(args):
     return flags, positionals
 
 
+def short_flag(args, letter):
+    """Whether a short flag is present, alone or in a cluster such as -fu."""
+    return any(re.fullmatch(rf"-[A-Za-z]*{letter}[A-Za-z]*", arg) for arg in args)
+
+
 def flag(flags, *names):
     for name in names:
         if name in flags:
@@ -147,6 +154,8 @@ def check_gh(args, agent, cwd):
     group, verb = args[0], args[1]
     if group == "pr" and verb == "merge":
         needs_ok("Merging a PR")
+    if group == "stack" and verb == "merge":
+        needs_ok("Merging a stack")
     if group == "pr" and verb == "review":
         flags, _ = options(args[2:])
         if flag(flags, "-a", "--approve") or flag(flags, "-r", "--request-changes"):
@@ -238,9 +247,29 @@ def check_git(args):
     if not args or args[0] != "push":
         return
     flags, positionals = options(args[1:])
-    if flag(flags, "-f", "--force", "--force-with-lease", "--force-if-includes") or \
+    if short_flag(args[1:], "f") or \
+            flag(flags, "--force", "--force-with-lease", "--force-if-includes") or \
             any(p.startswith("+") for p in positionals):
         needs_ok("A force push")
+
+
+def check_gt(args, agent):
+    args = skip_global_options(args, ("--cwd",))
+    if not args:
+        return
+    verb, rest = args[0], args[1:]
+    if verb == "merge" and "--dry-run" not in rest:
+        needs_ok("Merging a stack")
+    if verb not in ("submit", "s", "ss"):
+        return
+    flags, _ = options(rest)
+    if short_flag(rest, "m") or flag(flags, "--merge-when-ready"):
+        needs_ok("Marking PRs to merge when ready")
+    if short_flag(rest, "f") or flag(flags, "--force"):
+        needs_ok("A force push")
+    comment = flag(flags, "--comment")
+    if comment:
+        require_signature(inline_body(comment[0] or ""), agent, "The comment on `gt submit`")
 
 
 def segments(command):
@@ -260,7 +289,7 @@ def segments(command):
 
 
 HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
-GATED = re.compile(r"(^|[;&|(]\s*)(gh\s+(pr|issue|api)\b|git\s+push\b)", re.M)
+GATED = re.compile(r"(^|[;&|(]\s*)(gh\s+(pr|issue|api|stack)\b|git\s+push\b|gt\b)", re.M)
 
 
 def strip_heredocs(command):
@@ -281,7 +310,7 @@ def strip_heredocs(command):
 def check_shell(command, agent, cwd):
     if isinstance(command, list):
         command = shlex.join(command)
-    if not re.search(r"\b(gh|git)\b", command):
+    if not re.search(r"\b(gh|git|gt)\b", command):
         return
     command = strip_heredocs(command)
     try:
@@ -312,6 +341,8 @@ def check_command(tokens, agent, cwd):
         check_gh(tokens[1:], agent, cwd)
     elif program == "git":
         check_git(tokens[1:])
+    elif program == "gt":
+        check_gt(tokens[1:], agent)
 
 
 def check_mcp(tool, tool_input, agent):

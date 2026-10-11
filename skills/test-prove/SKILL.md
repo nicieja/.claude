@@ -77,7 +77,7 @@ and use the first that applies:
    once, per the project-skill rule in `~/.claude/AGENTS.md`, whether to use the
    project's skill (the default), this one, or this skill's ladder over the
    project's harness and output conventions. Record the answer in
-   `resolutions.md` as `- test-prove → <choice> (<date>)`. An unattended run without
+   `resolutions.md` as `- test-prove → <choice> (<date>)`, in the format of `~/.claude/context.example/resolutions.md`. An unattended run without
    a recorded answer skips the proof and reports the conflict. Under the
    stepping-away steer in `~/.claude/AGENTS.md`, it uses the project's skill and
    logs the choice.
@@ -88,6 +88,11 @@ and use the first that applies:
    `~/.claude/context/<project>/stack.md`. Local runtime gives the up, down,
    restart, status, and logs commands for one checkout, the dev host pattern,
    and any host never to browse.
+
+Whichever harness applies, read the feature map in
+`~/.claude/context/<project>/verify/features/` when it exists. It lists every way a
+user reaches the changed feature, and a proof through one entry point is
+incomplete when the map lists others.
 
 When none of these exist, use the repo's own dev command and test runner, from
 its README, Makefile, or package scripts. When a check needed a harness to drive

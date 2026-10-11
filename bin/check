@@ -167,6 +167,15 @@ def check_credits(files):
                      "delete the credit, and state the rule in this library's own words")
 
 
+def check_hooks():
+    out = subprocess.run([sys.executable, str(REPO / "bin/hooks/test_hooks.py")],
+                         capture_output=True, text=True)
+    if out.returncode:
+        failures.extend(out.stdout.splitlines() or [
+            f"bin/hooks/test_hooks.py:1: crashed: {out.stderr.strip().splitlines()[-1]}. "
+            "Fix: run it directly to see the traceback"])
+
+
 def private_terms():
     terms = []
     for path in sorted((REPO / "context").glob("*/private-terms")):
@@ -211,6 +220,7 @@ def main(argv):
         check_act_then_report(skills)
         check_credits(files)
         check_terms(files, private_terms())
+        check_hooks()
     for line in failures:
         print(line)
     return 1 if failures else 0

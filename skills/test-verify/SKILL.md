@@ -1,13 +1,14 @@
 ---
 name: test-verify
-version: 1.0.0
+version: 1.1.0
 description: |
   Give a project a scripted way to prove its behavior: a private verify skill
   that launches the app, drives a feature the way a user would, and captures
   evidence, plus a feature map of what each feature does and how a user reaches
   it. Writes it to context/<project>/verify/ and proves it end to end once.
   `maintain` compares the map with the source, then runs every feature live.
-  When the repo already has a verify skill, that one owns verification.
+  When the repo already has a verify skill, that one owns verification, and
+  this skill adds only a feature map when the repo's skill has none.
 allowed-tools:
   - Read
   - Write
@@ -51,8 +52,17 @@ Follow these steps in order. Acting and confirming follow `~/.claude/AGENTS.md` 
 
 Look in the repo's `skills/`, `.claude/skills/`, `.agents/skills/`, and `.cursor/skills/`, and in `~/.claude/context/<project>/verify/`. A skill counts as a verify skill when its instructions launch and drive the app, then capture evidence, whatever it's called. A skill named `verify-commitment` that checks a business commitment isn't one.
 
-- **The repo has one.** It owns verification here. Say so and stop. Never edit it.
-- **A private one exists.** Offer `/test-verify maintain` and stop.
+A feature map records what each feature does and how a user reaches it, one entry per feature.
+
+- **The repo has one with a feature map.** It owns verification here. Say so and stop. Never edit it.
+- **A private skill or a private feature map exists.** Offer `/test-verify maintain` and stop.
+- **The repo has one without a feature map.** It still owns launching and driving the app, and this run adds only the map. Continue in map-only mode:
+  - Step 1 takes Launch and Drive from the repo's skill.
+  - Skip Step 2.
+  - Step 3 writes `verify/features/`, and its README opens with the repo skill's path.
+  - Step 4 drives one mapped feature through the repo skill's own steps.
+
+  Never edit the repo's skill.
 - **Neither.** Continue.
 
 ### Step 1: Read the repo
@@ -91,11 +101,11 @@ Follow the new skill's own instructions end to end: launch, doctor, drive one ma
 - **Changed**: the files written under `~/.claude/context/<project>/verify/`.
 - **Proof**: the feature driven and its evidence path, marked as measured.
 - **Check**: the features in the map that weren't driven yet, and any step you had to guess at.
-- **Undo**: `rm -r ~/.claude/context/<project>/verify`.
+- **Undo**: `rm -r ~/.claude/context/<project>/verify`, or `rm -r ~/.claude/context/<project>/verify/features` in map-only mode.
 
 ## Maintain
 
-`/test-verify maintain` keeps the private skill true to the app. It edits only `~/.claude/context/<project>/verify/`, never the product code.
+`/test-verify maintain` keeps the private skill true to the app. It edits only `~/.claude/context/<project>/verify/`, never the product code. In map-only mode, it launches and drives the app the way the repo's verify skill does. A gap in that harness goes into the feature file's **Gotchas** and into the report, as a proposal for the repo's owners.
 
 1. **Index.** Fix missing, extra, or dead entries in `features/README.md`.
 2. **Source pass.** Dispatch one read-only `Explore` agent per feature file, in parallel. Each explains how the feature works from the source and cites the drift it finds. It also returns one recipe to verify the feature live.
@@ -113,7 +123,7 @@ Follow the new skill's own instructions end to end: launch, doctor, drive one ma
 
 ## Key Rules
 
-1. **The repo's own verify skill wins.** Detect it by what it does, never edit it, and stop.
+1. **The repo's own verify skill wins.** Detect it by what it does, and never edit it. When it has no feature map, add only the map.
 2. **Private until I say otherwise.** The skill is stored in `~/.claude/context/<project>/verify/`.
 3. **A verify skill isn't done until it ran.** Step 4 proves it end to end.
 4. **Cleanup keeps the evidence.** It removes what a run started, never the proof.

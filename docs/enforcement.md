@@ -22,7 +22,9 @@ impossible. Add a row here when a rule gets its mechanism.
 | A command in the trigger map has no `allowed-tools` line, because the model can't load such a command through the Skill tool | This file | `bin/check` |
 | A skill that acts, then reports (its Instructions open with "Acting and confirming follow"), has Check and Undo parts in its report | `AGENTS.md`, "When to act and when to confirm" | `bin/check` |
 | A comment or message posted under my account ends with the signature line | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py`, a pre-tool hook in Claude Code and Codex |
-| Merges, approving or change-requesting reviews, and force pushes wait for my OK | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py` |
+| Merges, stacked merges included, approving or change-requesting reviews, and force pushes wait for my OK | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py` |
+| Each hook does what its docstring says, on the cases in its test table | This file | `bin/hooks/test_hooks.py`, which `bin/check` runs |
+| A compose note in `context/<project>/resolutions.md` applies whenever its project skill runs | `AGENTS.md`, "Project skills take precedence" | `bin/hooks/compose_notes.py`, which adds the notes at session start, after `/compact`, and when the skill loads |
 | In conversation mode, every reply is short | `commands/conversation.md` | `bin/hooks/conversation_mode.py`, which repeats the rules on every prompt while the mode is on |
 
 ## The mechanisms
@@ -37,6 +39,11 @@ impossible. Add a row here when a rule gets its mechanism.
   it from `~/.codex/hooks.json`, a symlink to `codex/hooks.json`, after you trust
   it once with `/hooks`. Cursor has no hook yet, so the prose rule is its only
   guard.
+- **The compose-notes hook** runs in Claude Code on SessionStart,
+  UserPromptExpansion, and PostToolUse for the Skill tool, from the same
+  `hooks` block. Codex runs it on SessionStart only, from `codex/hooks.json`.
+  Cursor has no hook. There, the AGENTS.md rule is the only guide. A line it can't
+  parse goes into the context at session start, for the agent to quote to me.
 - **The conversation-mode hook** runs in Claude Code only, from the same
   `hooks` block. `/conversation` turns the mode on or off for one session, and
   the mode is on while `~/.cache/agent-modes/conversation/<session_id>` exists.

@@ -1,5 +1,5 @@
 {
-  "description": "Signature and always-OK guard for posts made under the user's account. See ~/.claude/AGENTS.md.",
+  "description": "Signature and always-OK guard for posts made under the user's account, and the compose notes for a repo's own skills. See ~/.claude/AGENTS.md.",
   "hooks": {
     "PreToolUse": [
       {
@@ -18,6 +18,17 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/bin/hooks/outward_guard.py --agent codex",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/bin/hooks/compose_notes.py",
             "timeout": 30
           }
         ]

@@ -55,7 +55,7 @@ Follow these steps in order. Steps 0 to 4 plan, and the code is unchanged until 
    - **Use this skill**: continue as normal.
    - **Compose**: this skill's process with the project skill's conventions, such as where plans go and how they look.
 
-   Append the choice to `resolutions.md` (create it if missing) as `- refactor → <choice> (<date>)`. Unattended runs never ask. Without a recorded resolution, they skip the work and note the conflict in the report.
+   Append the choice to `resolutions.md` (create it if missing) as `- refactor → <choice> (<date>)`, in the format of `~/.claude/context.example/resolutions.md`. Unattended runs never ask. Without a recorded resolution, they skip the work and note the conflict in the report.
 4. **Load the guide.** Read `~/.claude/skills/code-refactor/refactor-guide.md` in full before the survey, on every run. It has the catalog of refactor targets and the slice order, plus the harness recipe and the plan template.
 5. **Find the plans directory.** Check `docs/plans/`, `plans/`, `rfcs/`, `designs/` and `.agents/plans/` under the repo root. Read any README, AGENTS, CLAUDE or TEMPLATE file inside, and follow its conventions. When the repo sorts plans by status, such as `active/` and `completed/`, use the folder for work in progress. When none of these directories exists, ask once whether to create `docs/plans/` or to keep the plan untracked in the harness directory.
 6. **Check the tree.** If the scope has uncommitted changes, ask before you go on, because the baseline must be of committed code.

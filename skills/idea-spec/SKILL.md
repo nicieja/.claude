@@ -50,7 +50,7 @@ Follow these steps in order. A step that plainly doesn't apply is skipped, with 
    - **Use this skill**: proceed as normal.
    - **Compose**: this skill's process with the project skill's output conventions (artifact home, format, naming).
 
-   Append the choice to `resolutions.md` (create it if missing): `- shape → <choice> (<date>)`. Later runs follow it without asking. Unattended runs never ask. When there is no recorded resolution, skip this work and note the conflict in the run report. Leave the decision for an interactive session.
+   Append the choice to `resolutions.md` (create it if missing): `- shape → <choice> (<date>)`, in the format of `~/.claude/context.example/resolutions.md`. Later runs follow it without asking. Unattended runs never ask. When there is no recorded resolution, skip this work and note the conflict in the run report. Leave the decision for an interactive session.
 
 3. **Find (or create) the plan directory.** First find the repo root:
    ```bash

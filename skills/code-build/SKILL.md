@@ -1,6 +1,6 @@
 ---
 name: code-build
-version: 1.2.0
+version: 1.3.0
 description: |
   Build a slice of code from a plan, a spec, or a request, in the style of the
   codebase that receives it. Frames the smallest slice and reads the local
@@ -16,6 +16,7 @@ allowed-tools:
   - Grep
   - AskUserQuestion
   - Skill
+  - Agent
 ---
 
 # Build
@@ -45,7 +46,7 @@ Taste is only a tiebreaker (see Step 1), and it runs in this direction:
 - **Names express intent.** The public API should read like the verb a caller would actually use, on the noun where the state is stored: `order.cancel()` and not `OrderCancellationService.execute(order)`. Reserve technical suffixes (`Manager`, `Handler`, `Service`, `Helper`) for nouns that do what the suffix promises.
 - **A new layer or helper needs a concrete second caller.** Without one, skip it. Inline first and extract second: three similar lines are better than a premature abstraction. Extract when the inline code hides a verb that deserves a name, or when the duplication is real and has stabilized.
 - **Grow the domain object, not a service layer.** When a domain object gets complicated, move its internals into cohesive supporting objects, and keep generic services out of it.
-- **Writes are safe to repeat.** Ask of each operation that changes state what happens if it runs twice, and what happens if the last run crashed halfway. A retried job and a webhook delivered twice are the usual cases.
+- **A write is safe to repeat when something repeats it.** When something can run a write twice, ask what the second run does and what a run that crashed halfway leaves behind. Retried jobs and redelivered webhooks can, and so can a client that sends an idempotency key. When nothing repeats the write, don't add a key or a lock. A port keeps exactly the repeat protection its old path had.
 - **Fixed time, variable scope.** When the budget is tight, cut scope before you extend time. Decide which way before you start, not after.
 - **Done means running in production, not merged.** A change isn't finished until it's verified end-to-end and small enough to roll back cleanly.
 
@@ -91,11 +92,13 @@ Run the targeted tests, the type checker, the linter, and any security tooling a
 
 Then run the project's private checks: each executable in `~/.claude/context/<project>/checks/`, with the changed files as arguments. A failure says the fix, so apply it.
 
-For a change a user would notice, passing tests don't prove the feature works, so prove it on the running app. Drive it with the repo's own verify skill, or with `~/.claude/context/<project>/verify/SKILL.md` when the repo has none, and treat an inconclusive drive as a fail.
+For a change a user would notice, passing tests don't prove the feature works, so prove it on the running app. Drive it with the repo's own verify skill, or with `~/.claude/context/<project>/verify/SKILL.md` when the repo has none, and treat an inconclusive drive as a fail. Whichever harness drives it, read the feature map in `~/.claude/context/<project>/verify/features/` when it exists. A proof through one entry point is incomplete when the map lists others.
 
-### Step 5: Self-review
+### Step 5: Review
 
 Read your own diff as a sharp reviewer would. Cut anything you wouldn't defend. Check each guard the diff adds against the armor rule, and each comment it adds against the keep list above. Check each name it adds against the naming rules in `~/.claude/skills/idea-primitive/design-guide.md`.
+
+Then follow `~/.claude/skills/pr-critique/independent-review.md` on the slice's diff, with the plan or the request as its source. The lenses are `/pr-critique` and `/trace-requirement`. `/code-simplify` isn't one of them, because it runs after the build as its own stage.
 
 ### Step 6: Hand off
 
@@ -104,7 +107,9 @@ Write a concise summary with these sections:
 - **What changed**: the files touched and a high-level outline of the change.
 - **Design rationale**: the local patterns you matched and any deliberate taste decisions. Also list each divergence from the upstream plan, with the swap stated.
 - **What you ran**: tests, type checker, linter, security tooling, and their outcomes.
+- **Reviewed**: the independent review's part, as `~/.claude/skills/pr-critique/independent-review.md` sets it.
 - **Residual risk**: what you didn't cover and why. List each open decision about failure behavior (retry, degrade, alert, drop) with its options, because that call belongs to the user.
+- **Needs you**: the review's Ask findings and the open decisions, asked together.
 - **Undo**: the exact command that undoes the change, such as `git restore <files>` or `git revert <sha>`.
 
 To publish the branch as a PR, `/pr-open` comes next.

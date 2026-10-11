@@ -49,6 +49,9 @@ report $? "Claude Code outward guard" "copy the \"hooks\" block from settings.js
 grep -q 'conversation_mode' "$repo/settings.json" 2>/dev/null
 report $? "Claude Code conversation mode" "copy the \"hooks\" block from settings.json.example into settings.json"
 
+grep -q 'compose_notes' "$repo/settings.json" 2>/dev/null
+report $? "Claude Code compose notes" "copy the \"hooks\" block from settings.json.example into settings.json"
+
 if [ -d "$HOME/.codex" ]; then
   printf '\nCodex\n'
 

@@ -60,6 +60,14 @@
             "command": "\"$HOME\"/.claude/bin/hooks/conversation_mode.py"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME\"/.claude/bin/hooks/compose_notes.py"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -68,6 +76,27 @@
           {
             "type": "command",
             "command": "\"$HOME\"/.claude/bin/hooks/conversation_mode.py"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME\"/.claude/bin/hooks/compose_notes.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME\"/.claude/bin/hooks/compose_notes.py"
           }
         ]
       }

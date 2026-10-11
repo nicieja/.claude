@@ -66,7 +66,7 @@ Follow these steps in order. Do NOT skip steps.
    merge, reviewing a diff). For each overlapping stage without a recorded
    resolution: interactively, ask one AskUserQuestion per stage (use the project's
    skill (Recommended) / use the built-in stage / compose) and append the answer to
-   `resolutions.md` as `- triage.<stage> → <choice> (<date>)`. Unattended, an
+   `resolutions.md` as `- triage.<stage> → <choice> (<date>)`, in the format of `~/.claude/context.example/resolutions.md`. Unattended, an
    unresolved overlapping stage means the affected issues are skipped with the
    conflict named in the run report. Never guess.
 

@@ -22,6 +22,7 @@ Files:
 - `stack.md`: tracker, code host, error tracking, console access, schema locations,
   test commands, conventions. The file skills consult before touching the project.
 - `resolutions.md`: remembered answers to project-skill conflicts. Written by skills.
+  `bin/hooks/compose_notes.py` hands its compose notes to the repo's own skills.
 - `decisions.md`: a dated log of non-obvious calls and why they were made.
 - `review-focus.md`: cached map of the code areas the user is responsible for and actively
   touches, used to focus a review. Written by `/pr-review`. Refreshes after ~30 days.
@@ -29,6 +30,8 @@ Files:
 - `rules.md`: the project's rules that agents keep breaking, each with what enforces it.
 - `checks/`: private checks that enforce those rules for my agents, without changing the
   team's repo. `checks/README.md` has the contract.
+- `verify/`: a private verify skill and its feature map, or only a feature map when the
+  repo's own verify skill has none. Written by `/test-verify`.
 - `private-terms`: words that tracked files in this library must never contain. `bin/check`
   and the commit-msg hook read it.
 

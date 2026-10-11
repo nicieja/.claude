@@ -50,8 +50,12 @@ mechanism is:
 - `.githooks/` runs `bin/check` and Vale on every commit, and Vale on the commit
   message, whichever agent or person commits.
 - `bin/hooks/outward_guard.py` is a pre-tool hook. It denies a comment posted
-  under my account without the signature line. It also denies a merge, a force
-  push, or an approving review, which wait for me.
+  under my account without the signature line. It also denies a merge, stacked
+  merges included, a force push, or an approving review, which wait for me.
+- `bin/hooks/compose_notes.py` adds the compose notes in
+  `context/<project>/resolutions.md` to the context when a session starts and
+  when the repo skill they name loads.
+- `bin/hooks/test_hooks.py` tests both hooks, and `bin/check` runs it.
 
 ## The context layer
 
@@ -76,7 +80,8 @@ start of every task."
 
 `codex/` holds a default Codex config: `config.toml` (model, reasoning
 effort, approvals reviewer) and `rules/default.rules` (approval prefix rules).
-It also holds `hooks.json`, which runs the outward guard. `~/.codex/hooks.json`
+It also holds `hooks.json`, which runs the outward guard and, at session start,
+the compose notes. `~/.codex/hooks.json`
 is a symlink to it, and Codex runs it only after you trust it once with
 `/hooks`. Cursor has no equivalent hook yet.
 

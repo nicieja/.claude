@@ -34,7 +34,7 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 | A finished branch to publish as a PR | `/pr-open` |
 | My own open PR whose CI, bot reviews, or review threads need work to reach ready-to-merge | `/pr-babysit` |
 | Test strategy, what to test, missing coverage, flaky tests | `/test-design` |
-| A project with no scripted way to run the app and prove a feature works, or a verify skill whose feature map has drifted | `/test-verify` |
+| A project with no scripted way to run the app and prove a feature works, or a feature map that is missing or has drifted | `/test-verify` |
 | Proving a change works by running it: reproducing a bug, checking what changed on the running app, "what could this break?" | `/test-prove` |
 | Positioning, category naming, a pitch, a landing page, launch copy | `/market-pitch` |
 | Channel choice, traction, a launch plan | `/market-launch` |
@@ -66,6 +66,7 @@ Repos I work in may have their own skills (`skills/`, `.claude/skills/`, `.agent
 
 - **Before running a global skill whose job overlaps a project skill's, surface the conflict and ask me** which to use. The options are the project's skill (the default), my skill, or a composition of my process with their output conventions. Match by what the skills produce, not by their names.
 - **Remember my answer** in `~/.claude/context/<project>/resolutions.md` and follow it silently on later runs. `<project>` is the repo's directory name.
+- **A compose note applies whenever its project skill runs.** Its line reads `- <my skill> → compose: project:<name>; <note> (<date>)`, in the format of `context.example/resolutions.md`. Apply the note each time `<name>` runs, whether I typed it, the Skill tool loaded it, or another skill ran it as a step. Where that skill waits for me to ask, the note is the ask. In Claude Code and Codex, `bin/hooks/compose_notes.py` adds the notes to your context. Elsewhere, read `resolutions.md` at the start of a task.
 - **Unattended runs never guess.** No recorded resolution → skip that piece of work, note the conflict in the run report, and leave the decision for an interactive session.
 - **Never edit a project's skills, agent docs, tasks, or automations.** Read and invoke them only. Improvements to a project's workflow are proposals to its owners, not edits from me.
 
@@ -95,7 +96,7 @@ A skill's own report sections can serve as the Changed part. Check and Undo alwa
 
 **Outward-facing: it depends on whose thread it is.** People may see a post before you delete it.
 
-- **Go ahead:** signed comments and thread replies on my own PRs and issues, plus status changes on Linear issues assigned to me. Rerunning a failed CI job on my own PR goes ahead too.
+- **Go ahead:** signed comments and thread replies on my own PRs and issues, plus status changes on Linear issues assigned to me. Rerunning a failed CI job on my own PR goes ahead too, and so does resolving a review thread there once a pushed commit fixed it.
 - **Ask first:** pushing my branch or opening a draft PR. Posts anywhere else need my OK too, like a comment on a teammate's PR or a Slack message.
 - **Always my OK:** merges, deploys, force pushes, Approve or Request changes on a teammate's PR, customer messages, and production mutations. Fix scripts are human-run.
 
