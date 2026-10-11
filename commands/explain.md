@@ -1,7 +1,6 @@
 ---
 description: Explain something plainly, from restating the last reply to walking through code, a PR, a plan, or a commit
 argument-hint: "[question | PR number | plan file | path] [step by step]"
-allowed-tools: Read, Grep, Glob, Agent, Bash(git log:*), Bash(git show:*), Bash(git diff:*), Bash(gh pr view:*), Bash(gh pr diff:*)
 ---
 
 ## Context

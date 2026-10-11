@@ -36,7 +36,7 @@ The skill never edits your working tree. Scripts and evidence go to
 `~/.cache/agent-evidence/<project>/<slug>/`, where `<project>` is the repo's
 directory name and `<slug>` names the target, such as `pr-412` or
 `retry-double-charge`. Anything that writes files, such as a migration, a schema
-dump, or a build, runs in a scratch worktree from `/work-worktree`. The repro on
+dump, or a build, runs in a detached scratch worktree under the evidence directory, which the run removes at the end. `/work-worktree` is for a task's own checkout, not for these. The repro on
 the old code runs in a worktree at the base.
 
 ## Arguments
@@ -186,7 +186,7 @@ Where the checks run:
 - A test file this run writes goes in a scratch worktree, never in your tree,
   with a copy in the evidence directory.
 - For the bare target, create the scratch worktree at `HEAD` with
-  `/work-worktree`, then apply the uncommitted changes there with
+  `git worktree add --detach <path> HEAD`, then apply the uncommitted changes there with
   `git diff HEAD --binary | git -C <worktree> apply`. Copy in each untracked
   file the change adds.
 - Run the app from the scratch worktree with the Local runtime commands for
@@ -263,7 +263,7 @@ Rules for the ladder:
 ### Step 7: Clean up and report
 
 Stop the processes this run started, drop its throwaway databases, and remove
-its scratch worktrees with `/work-worktree`. Keep the evidence directory. Each
+its scratch worktrees with `git worktree remove`. Keep the evidence directory. Each
 script in it records the SHA it ran against, so a rerun can rebuild its
 worktree.
 

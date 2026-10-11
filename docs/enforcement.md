@@ -19,6 +19,7 @@ impossible. Add a row here when a rule gets its mechanism.
 | A `~/.claude/skills/<skill>/<file>` path that a file cites exists | This file | `bin/check` |
 | Tracked files don't contain project- or employer-specific words | `AGENTS.md`, "The context layer" | `bin/check` and `.githooks/commit-msg`, with the words from each `context/<project>/private-terms` |
 | Tracked files outside `docs/references/` don't credit where an idea came from | `AGENTS.md`, "The context layer" | `bin/check` |
+| A command in the trigger map has no `allowed-tools` line, because the model can't load such a command through the Skill tool | This file | `bin/check` |
 | A skill that acts, then reports (its Instructions open with "Acting and confirming follow"), has Check and Undo parts in its report | `AGENTS.md`, "When to act and when to confirm" | `bin/check` |
 | A comment or message posted under my account ends with the signature line | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py`, a pre-tool hook in Claude Code and Codex |
 | Merges, approving or change-requesting reviews, and force pushes wait for my OK | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py` |

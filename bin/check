@@ -84,7 +84,7 @@ def check_trigger_map(skills, names):
     lines = (read("AGENTS.md") or "").splitlines()
     if "### Trigger map" not in lines:
         fail("AGENTS.md", 1, "no '### Trigger map' section", "restore the section")
-        return
+        return set()
     mapped = set()
     in_table = False
     for n, line in enumerate(lines[lines.index("### Trigger map"):],
@@ -103,6 +103,16 @@ def check_trigger_map(skills, names):
     for skill in sorted(skills - mapped - TRIGGER_EXEMPT):
         fail(f"skills/{skill}/SKILL.md", 1, f"`/{skill}` has no row in the AGENTS.md trigger map",
              "add a row, or add the skill to TRIGGER_EXEMPT in bin/check with a comment")
+    return mapped
+
+
+def check_command_tools(commands, mapped):
+    for name in sorted(commands & mapped):
+        rel = f"commands/{name}.md"
+        if "allowed-tools" in frontmatter(read(rel) or ""):
+            fail(rel, 1, "a trigger-map command has allowed-tools, so the model can't load it "
+                 "through the Skill tool", "delete the allowed-tools line, and keep the limits in "
+                 "the command's text")
 
 
 def check_frontmatter(files, skills):
@@ -195,7 +205,8 @@ def main(argv):
         commands = {Path(p).stem for p in files if re.fullmatch(r"commands/[^/]+\.md", p)}
         names = skills | commands | BUILTINS
         check_references(files, names)
-        check_trigger_map(skills, names)
+        mapped = check_trigger_map(skills, names)
+        check_command_tools(commands, mapped)
         check_frontmatter(files, skills)
         check_act_then_report(skills)
         check_credits(files)

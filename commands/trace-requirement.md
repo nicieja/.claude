@@ -1,7 +1,6 @@
 ---
 description: Trace each requirement in a plan, spec, brief, or PR to the person who made it, then question it
 argument-hint: "[plan file | PR number | issue id]"
-allowed-tools: Read, Grep, Glob, Bash(git log:*), Bash(git blame:*), Bash(git show:*), Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh issue view:*)
 ---
 
 ## Context
