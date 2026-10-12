@@ -26,7 +26,8 @@ Files:
 - `resolutions.md`: remembered answers to project-skill conflicts. Written by skills.
   `bin/hooks/compose_notes.py` hands its compose notes to the repo's own skills.
 - `decisions.md`: a dated log of non-obvious calls and why they were made.
-- `routines/`: prompt sources for scheduled runs (private by nature).
+- `routines/`: scheduled prompts and restartable `/loop` routines, with each loop's lock,
+  ledger, and scripts. `routines/README.md` documents them, and `/setup` starts them.
 - `rules.md`: the project's rules that agents keep breaking, each with what enforces it.
 - `checks/`: private checks that enforce those rules for my agents, without changing the
   team's repo. `checks/README.md` has the contract.

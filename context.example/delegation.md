@@ -15,7 +15,10 @@ file. Without it, the only executor is a local subagent.
 ## Brief rules for this project
 
 Rules every brief here adds to `brief-guide.md`, such as "one PR per tool" or
-the PR headings a project skill requires.
+the PR headings a project skill requires. Each rule cites the PR or the date it
+came from. When a routine writes briefs from its own template, that template is
+the only copy of the rules, and this section points to it. A lesson the routine
+adds there then goes into the next brief.
 
 ## Holds
 
@@ -26,5 +29,10 @@ of the issue and no delegate set.
 
 - How to list delegated work, such as a tracker query.
 - How a result shows up, such as the issue's status changes and the PR link.
+- How to restart an executor that stopped, and the channel it reads, such as a
+  reply in its session thread when it ignores top-level comments.
+- How to tell whether a run is still going, when the tracker has no field for it.
+- How long the executor keeps reacting to CI and reviews on its own.
+- The branch names and the commit author on its work.
 - Where to check a PR out locally, such as `../<repo>.<branch-slug>`.
 - What the executor can't do on its own, such as a check that runs only locally.
