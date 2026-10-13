@@ -10,6 +10,20 @@ trust the result, and that trust has to come from the environment the agent
 works in. A better prompt won't supply it. Each part of this repo builds a piece
 of that environment.
 
+## Install
+
+```bash
+git clone git@github.com:nicieja/.claude.git ~/.claude
+~/.claude/bin/setup
+```
+
+A clone brings only the tracked half. `bin/setup` reports which machine-local
+pieces are missing, such as the prose linter, the agent hooks, the git hooks,
+and phone notifications, and prints the fix for each. It runs nothing itself,
+except that `bin/setup --apply` fills in the Codex config and makes the Codex
+links. [docs/setup.md](docs/setup.md) covers each piece, and how Codex and
+Cursor read the same rules.
+
 ## Skills
 
 Each skill writes down one of my playbooks, such as how I review a diff or
@@ -132,22 +146,9 @@ same limits apply whichever agent is working. Commit hooks run on every commit,
 from either agent.
 
 Codex loads the same skills, which the setup script links in one by one. Some
-use tools only Claude Code has, such as subagents, and won't run fully in
-Codex, so delegated work that needs this library's skills stays with Claude.
-Work that a repo's own skills or a plain brief can cover goes to Codex. `/work-delegate` writes a
-self-contained brief, runs `codex exec` in its own worktree, and later reviews
-the PR that comes back.
-
-## Install
-
-```bash
-git clone git@github.com:nicieja/.claude.git ~/.claude
-~/.claude/bin/setup
-```
-
-A clone brings only the tracked half. `bin/setup` reports which machine-local
-pieces are missing, such as the prose linter, the agent hooks, the git hooks,
-and phone notifications, and prints the fix for each. It runs nothing itself,
-except that `bin/setup --apply` fills in the Codex config and makes the Codex
-links. [docs/setup.md](docs/setup.md)
-covers each piece, and how Codex and Cursor read the same rules.
+use tools only Claude Code has, such as subagents. When Codex reaches a step
+that needs one, it stops and says the step needs Claude Code, instead of
+working around it. Delegated work that needs this library's skills stays with
+Claude for now. Work that a repo's own skills or a plain brief can cover goes
+to Codex. `/work-delegate` writes a self-contained brief, runs `codex exec` in
+its own worktree, and later reviews the PR that comes back.
