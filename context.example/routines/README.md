@@ -41,7 +41,7 @@ A loop runs one wake at a time. Each wake starts from what the repo, the tracker
 **Report and wake.**
 
 - The report has a Status table (one row per item, with its state and next action), then Waiting on you, Check, and an Undo for each outward action.
-- Then call `ScheduleWakeup` with the routine's `/loop` prompt. Start with 1200 to 1800 seconds.
+- Then wake on events, not on a timer. Keep a `watch` script beside the routine that polls the code host every minute or two and prints one line when an item changes in a way the loop acts on. Opening, merging, a CI verdict, a review and a draft flip all count, and a push alone waits for its CI verdict. When `TaskList` doesn't show the watch running, arm it with `Monitor` at the longest timeout. Each line it prints then wakes the loop at once. Then call `ScheduleWakeup` with the routine's `/loop` prompt and 1200 to 1800 seconds, as the fallback for what the watch can't see and for a monitor that expired. A loop on timer ticks alone added 10 to 15 minutes to each step of each item.
 - When nothing is running and every remaining item waits on me, stop the loop, and say what it waits on.
 
 **Always.**
