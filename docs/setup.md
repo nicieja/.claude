@@ -4,7 +4,9 @@ A clone brings the tracked half only. The rest, such as the Vale binary, its
 plugin, its synced styles, and the machine's own config files, lives outside
 git. So do the git hooks setting and the agent hooks, which are config on each
 machine. `bin/setup` reports which of them a machine is missing, and prints the
-fix for each. It runs nothing itself.
+fix for each. It runs nothing itself, except that `bin/setup --apply` makes the
+Codex links under "Other agents". That run exits 0 once the links are made,
+whatever else is left, so a bootstrap script can call it.
 
 ## Prose linting
 
@@ -44,18 +46,27 @@ and `bin/check` fails a commit that contains the topic.
 
 The global rules are in `AGENTS.md`, which most coding agents read. Claude Code
 reads `CLAUDE.md`, so that file imports them with `@AGENTS.md` and adds the
-Claude-only rules. Codex reads them through a symlink at `~/.codex/AGENTS.md`,
-and `bin/setup` reports when it is missing. Cursor has no global rules file. Add
-a User Rule in Cursor's settings that says "Read ~/.claude/AGENTS.md at the
-start of every task."
+Claude-only rules. Codex reads them through a symlink at `~/.codex/AGENTS.md`.
+Cursor has no global rules file. Add a User Rule in Cursor's settings that says
+"Read ~/.claude/AGENTS.md at the start of every task."
 
 `codex/` holds a default Codex config: `config.toml.example` (model, reasoning
-effort, approvals reviewer), which `bin/setup` reports as missing until you
-copy it to `config.toml`, and `rules/default.rules` (approval prefix rules). It also holds
-`hooks.json`, which runs the outward guard, the compose notes at session start,
-and the phone notification at the end of each turn. `~/.codex/hooks.json` is a
-symlink to it, and Codex runs it only after you trust it with `/hooks`, and
-again after each change to it. Cursor has no equivalent hook yet.
+effort, approvals reviewer), and `rules/default.rules` (approval prefix rules).
+It also holds `hooks.json`, which runs the outward guard, the compose notes at
+session start, and the phone notification at the end of each turn. Codex runs
+the hooks only after you trust them with `/hooks`, and again after each change
+to the file. Cursor has no equivalent hook yet.
 
-Codex does not load the agents, skills, or commands from this repo. Per-machine
-project trust entries stay out. Codex adds them to the live file itself.
+`bin/setup --apply` makes every Codex link. It copies `config.toml.example` to
+`config.toml` when that file is missing, then links `AGENTS.md`, `config.toml`,
+`rules/default.rules`, and `hooks.json` into `~/.codex`. Each skill gets its own
+link in `~/.codex/skills`, because that directory also holds Codex's own
+`.system` skills, and a link to a skill that no longer exists is removed. It
+never links `~/.codex` itself, which holds auth and session state. Anything
+already at a link's path first moves into a time-stamped `~/.codex/backup-*`
+folder.
+
+Codex does not load the agents or commands from this repo. A skill that uses
+Claude-only tools, such as subagents, loads in Codex but won't run fully there.
+Per-machine project trust entries stay out of `config.toml`. Codex adds them to
+the live file itself.

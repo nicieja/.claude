@@ -1,11 +1,17 @@
 #!/bin/sh
 # Reports which parts of this library's machine-local setup are missing.
-# Each missing step prints the command that fixes it. The script doesn't run them.
+# Each missing step prints the command that fixes it. The script doesn't run them,
+# except that --apply fills in codex/config.toml and makes the Codex links itself,
+# and then exits 0 whatever else is left.
 
 set -u
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
 vale_config="$HOME/Library/Application Support/vale"
+codex="$HOME/.codex"
+backups="$codex/backup-$(date +%Y%m%d-%H%M%S)"
+apply=0
+[ "${1:-}" = --apply ] && apply=1
 missing=0
 
 report() {
@@ -14,6 +20,23 @@ report() {
   else
     printf '  miss  %s\n        %s\n' "$2" "$3"
     missing=$((missing + 1))
+  fi
+}
+
+link() {
+  if [ "$(readlink "$2")" = "$1" ]; then
+    report 0 "$3"
+  elif [ "$apply" = 1 ]; then
+    if [ -e "$2" ] || [ -L "$2" ]; then
+      backup="$backups/${2#"$codex/"}"
+      mkdir -p "$(dirname "$backup")"
+      mv "$2" "$backup" || exit 1
+      echo "Backed up $2 to $backup; merge anything you still want by hand" >&2
+    fi
+    ln -s "$1" "$2" || exit 1
+    printf '  made  %s\n' "$3"
+  else
+    report 1 "$3" "$repo/bin/setup --apply"
   fi
 }
 
@@ -58,24 +81,47 @@ report $? "ntfy topic for phone pings" "copy ntfy-topic from another machine, or
 grep -q 'compose_notes' "$repo/settings.json" 2>/dev/null
 report $? "Claude Code compose notes" "copy the \"hooks\" block from settings.json.example into settings.json"
 
-if [ -d "$HOME/.codex" ]; then
+if [ -d "$codex" ] || [ "$apply" = 1 ]; then
   printf '\nCodex\n'
 
-  codex_rules="$HOME/.codex/AGENTS.md"
-  rules_fix="ln -s $repo/AGENTS.md '$codex_rules'"
-  if [ -e "$codex_rules" ] || [ -L "$codex_rules" ]; then
-    rules_fix="rm '$codex_rules' && $rules_fix"
+  if [ "$apply" = 1 ]; then
+    mkdir -p "$codex/rules" "$codex/skills"
+    if [ ! -f "$repo/codex/config.toml" ]; then
+      cp "$repo/codex/config.toml.example" "$repo/codex/config.toml" || exit 1
+      printf '  made  codex/config.toml\n'
+    fi
   fi
-  [ "$(readlink "$codex_rules")" = "$repo/AGENTS.md" ]
-  report $? "global rules symlink" "$rules_fix"
 
-  codex_hooks="$HOME/.codex/hooks.json"
-  hooks_fix="ln -s $repo/codex/hooks.json '$codex_hooks', then trust it with /hooks in Codex"
-  if [ -e "$codex_hooks" ] || [ -L "$codex_hooks" ]; then
-    hooks_fix="rm '$codex_hooks' && $hooks_fix"
+  link "$repo/AGENTS.md" "$codex/AGENTS.md" "global rules symlink"
+  link "$repo/codex/config.toml" "$codex/config.toml" "config symlink"
+  link "$repo/codex/rules/default.rules" "$codex/rules/default.rules" "approval rules symlink"
+  link "$repo/codex/hooks.json" "$codex/hooks.json" "hooks symlink (trust it again with /hooks after each change)"
+
+  # ~/.codex/skills also holds Codex's own .system skills, so each skill gets its own link.
+  unlinked=
+  for skill in "$repo"/skills/*/SKILL.md; do
+    name=$(basename "$(dirname "$skill")")
+    [ "$(readlink "$codex/skills/$name")" = "$repo/skills/$name" ] || unlinked="$unlinked $name"
+  done
+  stale=
+  for target in "$codex"/skills/*; do
+    case $(readlink "$target") in
+      "$repo"/skills/*) [ -f "$target/SKILL.md" ] || stale="$stale $(basename "$target")" ;;
+    esac
+  done
+  if [ -z "$unlinked$stale" ]; then
+    report 0 "skill symlinks"
+  elif [ "$apply" = 1 ]; then
+    for name in $unlinked; do
+      link "$repo/skills/$name" "$codex/skills/$name" "skill symlink: $name"
+    done
+    for name in $stale; do
+      rm "$codex/skills/$name" || exit 1
+      printf '  gone  skill symlink: %s\n' "$name"
+    done
+  else
+    report 1 "skill symlinks (missing:${unlinked:- none}; stale:${stale:- none})" "$repo/bin/setup --apply"
   fi
-  [ "$(readlink "$codex_hooks")" = "$repo/codex/hooks.json" ]
-  report $? "hooks symlink (trust it again with /hooks after each change)" "$hooks_fix"
 fi
 
 printf '\nLocal config\n'
@@ -92,4 +138,5 @@ else
   printf '\n%s step(s) left. The plugin hook starts after a session restart.\n' "$missing"
 fi
 
+[ "$apply" = 1 ] && exit 0
 exit $missing

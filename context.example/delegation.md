@@ -9,7 +9,7 @@ file. Without it, the only executor is a local subagent.
 | Executor | Dispatch | What it can read | Results come back as | Use it when |
 |---|---|---|---|---|
 | Local subagent | The Agent tool, in a worktree, in the background | This repo and `~/.claude` skills | Changes in its worktree | The work needs a `~/.claude` skill |
-| `codex exec` | `git worktree add`, then `codex exec -C <worktree> "<brief>"` | This repo, its skills, and `~/.claude/AGENTS.md` | Changes in its worktree | Work that doesn't need a `~/.claude` skill, run beside other work. Delete the row when Codex isn't installed |
+| `codex exec` | `git worktree add`, then `codex exec -C <worktree> "<brief>"` | This repo, its skills, `~/.claude/AGENTS.md`, and the `~/.claude` skills that `bin/setup --apply` links, though steps that use Claude-only tools don't run | Changes in its worktree | Work that doesn't need a `~/.claude` skill, run beside other work. Delete the row when Codex isn't installed |
 | <cloud agent> | <the exact recipe, such as "create an issue in team X, assignee me, delegate Y"> | <this repo and its skills, or more> | <a PR attached to the issue, comments on the issue> | <when> |
 
 ## Brief rules for this project

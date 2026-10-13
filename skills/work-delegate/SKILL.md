@@ -56,7 +56,7 @@ When the task depends on work that hasn't merged, such as another PR or issue, d
 
 ### Step 2: Pick the executor
 
-- **The work needs skills that exist only in `~/.claude`.** Run it as a local Claude subagent in a worktree. Cloud agents and `codex exec` can't load those skills.
+- **The work needs skills that exist only in `~/.claude`.** Run it as a local Claude subagent in a worktree. Cloud agents can't load those skills, and in `codex exec` the steps that use Claude-only tools, such as subagents, don't run.
 - **The repo's own skills or plain instructions cover it.** Use the cloud executor when `delegation.md` lists one, else `codex exec` when listed, else a local subagent.
 
 Say which executor you picked and why, in one line.
