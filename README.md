@@ -1,7 +1,6 @@
 # .claude
 
-My Claude Code setup, built so agents can do good work while I'm away from the
-keyboard.
+My Claude Code setup.
 
 Working with coding agents, I spent most of my time watching them, reading
 every turn and correcting course. When I stepped away, the work drifted. More
