@@ -1,104 +1,150 @@
 # .claude
 
-My personal [Claude Code](https://claude.com/claude-code) configuration: agents, slash commands, and skills loaded from `~/.claude/`.
+My Claude Code setup, built so agents can do good work while I'm away from the
+keyboard.
 
-## Install
+Working with coding agents, I spent most of my time watching them, reading
+every turn and correcting course. When I stepped away, the work drifted. More
+agents wouldn't have fixed that. I can't hand an agent a task and leave until I
+trust the result, and that trust has to come from the environment the agent
+works in. A better prompt won't supply it. Each part of this repo builds a piece
+of that environment.
 
-If you don't have a `~/.claude/` yet, clone it directly:
+## Skills
 
-```bash
-git clone git@github.com:nicieja/.claude.git ~/.claude
-```
+Each skill writes down one of my playbooks, such as how I review a diff or
+debug an incident. Verification shows that a feature works, and the skills
+cover what it can't: whether the code is any good. That judgment used to work
+only while I watched. The skills run when the conversation matches them, so
+nobody has to remember to call one.
 
-A clone brings the tracked half only. The rest, such as the Vale binary, its
-plugin, its synced styles, and the machine's own config files, lives outside
-git. So do the git hooks setting and the agent hooks, which are config on each
-machine. `bin/setup` reports which of them a machine is missing, and prints the
-fix for each. It runs nothing itself.
-
-```bash
-~/.claude/bin/setup
-```
-
-## Phone notifications
-
-`bin/hooks/notify_phone.py` sends a push to your phone through
-[ntfy](https://ntfy.sh) when an agent stops for you. Claude Code sends one when
-a session waits on a permission prompt, or has sat idle at its prompt for about
-a minute. Codex sends one at the end of every turn, from a `Stop` hook in
-`codex/hooks.json`, because Codex has no idle event.
-
-The topic is the only line of `ntfy-topic` in this directory, which git
-ignores. Use one topic on every machine, and subscribe to it once in the ntfy
-app. ntfy.sh is a public server where anyone who knows the topic can read it.
-The push contains only the folder name and the event, never conversation text,
-and `bin/check` fails a commit that contains the topic.
-
-## Prose linting
-
-Vale lints the prose in this repo and the prose Claude writes anywhere else. It
-runs as a Claude Code plugin hook: after every Write or Edit to a Markdown or
-text file, Vale checks it and returns any error-level alert to Claude in the
-same turn. The rules are the `ai-tells` package, which flags the fingerprints
-of machine-written prose (overused vocabulary, stock openings, contrastive
-formulas, chatbot sign-offs), plus a small `deslop` style of my own
-under `vale/styles/`. The config is `vale/.vale.ini`; Vale finds it because its
-user-level directory is a symlink into this repo.
-
-Every ai-tells rule comes at error level, the ini keeps it there, and the prose
-in this repo passes the full rule set. The one exception is the commit-message
-section, where the Co-Authored-By trailer that Claude Code requires is exempt
-from two rules, because a git trailer is not prose.
-
-Vale catches wording-level tells only. Whether a passage contains any
-information is still `/code-deslop`'s job.
-
-## Enforcement
-
-A rule an agent can skip is a weaker rule than one that fails when it's broken.
-`docs/enforcement.md` lists the rules here that have a mechanism, and what the
-mechanism is:
-
-- `bin/check` lints the library itself: references between skills, the trigger
-  map, frontmatter, and words that belong to a private project or to the ntfy
-  topic.
-- `.githooks/` runs `bin/check` and Vale on every commit, and Vale on the commit
-  message, whichever agent or person commits.
-- `bin/hooks/outward_guard.py` is a pre-tool hook. It denies a comment posted
-  under my account without the signature line. It also denies a merge, stacked
-  merges included, a force push, or an approving review, which wait for me.
-- `bin/hooks/compose_notes.py` adds the compose notes in
-  `context/<project>/resolutions.md` to the context when a session starts and
-  when the repo skill they name loads.
-- `bin/hooks/test_hooks.py` tests the hooks, and `bin/check` runs it.
+Most heavy users of agents keep a library like this by now, and little in mine
+is unusual. A repo's own skills encode that project's law and take precedence
+over mine. When one of mine overlaps with one of theirs, the agent asks once
+which to use and remembers the answer for that repo.
 
 ## The context layer
 
-The tracked library is mechanism, and configuration is private.
-`context/<project>/` (gitignored) contains each project's charter, risk tiers,
-escalation contract, stack notes, remembered skill resolutions, and decision log.
-See `context.example/` for the format of each file. Skills read the active
-project's context, and keep working when a file is missing.
+The library is mechanism, and configuration is private. Everything specific to
+one project is stored in a gitignored directory per repo. That covers the
+project's goal and its metric, the risk tiers that say which work is safe to
+automate, the escalation contract that says when an agent stops to ask, and the
+stack. A decision log records the non-obvious calls. Skills read the active
+project's context before they act.
 
-Repos can also have their own skills, and this library defers to them. It
-detects overlap and asks once, then remembers the answer per repo. Nothing project- or
-employer-specific ever appears in tracked files.
+A missing file isn't an error. The agent asks once and offers to draft the file
+from what the repo shows. Until then it reads every gap conservatively: an
+unknown risk is a high risk, and an unknown metric means ask. A check fails any
+commit that would put a project's or an employer's name in a tracked file.
 
-## Other agents
+## Verification
 
-The global rules are in `AGENTS.md`, which most coding agents read. Claude Code
-reads `CLAUDE.md`, so that file imports them with `@AGENTS.md` and adds the
-Claude-only rules. Codex reads them through a symlink at `~/.codex/AGENTS.md`,
-and `bin/setup` reports when it is missing. Cursor has no global rules file. Add
-a User Rule in Cursor's settings that says "Read ~/.claude/AGENTS.md at the
-start of every task."
+An agent's claim counts only after something has checked it. That holds for
+the work, and for the rules the agent works under.
 
-`codex/` holds a default Codex config: `config.toml` (model, reasoning
-effort, approvals reviewer) and `rules/default.rules` (approval prefix rules).
-It also holds `hooks.json`, which runs the outward guard, the compose notes at
-session start, and the phone notification at the end of each turn.
-`~/.codex/hooks.json` is a symlink to it, and Codex runs it only after you trust
-it with `/hooks`, and again after each change to it. Cursor has no equivalent hook yet.
+### Proving the work
 
-Codex does not load the agents, skills, or commands from this repo. Per-machine
-project trust entries stay out. Codex adds them to the live file itself.
+An agent proves a change by running it, because reading a diff proves little.
+Each project gets a harness with two parts. A script launches the app, drives
+it the way a user would, and collects evidence the same way in every session.
+A feature map records what each feature does and how a user reaches it, so an
+agent handed a vague bug report doesn't have to guess which screen it's about.
+
+Every claim in a report says how the agent knows it: measured, inferred, or a
+guess. When running something would settle a question about behavior, output,
+or timing, the agent runs it before it asks me.
+
+### Enforcing the rules
+
+A rule written in prose works only when an agent reads it and follows it. A
+rule with a mechanism fails when someone breaks it, whichever agent or person
+did. So each correction I give goes to the strongest level that can enforce
+it:
+
+1. Make the mistake impossible, with one source of truth, a type, a module
+   boundary, or a hook.
+2. A check whose error message says the fix, such as a lint rule, CI, or a
+   commit hook.
+3. A test.
+4. Prose in a skill or a rules file, last.
+
+The codebase is stronger than all four, because agents copy what they see. One
+workaround, one guard against a state that can't happen, or one comment that
+excuses a hack becomes the pattern the next agent extends. So the skills that
+delete needless armor and comments are enforcement too. My own review is the
+weakest layer, since I can't read every line. A correction I give in review
+points to a gap in a stronger layer, and when the same correction comes back,
+`/self-improve` moves its rule up a level.
+
+Prose gets the same treatment. A linter checks every Markdown file an agent
+writes, in the turn it writes it, and flags the fingerprints of machine-written
+text, from stock vocabulary to chatbot sign-offs. Commit hooks run it again,
+with the library's own checks, whoever commits. The linter checks wording only.
+Whether a passage contains any information is still `/code-deslop`'s job.
+
+Hooks also guard what's hard to take back. A merge, a force push, or an
+approving review waits for me. A comment posted under my name without the line
+that says an agent wrote it is blocked before it goes out.
+
+In a team repo, I can't rework the architecture or add CI for my agents alone.
+Private checks fill that gap. They live in the project's context and run for my agents only, and moving
+one into the team's repo is a proposal to its owners.
+
+## Running without me
+
+Everything above exists so I can leave.
+
+An agent acts on what it finds, then reports what changed and what I should
+check. Each report ends with the exact command that undoes it. It asks first
+only when the undo costs real work, such as a history rewrite, or before an
+outward action the project hasn't cleared. Merges, deploys, and production changes
+always wait for me. Calls that are mine, like a failure policy or a behavior
+change I didn't ask for, get batched into one set of questions at the end, so
+the rest of the work doesn't stall behind them.
+
+When I say I'm stepping away, the agent sets a finish condition, a check that
+passes or fails, and gets more room. It commits, pushes its own branch, opens
+draft PRs, picks a reversible default for each of my decisions, and logs every
+one with its reason.
+
+Routines are the longest unattended runs. A scheduled routine is a prompt on a timer. A loop
+works through a campaign one wake at a time, such as a stack of PRs to bring to
+ready-to-merge, and a restart picks it up where the last wake stopped:
+
+- Each wake rebuilds its view from the sources I'd check myself: the tracker,
+  the code host, and the error tracker. There's no separate memory, and a
+  ledger records only what those sources don't.
+- A lock keeps two sessions from running the same loop.
+- Before an outward action, the loop writes the action's key to the ledger, so
+  a restart after a crash never sends the same thing twice.
+- A question for me pauses only the items that depend on it, and the loop keeps
+  working on the rest.
+- When nothing is left but my questions, the loop stops, and my phone gets a
+  push.
+
+## Codex
+
+The global rules are written once, in the file most coding agents read. Claude
+Code imports it and adds a few rules of its own, and Codex reads it as its
+global instructions. The hooks that block an unsigned post or a merge without
+my OK run in Codex too, along with the compose notes and the phone ping, so the
+same limits apply whichever agent is working. Commit hooks run on every commit,
+from either agent.
+
+Codex doesn't load this library's skills, so work that needs them stays with
+Claude. Work that a repo's own skills or a plain brief can cover goes to Codex.
+`/work-delegate` writes a self-contained brief, runs `codex exec` in its own
+worktree, and later reviews the PR that comes back.
+
+## Install
+
+```bash
+git clone git@github.com:nicieja/.claude.git ~/.claude
+~/.claude/bin/setup
+```
+
+A clone brings only the tracked half. `bin/setup` reports which machine-local
+pieces are missing, such as the prose linter, the agent hooks, the git hooks,
+and phone notifications, and prints the fix for each. It runs nothing itself.
+[docs/setup.md](docs/setup.md) covers each piece, and how Codex and Cursor read
+the same rules.

@@ -11,14 +11,14 @@ impossible. Add a row here when a rule gets its mechanism.
 
 | Rule | Stated in | Enforced by |
 |---|---|---|
-| Prose has no AI tells: em dashes, stock vocabulary, tricolons, and the rest of the `ai-tells` rules | README, "Prose linting" | Vale, through the Claude Code edit hook and `.githooks/pre-commit` |
-| A commit message has no AI tells | README, "Prose linting" | `.githooks/commit-msg`, with Vale's commit-message rules |
+| Prose has no AI tells: em dashes, stock vocabulary, tricolons, and the rest of the `ai-tells` rules | README, "Verification"; `docs/setup.md`, "Prose linting" | Vale, through the Claude Code edit hook and `.githooks/pre-commit` |
+| A commit message has no AI tells | README, "Verification"; `docs/setup.md`, "Prose linting" | `.githooks/commit-msg`, with Vale's commit-message rules |
 | Every backticked `/<skill>` reference names a skill, a command, or a known built-in | This file | `bin/check` |
 | The trigger map and the skills directory agree, in both directions | `AGENTS.md`, "Trigger map" | `bin/check` |
-| A skill's frontmatter `name` matches its directory, and an agent's matches its file | README | `bin/check` |
+| A skill's frontmatter `name` matches its directory, and an agent's matches its file | This file | `bin/check` |
 | A `~/.claude/skills/<skill>/<file>` path that a file cites exists | This file | `bin/check` |
 | Tracked files don't contain project- or employer-specific words | `AGENTS.md`, "The context layer" | `bin/check` and `.githooks/commit-msg`, with the words from each `context/<project>/private-terms` |
-| Tracked files and commit messages don't contain the ntfy topic | README, "Phone notifications" | `bin/check` and `.githooks/commit-msg`, with the topic from `ntfy-topic` |
+| Tracked files and commit messages don't contain the ntfy topic | `docs/setup.md`, "Phone notifications" | `bin/check` and `.githooks/commit-msg`, with the topic from `ntfy-topic` |
 | Tracked files outside `docs/references/` don't credit where an idea came from | `AGENTS.md`, "The context layer" | `bin/check` |
 | A command in the trigger map has no `allowed-tools` line, because the model can't load such a command through the Skill tool | This file | `bin/check` |
 | A skill that acts, then reports (its Instructions open with "Acting and confirming follow"), has Check and Undo parts in its report | `AGENTS.md`, "When to act and when to confirm" | `bin/check` |
