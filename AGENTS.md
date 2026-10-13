@@ -18,7 +18,7 @@ When a skill runs, copy its steps into the todo list word for word, before any i
 
 ### A step needs a tool you don't have
 
-Some skills use tools only Claude Code has, such as starting a subagent or scheduling a wake-up. When a step needs a tool you don't have, and the skill doesn't say what to do without it, stop before that step. Don't work around it, and don't skip it. Tell me the skill, the step, and the tool, and that the step needs Claude Code. In an unattended run, make that your last line: `needs Claude: <skill>, step <n>, <tool>`.
+Some skills use tools that not every agent has, such as scheduling a wake-up or starting a subagent. When a step needs a tool you don't have, and the skill doesn't say what to do without it, stop before that step. Don't work around it, and don't skip it. Tell me the skill, the step, and the tool, and that the step needs Claude Code. In an unattended run, make that your last line: `needs Claude: <skill>, step <n>, <tool>`.
 
 ### Trigger map
 

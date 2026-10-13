@@ -8,8 +8,8 @@ file. Without it, the only executor is a local subagent.
 
 | Executor | Dispatch | What it can read | Results come back as | Use it when |
 |---|---|---|---|---|
-| Local subagent | The Agent tool, in a worktree, in the background | This repo and `~/.claude` skills | Changes in its worktree | The work needs a `~/.claude` skill |
-| `codex exec` | `git worktree add`, then `codex exec -C <worktree> "<brief>"` | This repo, its skills, `~/.claude/AGENTS.md`, and the `~/.claude` skills that `bin/setup --apply` links, though steps that use Claude-only tools don't run | Changes in its worktree | Work that doesn't need a `~/.claude` skill, run beside other work. Delete the row when Codex isn't installed |
+| Local subagent | The Agent tool, in a worktree, in the background | This repo and `~/.claude` skills | Changes in its worktree | The work needs a `~/.claude` skill and this file doesn't list `codex exec` |
+| `codex exec` | `git worktree add`, save the brief as `<worktree>.brief.md`, then `codex exec -C <worktree> -o <worktree>.last-message "<brief>" < /dev/null` | This repo, its skills, `~/.claude/AGENTS.md`, and the `~/.claude` skills that `bin/setup --apply` links. It stops at a step that needs a tool it doesn't have | Changes in its worktree, and a last message that ends with `needs Claude:` when it stopped partway | Any task, run beside other work. Delete the row when Codex isn't installed |
 | <cloud agent> | <the exact recipe, such as "create an issue in team X, assignee me, delegate Y"> | <this repo and its skills, or more> | <a PR attached to the issue, comments on the issue> | <when> |
 
 ## Brief rules for this project

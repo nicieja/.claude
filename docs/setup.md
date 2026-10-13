@@ -67,6 +67,6 @@ already at a link's path first moves into a time-stamped `~/.codex/backup-*`
 folder.
 
 Codex does not load the agents or commands from this repo. A skill that uses
-Claude-only tools, such as subagents, loads in Codex but won't run fully there.
-Per-machine project trust entries stay out of `config.toml`. Codex adds them to
-the live file itself.
+Claude-only tools, such as scheduling a wake-up, loads in Codex, and Codex stops
+at the step that needs the tool. Per-machine project trust entries stay out of
+`config.toml`. Codex adds them to the live file itself.

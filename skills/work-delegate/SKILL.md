@@ -56,7 +56,7 @@ When the task depends on work that hasn't merged, such as another PR or issue, d
 
 ### Step 2: Pick the executor
 
-- **The work needs skills that exist only in `~/.claude`.** Run it as a local Claude subagent in a worktree. Cloud agents can't load those skills, and in `codex exec` the steps that use Claude-only tools, such as subagents, don't run.
+- **The work needs skills that exist only in `~/.claude`.** Use `codex exec` when `delegation.md` lists it, else a local Claude subagent in a worktree. Cloud agents can't load those skills. Codex loads them, and it stops at a step that needs a tool it doesn't have, such as scheduling a wake-up. Pickup finishes that task.
 - **The repo's own skills or plain instructions cover it.** Use the cloud executor when `delegation.md` lists one, else `codex exec` when listed, else a local subagent.
 
 Say which executor you picked and why, in one line.
@@ -72,7 +72,7 @@ Before dispatch, search the brief for a fenced code block. A brief that has one 
 Follow the dispatch recipe in `delegation.md` for the executor:
 
 - **A cloud executor through a tracker.** Create or update the issue as the recipe says. Creating an issue is outward, so it goes ahead only when `escalation.md` allows it. Otherwise show the brief and ask.
-- **`codex exec`.** Create a locked worktree with `/code-worktree`, then run `codex exec -C <path> "<brief>"` in the background.
+- **`codex exec`.** Create a locked worktree with `/code-worktree`, and save the brief beside it as `<path>.brief.md`. Then run `codex exec -C <path> -o <path>.last-message "<brief>" < /dev/null` in the background. The `/dev/null` keeps Codex from reading stdin into the brief.
 - **A local subagent.** Use the Agent tool with `isolation: "worktree"` and `run_in_background: true`, and the brief as its prompt.
 
 When a `/work-log` is open for this run, log the dispatch.
@@ -82,25 +82,26 @@ When a `/work-log` is open for this run, log the dispatch.
 - **Dispatched**: the executor and where its work is, such as an issue URL or a worktree path.
 - **Coming back**: how the result returns per `delegation.md`. `/work-delegate check` collects it.
 - **Check**: anything the brief had to guess at, such as a fact you couldn't verify on the base branch.
-- **Undo**: clear an issue's delegate or cancel the issue, which is outward. For a local executor, run `git worktree remove <path>` and `git branch -D <branch>`.
+- **Undo**: clear an issue's delegate or cancel the issue, which is outward. For a local executor, run `git worktree remove <path>` and `git branch -D <branch>`, and for `codex exec` also delete `<path>.brief.md` and `<path>.last-message`.
 
 ## Pickup
 
 `/work-delegate check` collects what the executors sent back.
 
 1. **List the delegated work** the way `delegation.md` says, such as the issues assigned to me and delegated to the cloud agent. For local executors, list the worktrees this skill created.
-2. **For each PR without a review from me since its last push:**
+2. **Finish what Codex stopped on.** When a `codex exec` worktree's `<path>.last-message` ends with a `needs Claude:` line, finish the task in this session. Work in that worktree, read `<path>.brief.md`, and run the `<skill>` from that line, starting at its `<n>`. The result then goes through the review below like any other.
+3. **For each PR without a review from me since its last push:**
    - Check it out in a worktree with `/code-worktree`, named as `delegation.md` says.
    - Brief the `reviewer` agent as `~/.claude/skills/pr-review/independent-review.md` says, with the issue as the source and the lenses `/pr-review`, `/trace-requirement`, and `/code-simplify`. Post its findings to the executor in the comment below. Run `/test-prune` in report mode, the private checks in `~/.claude/context/<project>/checks/`, and the project's verify skill when it has one (the repo's own, or `~/.claude/context/<project>/verify/SKILL.md`), with the feature map in `verify/features/` when it exists.
    - Post one comment on the PR with the findings, written as a follow-up per the brief guide, because the executor already has the task's context. A PR from my delegated issue is my own thread. The comment goes ahead without asking, signed per `~/.claude/AGENTS.md`.
    - Collect what the executor asked me to decide, such as its "Decisions for you" comments.
    - Hand the PR to `/pr-babysit`. A project's own babysit skill takes over per the project-skill rules in `~/.claude/AGENTS.md`.
-3. **Report** one row per item, with the issue and its PR, the findings count, the decisions waiting for me, and the next step. Then ask the decisions together.
+4. **Report** one row per item, with the issue and its PR, the findings count, the decisions waiting for me, and the next step. Mark each task this session finished for Codex. Then ask the decisions together.
 
 ## Key Rules
 
 1. **The executor comes from `delegation.md`.** This skill works with any tracker or vendor that file describes.
-2. **Work that needs `~/.claude` skills runs locally.** No other executor can load them.
+2. **Work that needs `~/.claude` skills runs on this machine.** Cloud agents can't load them. When `codex exec` stops at a step it can't run, the `check` session finishes the task.
 3. **Held work is never dispatched.**
 4. **Every brief follows `brief-guide.md`,** with the armor rule and the stop rule, and without code.
 5. **I own the delegate's work.** Pickup reviews every PR before anything else happens to it.

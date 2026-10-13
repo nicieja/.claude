@@ -146,9 +146,9 @@ same limits apply whichever agent is working. Commit hooks run on every commit,
 from either agent.
 
 Codex loads the same skills, which the setup script links in one by one. Some
-use tools only Claude Code has, such as subagents. When Codex reaches a step
-that needs one, it stops and says the step needs Claude Code, instead of
-working around it. Delegated work that needs this library's skills stays with
-Claude for now. Work that a repo's own skills or a plain brief can cover goes
-to Codex. `/work-delegate` writes a self-contained brief, runs `codex exec` in
-its own worktree, and later reviews the PR that comes back.
+use tools Codex doesn't have, such as scheduling a wake-up. When Codex reaches
+a step that needs one, it stops and says the step needs Claude Code, instead of
+working around it. `/work-delegate` hands work to Codex first. It writes a
+self-contained brief, runs `codex exec` in its own worktree, and later reviews
+the PR that comes back. When Codex stopped partway, the Claude session that
+picks up the results finishes the task from that step.
