@@ -15,9 +15,9 @@ A call that binds one PR or issue goes on that issue or PR, where its executor r
 into the ledger's Answered cell when a loop asked the question. Only the standing rule that
 such a call implies becomes an entry here.
 
-Other files cite an entry by its heading, as `(decisions: <heading>)`. Copy an entry's text
-only where its reader can't open this file, such as a brief for a cloud agent, and put the
-cite beside the copy.
+Other files cite an entry by its heading, as `(decisions: <heading>)`, in lowercase if you
+like, because case doesn't matter to the check. Copy an entry's text only where its reader
+can't open this file, such as a brief for a cloud agent, and put the cite beside the copy.
 
 ## <Topic>
 
@@ -26,5 +26,5 @@ cite beside the copy.
 <The decision as it stands, written so an agent can follow it.>
 
 - Why: <the reason>
-- Decided: <who>, <YYYY-MM-DD of the last change>[: "<the decider's words>"]
+- Decided: <YYYY-MM-DD of the last change>, <who>[: "<the decider's words>"]
 - Revisit when: <the trigger>

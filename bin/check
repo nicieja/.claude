@@ -45,6 +45,8 @@ ENTRY_REF = re.compile(r"(?i:\bCorrection:|\bentry (?:above|below)\b|\b(?:earlie
                        r"|\bthe \d{4}-\d{2}-\d{2} entry\b)|\bThis (?:replaces|supersedes)\b")
 ENTRY_FIELDS = ("- Why:", "- Decided:", "- Revisit when:")
 DECISION_CITE = re.compile(r"\(decisions: ((?:[^()]|\([^()]*\))+)\)")
+# A cite inside a code span is an example of the format, not a cite.
+CODE_SPAN = re.compile(r"`[^`]*`")
 DATE_CITE = re.compile(r"decisions\.md`?,?\s+\d{4}-\d{2}-\d{2}")
 
 failures = []
@@ -262,7 +264,7 @@ def check_context(root):
         headings = check_decisions(decisions) if decisions.exists() else set()
         for path in sorted(project.rglob("*.md")):
             for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-                for m in DECISION_CITE.finditer(line):
+                for m in DECISION_CITE.finditer(CODE_SPAN.sub("", line)):
                     if m.group(1).strip().lower() not in headings:
                         fail(shown(path), n, f"cites (decisions: {m.group(1)}), which matches "
                              f"no ### heading in {shown(decisions)}",
