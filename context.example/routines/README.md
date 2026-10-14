@@ -28,7 +28,7 @@ A loop runs one wake at a time. Each wake starts from what the repo, the tracker
 - Scripts and subagents return one line per item. A wake with 20 items then reads about 40 lines instead of every thread.
 - Give each item one state from a fixed list, and print the status table.
 
-**Step 2, my answers.** Record each answer in `decisions.md`. Mark its question answered in the ledger, and lift the Holds that waited on it.
+**Step 2, my answers.** Write each answer into its question's row in the ledger, and lift the Holds that waited on it. An answer that binds future work also edits its entry in `decisions.md`, or adds one, in that file's format. An answer about one item goes on that item's issue or PR too, where its executor reads it.
 
 **The routine's own steps.** For each item, act on the first rule that matches, at most one step per item per wake. A cap limits how many items start at once. Raise it only after a batch merges without a takeover.
 
@@ -41,6 +41,7 @@ A loop runs one wake at a time. Each wake starts from what the repo, the tracker
 **Report and wake.**
 
 - The report has a Status table (one row per item, with its state and next action), then Waiting on you, Check, and an Undo for each outward action.
+- Commit the wake's changes to the context files in the context repo, with one line per change in the message.
 - Then wake on events, not on a timer. Keep a `watch` script beside the routine that polls the code host every minute or two and prints one line when an item changes in a way the loop acts on. Opening, merging, a CI verdict, a review and a draft flip all count, and a push alone waits for its CI verdict. When `TaskList` doesn't show the watch running, arm it with `Monitor` at the longest timeout. Each line it prints then wakes the loop at once. Then call `ScheduleWakeup` with the routine's `/loop` prompt and 1200 to 1800 seconds, as the fallback for what the watch can't see and for a monitor that expired. A loop on timer ticks alone added 10 to 15 minutes to each step of each item.
 - When nothing is running and every remaining item waits on me, stop the loop, and say what it waits on.
 
@@ -52,7 +53,7 @@ A loop runs one wake at a time. Each wake starts from what the repo, the tracker
 
 ## The ledger
 
-`routines/<name>/ledger.md` records only the facts the sources don't. Append rows, and correct a wrong row with a new one. Start with these two sections, and add the routine's own:
+`routines/<name>/ledger.md` records only the facts the sources don't. Fill in or correct a row in place, and delete an answered question once nothing waits on it. The context repo keeps the old rows. "Outward actions sent" is the exception. It only grows, because its keys are what stop a second send. Start with these two sections, and add the routine's own:
 
 ```
 ## Outward actions sent

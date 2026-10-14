@@ -72,5 +72,5 @@ The log is append-only. A wrong row gets a new row that corrects it, and the old
 1. **One row per decision, with its evidence.** A row without a pointer is a claim.
 2. **Append-only.** A correction is a new row.
 3. **The log stays out of the repo.** It lives in `~/.cache/agent-logs/`, and it's committed only when I ask for it.
-4. **My calls go elsewhere.** A decision I made goes to `context/<project>/decisions.md`. This log records the run's own decisions.
+4. **My calls go elsewhere.** A call of mine that binds future work goes to `context/<project>/decisions.md`, in that file's format. A call about one PR or issue goes on that PR or issue. This log records the run's own decisions.
 5. **Every run that kept a log ends with an Attention section.**

@@ -59,7 +59,7 @@ Some skills use tools that not every agent has, such as scheduling a wake-up or 
 | "Say that plainer", or walking me through a PR, a plan, or how some code works | `/explain` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
 | Self-improvement, "what did we learn this session, update the skills" | `/self-improve` |
-| Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library | `/self-heal` |
+| Skill/command/agent prompts gone patchy from piecemeal edits; consolidating the library, or a project's context layer | `/self-heal` |
 
 Run or suggest only the skills in this table, or ones I invoked this session.
 
@@ -75,7 +75,7 @@ Repos I work in may have their own skills (`skills/`, `.claude/skills/`, `.agent
 
 # The context layer
 
-`~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and decision log. Tracked `context.example/` documents each file's format. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer `/work-bootstrap`, which drafts it from the repo. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Tracked files don't credit where an idea came from either. Mechanism is public, and configuration is private.
+`~/.claude/context/<project>/` (gitignored) contains everything project-specific, such as charter and metric definitions, risk tiers, escalation contract, stack notes, remembered resolutions, and the decisions in force. Tracked `context.example/` documents each file's format. `~/.claude/context/` is a local git repo with no remote. Its files state the current rules, and you edit them in place. Commit each write there with `git -C ~/.claude/context commit -m '<what, and why>' -- <paths>`, and the Undo is `git -C ~/.claude/context revert <sha>`. Skills load what they need from the active project's context directory. When a needed file is missing, degrade gracefully. Ask once and offer `/work-bootstrap`, which drafts it from the repo. Default to the conservative reading (unknown risk tier = high, unknown metric = ask). Project- or employer-specific content never goes in tracked files. Tracked files don't credit where an idea came from either. Mechanism is public, and configuration is private.
 
 # Don't defend against what can't happen
 

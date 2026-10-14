@@ -1,6 +1,6 @@
 ---
 name: self-heal
-version: 2.0.0
+version: 2.1.0
 description: |
   Sweep the prompt library (every skill, command, and agent, self-heal
   included) for accretion debt: the redundancy, bolt-on seams, duplicate
@@ -10,6 +10,8 @@ description: |
   then heals the ones it recommends: it re-integrates each file from scratch so
   it reads like one author wrote it in one sitting, without regressing any
   baked-in rule, and commits the run. The prompt-library analog of /simplify.
+  `context <project>` heals a project's private context layer the same way,
+  turning a log of replaced decisions back into the rules in force.
 allowed-tools:
   - Read
   - Edit
@@ -23,7 +25,7 @@ allowed-tools:
 
 # Self-heal
 
-Take the prompt library (every `skills/*/SKILL.md` and its companions, every `commands/*.md`, every `agents/*.md`) and repair its **accretion debt**: the patchwork that builds up when files are edited iteratively, each new instruction stapled wherever was handy. Every addition made local sense. Together the additions turn the file into a changelog. The same rule is restated in three places, parentheticals are bolted on, Key Rules are near-duplicates, cross-references exist only because content was added somewhere else, and sections drift in tone because different sittings wrote them. It still works. It's just harder to read, and the model has more to wade through to follow it.
+Take the prompt library (every `skills/*/SKILL.md` and its companions, every `commands/*.md`, every `agents/*.md`) and repair its **accretion debt**: the patchwork that builds up when files are edited iteratively, each new instruction stapled wherever was handy. Every addition made local sense. Together the additions turn the file into a changelog. The same rule is restated in three places, parentheticals are bolted on, Key Rules are near-duplicates, cross-references exist only because content was added somewhere else, and sections drift in tone because different sittings wrote them. It still works. It's just harder to read, and the model has more to wade through to follow it. A project's private context files accrete as well, mostly as decision logs that record each change as a new entry, and `context` heals them with the same method.
 
 You **re-integrate**: rewrite the file so it reads like one author wrote it in one sitting. The result is simpler, in one voice, with every instruction stated once in its right home. The contract is that you **never regress behavior**. Most of those bolt-ons were added for a reason, such as a guardrail after something went wrong, an edge case, or a hard-won correction. The win is to remove the patchwork and keep the lessons. Only wording and location are free to change. Every rule, boundary, and edge case the file encoded is preserved.
 
@@ -34,6 +36,7 @@ This is the prompt-library analog of `/simplify`, run as periodic maintenance. I
 - `/self-heal` (bare): sweep the whole library (every `skills/*/SKILL.md` and its companions, `commands/*.md`, `agents/*.md`) and rank by accretion debt. Report the ranking, then heal what it recommends. **Includes self-heal's own files.**
 - `/self-heal <name | path>`: focus one artifact. The target is a skill name (`code-deslop`), a command, an agent, or a path. Skip the ranking and go straight to diagnose → heal.
 - `/self-heal skills | commands | agents`: sweep one type only.
+- `/self-heal context [<project>]`: sweep one project's context layer, every `*.md` under `~/.claude/context/<project>/`. `<project>` defaults to the current repo's directory name. These files are private and live in the context repo, not in the library.
 - `/self-heal audit`: run the usage audit (Step 1) alone, then stop. It does not inspect or heal.
 - Steers in plain words: `--report-only` / "just rank them" ranks without healing. `--review` / "ask first" stops after the ranking and waits for your pick. "Be aggressive" / "be conservative" moves the threshold for what deserves a rewrite. "Skip the audit" goes straight from scope to inspection.
 
@@ -56,12 +59,13 @@ Resolve per **Arguments**.
 - **Bare** → the whole library. Enumerate with Glob: `~/.claude/skills/*/SKILL.md` and `~/.claude/skills/*/*.md` (companions), `~/.claude/commands/*.md`, `~/.claude/agents/*.md`.
 - **Name or path** → resolve to the file(s) and jump to Step 4.
 - **Type word** → that one directory.
+- **`context [<project>]`** → Glob `~/.claude/context/<project>/**/*.md`. When `~/.claude/context/.git` doesn't exist, stop and point to `~/.claude/bin/setup --apply`. The heal edits in place, and the context repo is what keeps the old text.
 
-Classify each file's **type** as skill, command, agent, or companion guide. Type sets the healthy-shape target in Step 6. Never heal one type toward another's template.
+Classify each file's **type** as skill, command, agent, companion guide, or context file. Type sets the healthy-shape target in Step 6. Never heal one type toward another's template.
 
 ### Step 1: Usage audit
 
-Identify dead weight before polishing it. This step runs on bare and type sweeps. Skip it on single-target runs or when the user says "skip the audit". `/self-heal audit` runs this step alone, then stops.
+Identify dead weight before polishing it. This step runs on bare and type sweeps. Skip it on single-target runs, on context runs (the audit only knows the library's inventory), or when the user says "skip the audit". `/self-heal audit` runs this step alone, then stops.
 
 1. Run `python3 ~/.claude/skills/self-heal/usage-audit.py` with Bash. It scans every transcript under `~/.claude/projects/` (subagent transcripts included) for the three invocation signals (Skill tool calls, typed slash commands, and agent dispatches) and prints, per inventory item: sessions, calls, last-used date, a `DEAD` marker at zero use, and the window start date.
 2. For each zero-use item, Grep the library for references from *other* files. An item that live files read or dispatch (an agent that loads a skill's SKILL.md as its spec, a skill whose dispatch prompts invoke it) is **indirect use: keep or consolidate**, never dead.
@@ -74,7 +78,7 @@ Identify dead weight before polishing it. This step runs on bare and type sweeps
 
 Read `~/.claude/skills/self-heal/heal-guide.md` in full **before inspecting**. It contains the accretion taxonomy, the healthy-shape templates for the three types, the coverage-ledger method, and the worked examples. Load it every run. It is the spec, tuned over time. Do not work from memory.
 
-Then run `~/.claude/bin/check`. Each failure it reports is a symptom for this run. A mechanical symptom that keeps coming back across files becomes a new `bin/check` rule, routed through `/self-improve`, instead of another round of hand fixes.
+Then run `~/.claude/bin/check`, or `~/.claude/bin/check --context` on a context run. Each failure it reports is a symptom for this run. A mechanical symptom that keeps coming back across files becomes a new `bin/check` rule, routed through `/self-improve`, instead of another round of hand fixes.
 
 ### Step 3: Inspect in parallel
 
@@ -130,13 +134,15 @@ Per file:
 - **Report.** List the symptoms resolved and the before→after line count, plus an explicit **ledger-coverage line** ("all N commitments preserved"). Raise any flagged-obsolete rules as open questions at the end of the run, separate from the applied edit.
 
 Then commit the healed files in one commit. Its message lists each file with the symptoms resolved and its ledger line. End the report with **Check** (each rule that moved far from its old place, and each flagged-obsolete rule) and **Undo** (`git revert <sha>`).
+
+A context run does both in the context repo: the git-clean guard is `git -C ~/.claude/context status --porcelain <path>`, because the library ignores these paths and its own status prints nothing for them. The commit is `git -C ~/.claude/context commit`, and its pre-commit hook must pass. The Undo is `git -C ~/.claude/context revert <sha>`.
 - **Close** with one honest line: structural change should be large, substantive change near zero. If a file is beyond healing by re-integration (confused about its own purpose, not just messy), say so. self-heal untangles seams. It can't supply a design that was never decided.
 
 ## Key Rules
 
 1. **Diagnose & rank before you touch a word, then heal what the ranking recommends.** The report says what to check and how to undo it.
 2. **Never regress behavior.** The coverage ledger is the contract: every rule, step, boundary, flag, and edge case is preserved, and only wording and location change.
-3. **Heal toward the artifact's own type template.** Skill, command, and agent are three different templates. Never flatten one into another.
+3. **Heal toward the artifact's own type template.** Skill, command, agent, and context file are four different templates. Never flatten one into another.
 4. **Flag, don't drop.** A rule that looks obsolete becomes a question for the user, never a silent deletion.
 5. **Simpler and natural is the goal, and shorter is never a target.** Don't shrink a file by cutting content.
 6. **Write in place only when git is clean on that file, and commit the run.** Git is the undo.

@@ -42,7 +42,9 @@ The library is mechanism, and configuration is private. Everything specific to
 one project is stored in a gitignored directory per repo. That covers the
 project's goal and its metric, the risk tiers that say which work is safe to
 automate, the escalation contract that says when an agent stops to ask, and the
-stack. A decision log records the non-obvious calls. Skills read the active
+stack. A decisions file states the non-obvious calls in force, and a local git
+repo keeps what they said before, so a changed call is an edit and not a new
+entry. Skills read the active
 project's context before they act.
 
 A missing file isn't an error. The agent asks once and offers to draft the file

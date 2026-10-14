@@ -85,7 +85,7 @@ A rule an agent can skip is weaker than a check that fails. For each lesson, pic
 4. **Prose.** Only for a decision that needs judgment, which a mechanism can't make. Its homes, in order of preference:
    1. **Global `~/.claude/AGENTS.md`**: only for behavior that should change in every repo. Claude Code loads it through `CLAUDE.md`, and a rule that only Claude Code can follow goes in `~/.claude/CLAUDE.md` itself.
    2. **An existing global skill, command, or agent**: when a workflow this library already covers is missing the lesson.
-   3. **`~/.claude/context/<project>/`**: project-specific facts and preferences. Stack notes go into `stack.md`, calls into `decisions.md`, and metric learnings into `charter.md`.
+   3. **`~/.claude/context/<project>/`**: project-specific facts and preferences. Stack notes go into `stack.md`, and metric learnings into `charter.md`. A call goes into `decisions.md`, in the format of `context.example/decisions.md`: edit the entry for that call when one exists, and add one under its topic when none does.
    4. **The project's own learning skill**, for a lesson that belongs to the repo's harness (its docs, skills, and routing) when the repo has a skill for exactly this job. Offer to invoke it via the Skill tool for those lessons. Never edit the project's files from here.
    5. **A proposal**, for a repo-owned lesson without a project learning skill. Write the suggested patch into the report for the user to hand to the repo's owners.
    6. **Nothing**: useful history without a durable rule. Say so.
@@ -100,7 +100,7 @@ A rule an agent can skip is weaker than a check that fails. For each lesson, pic
 **Prove a check before keeping it.** Run it against the evidence where the mistake happened, such as the commit, the diff, or a file with the excerpt. It must report the mistake. A check that doesn't report its own evidence is wrong, so fix it or drop it.
 
 Never create a new skill from one session. A workflow gap justifies a skill when it has
-recurred. Until then it is a note in `decisions.md`.
+recurred. Until then it is an entry in `decisions.md`, with the recurrence as its Revisit when.
 
 ### Step 4: Prune and route
 
@@ -124,8 +124,9 @@ Route 5 stays a written proposal.
   lesson, apply the rest, and ask about it at the end of the run.
 - A lesson that changes a workflow gets a minimal headless run (`claude -p` in a scratch repo) that sets up the situation without hinting at the answer. Report what the run did.
 - Commit the tracked writes in `~/.claude` in one commit. Its message lists each lesson
-  and its home. Writes to `context/<project>/` are gitignored, so they stay out of the
-  commit.
+  and its home. Writes to `context/<project>/` get their own commit in the context repo,
+  `git -C ~/.claude/context commit -m '<lessons>' -- <paths>`, and its pre-commit hook
+  must pass.
 
 ### Step 6: Report
 
@@ -135,8 +136,8 @@ question and never silently drop it.
 
 End with **Check** and **Undo**. Check quotes each new or changed rule, because a bad
 lesson changes every later session. It also quotes each line added under
-`context/<project>/`. Undo is `git revert <sha>` for the commit, and deleting the
-quoted lines for the context files.
+`context/<project>/`. Undo is `git revert <sha>` for the library commit, and
+`git -C ~/.claude/context revert <sha>` for the context commit.
 
 ## Key Rules
 

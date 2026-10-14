@@ -27,6 +27,7 @@ impossible. Add a row here when a rule gets its mechanism.
 | Each hook does what its docstring says, on the cases in its test table | This file | `bin/hooks/test_hooks.py`, which `bin/check` runs |
 | A compose note in `context/<project>/resolutions.md` applies whenever its project skill runs | `AGENTS.md`, "Project skills take precedence" | `bin/hooks/compose_notes.py`, which adds the notes at session start, after `/compact`, and when the skill loads |
 | In conversation mode, every reply is short | `commands/conversation.md` | `bin/hooks/conversation_mode.py`, which repeats the rules on every prompt while the mode is on |
+| A project's `decisions.md` states the calls in force, one entry under a topic for each, and other files cite an entry by its heading | `context.example/decisions.md` | `bin/check --context`, which the context repo's pre-commit hook runs. Plain `bin/check` lints the template |
 
 ## The mechanisms
 
@@ -34,7 +35,8 @@ impossible. Add a row here when a rule gets its mechanism.
   pre-commit hook run it.
 - **`.githooks/`** runs on every commit in this repo once `core.hooksPath`
   points at it. `bin/setup` reports when it doesn't. `git commit --no-verify`
-  skips it.
+  skips it. `.githooks/context/` does the same for the context repo, where
+  `bin/setup --apply` sets it.
 - **The outward guard** is configured per tool. Claude Code loads it from
   `settings.json`, whose `hooks` block is in `settings.json.example`. Codex loads
   it from `~/.codex/hooks.json`, a symlink to `codex/hooks.json`, after you trust

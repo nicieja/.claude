@@ -5,8 +5,9 @@ plugin, its synced styles, and the machine's own config files, lives outside
 git. So do the git hooks setting and the agent hooks, which are config on each
 machine. `bin/setup` reports which of them a machine is missing, and prints the
 fix for each. It runs nothing itself, except that `bin/setup --apply` makes the
-Codex links under "Other agents". That run exits 0 once the links are made,
-whatever else is left, so a bootstrap script can call it.
+Codex links under "Other agents", and makes `context/` a local git repo with its
+own pre-commit hook. That run exits 0 once those are made, whatever else is
+left, so a bootstrap script can call it.
 
 ## Prose linting
 

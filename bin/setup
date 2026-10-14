@@ -1,8 +1,8 @@
 #!/bin/sh
 # Reports which parts of this library's machine-local setup are missing.
 # Each missing step prints the command that fixes it. The script doesn't run them,
-# except that --apply fills in codex/config.toml and makes the Codex links itself,
-# and then exits 0 whatever else is left.
+# except that --apply fills in codex/config.toml, makes the Codex links, and makes
+# context/ a git repo of its own, and then exits 0 whatever else is left.
 
 set -u
 
@@ -80,6 +80,32 @@ report $? "ntfy topic for phone pings" "copy ntfy-topic from another machine, or
 
 grep -q 'compose_notes' "$repo/settings.json" 2>/dev/null
 report $? "Claude Code compose notes" "copy the \"hooks\" block from settings.json.example into settings.json"
+
+printf '\nContext\n'
+
+# The library ignores context/, so the context files get their history from a
+# local repo of their own. The hook path is set before the first commit, so the
+# global git template's hooks never run there.
+context="$repo/context"
+context_hooks="$repo/.githooks/context"
+has_baseline() {
+  git --git-dir="$context/.git" rev-parse -q --verify HEAD >/dev/null 2>&1
+}
+if [ "$apply" = 1 ] && ! has_baseline; then
+  mkdir -p "$context" && printf '__pycache__/\nlock\n' >"$context/.gitignore" &&
+    git -C "$context" init -q &&
+    git -C "$context" config core.hooksPath "$context_hooks" &&
+    git -C "$context" add -A &&
+    git -C "$context" commit -q --no-verify -m "Baseline of the context layer" || exit 1
+  printf '  made  context repo\n'
+fi
+has_baseline
+report $? "context repo (history for context/)" "$repo/bin/setup --apply"
+
+if [ -d "$context/.git" ]; then
+  [ "$(git -C "$context" config --get core.hooksPath)" = "$context_hooks" ]
+  report $? "context repo hook (bin/check --context)" "git -C $context config core.hooksPath $context_hooks"
+fi
 
 if [ -d "$codex" ] || [ "$apply" = 1 ]; then
   printf '\nCodex\n'

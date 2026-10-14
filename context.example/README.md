@@ -5,6 +5,13 @@ configuration is stored in `~/.claude/context/<project>/`, which is gitignored, 
 project, named after the repo's directory name. Skills load what they need from the
 active project's context directory at runtime.
 
+`~/.claude/context/` is a local git repo of its own, with no remote, and `bin/setup --apply`
+creates it. Its files state the current setup, so they're edited in place, and git keeps
+what they said before. Commit each write with
+`git -C ~/.claude/context commit -m '<what, and why>' -- <paths>`, and undo one with
+`git -C ~/.claude/context revert <sha>`. The repo's pre-commit hook runs
+`bin/check --context`.
+
 `/work-bootstrap` drafts the missing files for a repo from what the repo shows, and asks
 once about the rest. To start by hand, copy a template here into `context/<project>/`
 and fill it in. When a skill needs a
@@ -25,7 +32,8 @@ Files:
   test commands, conventions. The file skills consult before touching the project.
 - `resolutions.md`: remembered answers to project-skill conflicts. Written by skills.
   `bin/hooks/compose_notes.py` hands its compose notes to the repo's own skills.
-- `decisions.md`: a dated log of non-obvious calls and why they were made.
+- `decisions.md`: the non-obvious calls in force, one entry per decision under a topic, each
+  with why it was made and who made it. Other files cite an entry by its heading.
 - `routines/`: scheduled prompts and restartable `/loop` routines, with each loop's lock,
   ledger, and scripts. `routines/README.md` documents them, and `/setup` starts them.
 - `rules.md`: the project's rules that agents keep breaking, each with what enforces it.
@@ -36,4 +44,5 @@ Files:
 - `private-terms`: words that tracked files in this library must never contain. `bin/check`
   and the commit-msg hook read it.
 
-Nothing in `context/` is ever tracked. Project-specific content never leaves it.
+The library never tracks anything in `context/`. The local context repo versions it, and
+project-specific content never leaves it.

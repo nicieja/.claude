@@ -18,7 +18,7 @@ The tells to detect and score:
 - **Length bloat**: a section or step list grown well past what its job needs, or deep nesting that could be one tight paragraph.
 - **Patching cross-references**: `as mentioned above`, `per Step 2`, `see guardrail #7`, `like Step 5`. A pointer that exists because content was added elsewhere instead of integrated where it's needed.
 - **Tonal / voice seams**: one section terse and confident, the next dense and didactic. This is the fingerprint of different editing sessions never smoothed together.
-- **Publishability leaks**: employer, product, customer, teammate, or industry-domain vocabulary in a tracked file. This library is public, so examples must use neutral SaaS vocabulary. Tool names (Linear, Rails, Sentry) are fine, but domain nouns that identify the employer's industry are not.
+- **Publishability leaks**: employer, product, customer, teammate, or industry-domain vocabulary in a tracked file. This library is public, so examples must use neutral SaaS vocabulary. Tool names (Linear, Rails, Sentry) are fine, but domain nouns that identify the employer's industry are not. Context files are private, so this tell doesn't apply to them.
 
 A file's **debt score** is a judgment across these: how much a fresh reader pays for the history. One stray parenthetical is noise. A file with redundancy and duplicate rules and tonal drift is a re-integration candidate.
 
@@ -55,6 +55,21 @@ one short paragraph   — what the agent cannot see or do, and why
 numbered rules        — which skill it loads, what it may touch, its output
 ```
 An agent is a capability boundary: a constrained context and a tool list. Its expertise comes from the skill that its brief points to, so the prompt is short and has no role, philosophy, or areas of focus. Heal an agent prompt that grows those back by moving them into a skill. The exception is `persona`, a buyer written *as* that person. Rich voice is correct there, so don't strip it toward a step list, and re-run `persona.evals.md` after any change.
+
+**Context file (`context/<project>/**/*.md`)**
+
+A context file heals toward its counterpart in `context.example/`. `decisions.md` heals toward `context.example/decisions.md`, and a routine and its ledger toward `context.example/routines/README.md`. A brief template that a routine writes from heals as a prompt for the executor that reads it. A file with no counterpart, such as a verify feature map, keeps its sections as they are.
+
+A context file accretes as a log more than as patchwork. Its tells:
+
+- entries that replace, suspend, or correct other entries, in a file meant to state current rules;
+- cites by date or position, such as "the 2026-10-12 entry" or "the rule above", where a heading would do;
+- calls that bind one PR or issue, still there after the PR merged;
+- one rule restated in several files, such as a decision, a brief template, and a delegation note, with the copies drifting apart;
+- answers added as new ledger rows, when the question's own row has an Answered cell;
+- facts the repo or the tracker now contradicts, such as a team name or a review bot.
+
+For a decision, the commitment is its current state. A chain of entries becomes one entry. Delete a superseded or one-PR entry only when the coverage ledger records where its effect went. That's the entry that states the rule now, or the issue or PR that contains the call. For a call whose PR merged, the merge is enough. Keep a copy of a rule only where its reader can't open `decisions.md`, with the cite beside it, and don't write anywhere outside the machine during the heal.
 
 ## The coverage ledger
 

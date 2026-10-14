@@ -7,11 +7,16 @@ when anything fails. The rules come from docs/enforcement.md.
   bin/check                 every rule, over the tracked files
   bin/check --terms FILE…   only the private-terms rule, over the files given,
                             where - reads stdin (the commit-msg hook uses it)
+  bin/check --context [DIR] only the context rules: each project's decisions.md
+                            under DIR (context/ by default) states current rules,
+                            and the project's files cite its entries by heading
+                            (the context repo's pre-commit hook uses it)
 
 Stdlib only. The private terms are each line of context/*/private-terms, plus
 the ntfy topic in ntfy-topic. Both are gitignored, so a machine without them
 skips that rule.
 """
+import itertools
 import re
 import subprocess
 import sys
@@ -33,6 +38,14 @@ ACT_RULE = "Acting and confirming follow"
 CREDIT = re.compile(r"(?i:\b(?:ported|adapted|borrowed|copied|lifted|taken)\s+from\b"
                     r"|\binspired\s+by\b|\bcourtesy\s+of\b|\bcredit(?:s|ed)?\s+to\b)"
                     r"|\b(?:in|from|by)\s+[A-Z][a-z]+\s+[A-Z][a-z]+['’]s\b")
+# The shapes an append-only decision log grows: dated lines, and entries that
+# point at other entries instead of editing them.
+DATED_LINE = re.compile(r"- \d{4}-\d{2}-\d{2}\b")
+ENTRY_REF = re.compile(r"(?i:\bCorrection:|\bentry (?:above|below)\b|\b(?:earlier|previous) entry\b"
+                       r"|\bthe \d{4}-\d{2}-\d{2} entry\b)|\bThis (?:replaces|supersedes)\b")
+ENTRY_FIELDS = ("- Why:", "- Decided:", "- Revisit when:")
+DECISION_CITE = re.compile(r"\(decisions: ((?:[^()]|\([^()]*\))+)\)")
+DATE_CITE = re.compile(r"decisions\.md`?,?\s+\d{4}-\d{2}-\d{2}")
 
 failures = []
 
@@ -206,9 +219,64 @@ def check_terms(paths, terms):
                      "ntfy-topic for the ntfy topic")
 
 
+def shown(path):
+    return str(path.relative_to(REPO)) if path.is_relative_to(REPO) else str(path)
+
+
+def check_decisions(path):
+    """Fail the log shapes in one decisions.md, and return its entry headings."""
+    rel = shown(path)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    headings = {}
+    topic = None
+    for n, line in enumerate(lines, 1):
+        if DATED_LINE.match(line):
+            fail(rel, n, "a dated log line", "make it a ### entry under its ## topic, "
+                 "and fold in any entry it replaces")
+        if ENTRY_REF.search(line):
+            fail(rel, n, "refers to another entry", "edit that entry in place and commit. "
+                 "The context repo keeps the old text")
+        if line.startswith("## "):
+            topic = line
+        elif line.startswith("### "):
+            name = line[4:].strip()
+            if topic is None:
+                fail(rel, n, f"the entry {name!r} has no ## topic above it",
+                     "move it under its topic")
+            if name.lower() in headings:
+                fail(rel, n, f"repeats the heading on line {headings[name.lower()]}",
+                     "merge the two entries, or rename one")
+            headings.setdefault(name.lower(), n)
+            body = list(itertools.takewhile(lambda later: not later.startswith(("## ", "### ")),
+                                            lines[n:]))
+            for field in ENTRY_FIELDS:
+                if not any(later.startswith(field) for later in body):
+                    fail(rel, n, f"the entry {name!r} has no `{field}` line",
+                         "add it, per context.example/decisions.md")
+    return set(headings)
+
+
+def check_context(root):
+    for project in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
+        decisions = project / "decisions.md"
+        headings = check_decisions(decisions) if decisions.exists() else set()
+        for path in sorted(project.rglob("*.md")):
+            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                for m in DECISION_CITE.finditer(line):
+                    if m.group(1).strip().lower() not in headings:
+                        fail(shown(path), n, f"cites (decisions: {m.group(1)}), which matches "
+                             f"no ### heading in {shown(decisions)}",
+                             "cite the entry by its current heading")
+                if DATE_CITE.search(line):
+                    fail(shown(path), n, "cites decisions.md by date",
+                         "cite the entry by its heading, as (decisions: <heading>)")
+
+
 def main(argv):
     if argv[:1] == ["--terms"]:
         check_terms(argv[1:], private_terms())
+    elif argv[:1] == ["--context"]:
+        check_context(Path(argv[1]) if argv[1:] else REPO / "context")
     else:
         files = tracked()
         skills = {p.split("/")[1] for p in files
@@ -221,6 +289,7 @@ def main(argv):
         check_frontmatter(files, skills)
         check_act_then_report(skills)
         check_credits(files)
+        check_decisions(REPO / "context.example/decisions.md")
         check_terms(files, private_terms())
         check_hooks()
     for line in failures:
