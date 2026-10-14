@@ -124,7 +124,8 @@ one with its reason.
 
 Routines are the longest unattended runs. A scheduled routine is a prompt on a timer. A loop
 works through a campaign one wake at a time, such as a stack of PRs to bring to
-ready-to-merge, and a restart picks it up where the last wake stopped:
+ready-to-merge. `/work-create-loop` designs a new loop with me and writes its files. A
+restart picks a loop up where the last wake stopped:
 
 - Each wake rebuilds its view from the sources I'd check myself: the tracker,
   the code host, and the error tracker. There's no separate memory, and a

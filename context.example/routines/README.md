@@ -3,23 +3,23 @@
 A routine is a prompt that runs on its own. Each file in `context/<project>/routines/` is one routine, and its first line says how it runs:
 
 - `<!-- schedule: <5-field cron> -->`: a scheduled prompt. `/setup` arms it as a cron job in the current session.
-- `<!-- schedule: loop -->`: a restartable loop. Start it with `/loop follow ~/.claude/context/<project>/routines/<name>.md`, which `/setup` prints.
+- `<!-- schedule: loop -->`: a restartable loop, which `/work-create-loop` writes. Start it with `/loop follow ~/.claude/context/<project>/routines/<name>.md`, which `/setup` prints.
 - `<!-- schedule: interactive-only -->`: not cleared for unattended writes, so `/setup` skips it.
 
-`routines/<name>.md` is the routine. A loop stores its state beside it, in `routines/<name>/`. That directory has the `lock` and the `ledger.md`, plus any scripts the loop runs. `/setup` reads only the top-level `*.md` files, and it skips this README.
+`routines/<name>.md` is the routine. A loop stores its state beside it, in `routines/<name>/`. That directory has the `lock` and the `ledger.md`, plus the `status` script and any other scripts the loop runs. `/setup` reads only the top-level `*.md` files, and it skips this README.
 
 ## A loop routine
 
 A loop runs one wake at a time. Each wake starts from what the repo, the tracker, and the code host report, so after a compaction or a crash, the same `/loop` command restarts it. Write the sections below in this order, and put the loop's own work between Step 2 and the report.
 
-**Opening.** The start command, and a read-only mode such as `/loop follow <path> reconcile only`, which runs Steps 0 and 1 and prints the status table. Then the done condition, a check that passes or fails.
+**Opening.** The start command, and a read-only mode such as `/loop follow <path> reconcile only`. In that mode the loop fetches and runs Step 1 without the lock, then prints the status table. A proof run from another session can't block the real loop that way. Then the done condition, a check that passes or fails.
 
 **Where things are.** The repo comes first. The loop never switches its branch: it reads the default branch through `origin/<default>`, and does local work in worktrees. Then list the scripts, the ledger, the lock, and the decision log (`/work-log <name>`). Last come the context files the loop obeys, with its subsection in `escalation.md`.
 
 **Step 0, lock and preflight.**
 
-- The lock is one line: `<session id> <ISO time of the last wake>`.
-- When another session's lock is younger than three wake intervals, stop and say which session has it. Otherwise write this session's line, and log it when you took the lock over.
+- Run `~/.claude/skills/work-create-loop/lock.py ~/.claude/context/<project>/routines/<name>/lock <minutes>` as the first command of every wake, with three wake intervals as the minutes. It keeps the lock as one line, `<session id> <time of the last wake>`, and the report repeats any line it prints.
+- When it exits 1, stop and say which session holds the loop. When it prints `took over from`, log the takeover.
 - Fetch. When the fetch fails, end the wake and schedule the next one, without a retry inside the wake.
 
 **Step 1, reconcile (read-only).**
@@ -42,7 +42,7 @@ A loop runs one wake at a time. Each wake starts from what the repo, the tracker
 
 - The report has a Status table (one row per item, with its state and next action), then Waiting on you, Check, and an Undo for each outward action.
 - Commit the wake's changes to the context files in the context repo, with one line per change in the message.
-- Then wake on events, not on a timer. Keep a `watch` script beside the routine that polls the code host every minute or two and prints one line when an item changes in a way the loop acts on. Opening, merging, a CI verdict, a review and a draft flip all count, and a push alone waits for its CI verdict. When `TaskList` doesn't show the watch running, arm it with `Monitor` at the longest timeout. Each line it prints then wakes the loop at once. Then call `ScheduleWakeup` with the routine's `/loop` prompt and 1200 to 1800 seconds, as the fallback for what the watch can't see and for a monitor that expired. A loop on timer ticks alone added 10 to 15 minutes to each step of each item.
+- Then wake on events, not on a timer. The watch is `~/.claude/skills/work-create-loop/watch.py` on the routine's `status` script, whose lines follow the contract in the watch's docstring. A loop that needs to filter fields keeps a watch of its own beside the routine. Either one polls every minute or two and prints one line when an item changes in a way the loop acts on. Opening, merging, a CI verdict, a review and a draft flip all count, and a push alone waits for its CI verdict. When `TaskList` doesn't show the watch running, arm it with `Monitor` at the longest timeout. Each line it prints then wakes the loop at once. Then call `ScheduleWakeup` with the routine's `/loop` prompt and 1200 to 1800 seconds, as the fallback for what the watch can't see and for a monitor that expired. A loop on timer ticks alone added 10 to 15 minutes to each step of each item.
 - When nothing is running and every remaining item waits on me, stop the loop, and say what it waits on.
 
 **Always.**
@@ -71,4 +71,4 @@ Written before the action is sent. A key that's already here isn't sent again.
 
 ## Promotion to a skill
 
-A campaign's logic stays in its routine. When a second routine repeats the same steps, propose a skill to me.
+`/work-create-loop` writes a new routine, and a campaign's logic stays in that routine. When two routines repeat the same campaign steps, propose a skill for those steps to me.

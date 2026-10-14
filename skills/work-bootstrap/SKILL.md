@@ -33,7 +33,7 @@ An agent in a new project starts blind. It has to ask how to run the tests and t
 
 - A verify skill or a feature map → `/test-verify`, which this skill runs as its last step.
 - A rule agents keep breaking → `/self-improve`, which adds rows to `rules.md` and writes checks.
-- Recurring routines → `/setup`. It arms the scheduled ones and prints the start command for each loop. `~/.claude/context.example/routines/README.md` documents a routine's sections.
+- Recurring routines → `/setup`. It arms the scheduled ones and prints the start command for each loop. A new loop → `/work-create-loop`. `~/.claude/context.example/routines/README.md` documents a routine's sections.
 
 ## Instructions
 

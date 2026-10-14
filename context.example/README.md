@@ -35,7 +35,8 @@ Files:
 - `decisions.md`: the non-obvious calls in force, one entry per decision under a topic, each
   with why it was made and who made it. Other files cite an entry by its heading.
 - `routines/`: scheduled prompts and restartable `/loop` routines, with each loop's lock,
-  ledger, and scripts. `routines/README.md` documents them, and `/setup` starts them.
+  ledger, and scripts. `routines/README.md` documents them, `/work-create-loop` writes a
+  new loop, and `/setup` starts them.
 - `rules.md`: the project's rules that agents keep breaking, each with what enforces it.
 - `checks/`: private checks that enforce those rules for my agents, without changing the
   team's repo. `checks/README.md` has the contract.

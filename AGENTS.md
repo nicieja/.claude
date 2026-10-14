@@ -4,7 +4,7 @@ I have a library of skills and commands, and it only helps when it gets used. **
 
 ### When to suggest instead
 
-Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, `/work-bootstrap`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
+Some skills take my time or run at scale: `/idea-challenge`, `/idea-spec`, `/market-rehearse`, `/code-refactor`, `/work-triage`, `/work-firefight`, `/work-bootstrap`, `/work-create-loop`, and `/self-heal` over the whole library. For these, suggest in one line and wait for my yes, unless I already asked for the workflow in my own words.
 
 ### Limits
 
@@ -55,6 +55,7 @@ Some skills use tools that not every agent has, such as scheduling a wake-up or 
 | Code that grew by iteration and needs a cleanup too big for one pass, or a port to a new layer that must keep its behavior, run as a checklist of slices | `/code-refactor` |
 | A task that needs its own checkout, or a worktree to release or audit once the task is done | `/code-worktree` |
 | A long or unattended run I'll review later, or "catch me up on what you did" | `/work-log` |
+| A campaign of many items to drive to done over days, or a new restartable loop routine | `/work-create-loop` |
 | Work to hand to a cloud agent, `codex exec`, or a background subagent, or a check on work handed off earlier | `/work-delegate` |
 | "Say that plainer", or walking me through a PR, a plan, or how some code works | `/explain` |
 | A firefighting rotation session, with urgent fires, the support backlog, the dead job queue, and Sentry triage | `/work-firefight` |
