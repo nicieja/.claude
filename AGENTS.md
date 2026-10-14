@@ -50,6 +50,7 @@ Some skills use tools that not every agent has, such as scheduling a wake-up or 
 | Prose that reads AI-generated (verbose, jargon-stuffed, hedged, em-dash-ridden) | `/code-deslop` |
 | Code or a diff stuffed with comments, or lint suppressions such as `rubocop:disable` and `@ts-ignore` | `/code-uncomment` |
 | Code that guards states that can't happen, or adds parameters, fields, flags, or fallbacks no caller needs: needless rescues, retries, armor I didn't ask for | `/code-simplify` |
+| A mistake found in one PR or file that agents could have copied elsewhere, to find and fix in every open PR and on the default branch | `/code-sweep` |
 | Tests an agent added on a branch or diff that look like more than the behavior needs (duplicates, framework checks, tests of internals) | `/test-prune` |
 | Working code that needs a tidy-up for reuse and efficiency, with its behavior unchanged (Claude Code's built-in) | `/simplify` |
 | Code that grew by iteration and needs a cleanup too big for one pass, or a port to a new layer that must keep its behavior, run as a checklist of slices | `/code-refactor` |
@@ -137,5 +138,7 @@ When I correct you, fix the instance, then stop the mistake from coming back. Pi
 2. **A check whose error says the fix**, such as a lint rule, CI, `bin/check`, or a Vale rule.
 3. **A test.**
 4. **Prose** in a skill or in this file, last, because nothing fails when an agent skips it.
+
+When the mistake is in code that agents copy, `/code-sweep` sweeps the open PRs and the default branch for it, and fixes the source the copies came from.
 
 In a team repo, a new check starts private in `context/<project>/checks/`, and moving it into the repo is my call. `/self-improve` does this at the end of a session, and `~/.claude/docs/enforcement.md` lists the rules here that already have a mechanism.
