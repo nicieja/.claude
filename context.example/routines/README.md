@@ -69,6 +69,10 @@ Written before the action is sent. A key that's already here isn't sent again.
 |---|---|---|---|
 ```
 
+## Recipes
+
+`recipes/` holds plans for kinds of loops that recur across projects, such as `recipes/error-watch.md`, a loop from error-tracker issues to fix PRs. Pass one to `/work-create-loop` as its plan: `/work-create-loop <name> ~/.claude/context.example/routines/recipes/<recipe>.md`. A recipe gives the design, the questions, the measurements to take, and a contract for each script. The skill writes the project's own scripts against those contracts, because the scripts depend on one project's tracker and layout.
+
 ## Promotion to a skill
 
 `/work-create-loop` writes a new routine, and a campaign's logic stays in that routine. When two routines repeat the same campaign steps, propose a skill for those steps to me.
