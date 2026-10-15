@@ -19,8 +19,9 @@ The status script's output is the contract between a loop and this watch:
 
 The first poll only records the starting state. After it, the watch prints
 `<line> (new)` for a new key, `<key> gone` for a key that left, and a settled
-line that differs from its key's line in the previous poll. A settling line
-prints only when its key is new. A failed status run goes to stderr, and the
+line that differs from its key's last settled line. A settling line prints only
+when its key is new, so an item that settles back to the line it had wakes no
+one. A failed status run goes to stderr, and the
 next poll compares with the last good one.
 """
 import subprocess
@@ -49,6 +50,11 @@ def changes(before, after):
         yield f"{item} gone"
 
 
+def remember(before, after):
+    return {item: before[item] if line.startswith(SETTLING) and item in before else line
+            for item, line in after.items()}
+
+
 def main(argv):
     if len(argv) not in (1, 2):
         sys.exit("usage: watch.py <status script> [seconds]")
@@ -62,10 +68,12 @@ def main(argv):
             print(f"{status} failed with exit {error.returncode}: {error.stderr.strip()}",
                   file=sys.stderr, flush=True)
         else:
-            if before is not None:
+            if before is None:
+                before = after
+            else:
                 for line in changes(before, after):
                     print(line, flush=True)
-            before = after
+                before = remember(before, after)
         time.sleep(interval)
 
 
