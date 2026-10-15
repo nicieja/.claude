@@ -54,7 +54,7 @@ daemon*
 .claude
 .last-cleanup
 .last-update-result.json
-remote-settings.json
+remote-settings.json*
 feedback
 state
 
