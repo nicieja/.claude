@@ -37,7 +37,7 @@ Some skills use tools that not every agent has, such as scheduling a wake-up or 
 | Building a feature or a slice of code from a plan, a spec, or a request | `/code-build` |
 | Reviewing a meaty code change before merge, mine or a teammate's, a second opinion on a diff (correctness, security, performance) | `/pr-review` |
 | A finished branch to publish as a PR | `/pr-open` |
-| My own open PR whose CI, bot reviews, or review threads need work to reach ready-to-merge | `/pr-babysit` |
+| My own open PR whose CI, bot reviews, or review threads need work to reach ready-to-merge, or my branch that lacks a PR or CI and needs rounds of local review | `/pr-babysit` |
 | Test strategy, what to test, missing coverage, flaky tests | `/test-design` |
 | A project with no scripted way to run the app and prove a feature works, or a feature map that is missing or has drifted | `/test-verify` |
 | Proving a change works by running it: reproducing a bug, checking what changed on the running app, "what could this break?" | `/test-prove` |

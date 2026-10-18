@@ -8,7 +8,7 @@ An author can't see the requirements it invented, because to the author each one
 - Once per build in `/code-build`, on the slice's diff.
 - Once per delegated PR in `/work-delegate check`.
 
-Skip it when the diff has nothing this run wrote, and when the run is a subagent that can't dispatch one. Never run a second pass on the changes the first pass caused.
+Skip it when the diff has nothing this run wrote, and when the run is a subagent that can't dispatch one. Never run a second pass on the changes the first pass caused. The one loop is `/pr-babysit` in local mode, where `~/.claude/skills/pr-babysit/local-review.md` reviews the whole branch each round in place of this pass, under its own stop rule.
 
 ## The brief
 

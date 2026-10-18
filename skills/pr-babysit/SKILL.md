@@ -1,19 +1,22 @@
 ---
 name: pr-babysit
-version: 1.2.0
+version: 1.3.0
 description: |
-  Take my own open PR to ready-to-merge. Matches the PR to a local checkout,
-  or creates one when I've stepped away. Takes several PRs, and works a stack
-  from the bottom up, carrying each fix up by merging.
+  Take my own open PR, or my branch with no PR, to ready-to-merge. Matches the
+  PR to a local checkout, or creates one when I've stepped away. Takes several
+  PRs, and works a stack from the bottom up, carrying each fix up by merging.
   Waits for a CI verdict on the current head with watch-ci.sh, and triages
   conflicts before review threads, and threads before CI failures. Each
   finding gets a fix commit, a dismissal with a concrete disproof, or a question
   for me. An independent reviewer reads the fix commits before each push.
   Pushes once I agree, replies in signed comments that cite the pushed commit,
   resolves the threads a pushed commit fixed, and re-arms the watcher until the
-  PR is Ready, Merged, or Blocked.
-  Never merges. Use it after /pr-open, or on any PR of mine that has red CI,
-  open review threads, or a conflict.
+  PR is Ready, Merged, or Blocked. A branch with no PR, or a repo with no CI,
+  gets local mode instead. There the project's tests give the verdict, and a
+  fresh reviewer agent reads the whole branch each round. The loop stops at the
+  first round with nothing new at Should fix or above.
+  Never merges. Use it after /pr-open, on any PR of mine that has red CI,
+  open review threads, or a conflict, or on a branch of mine that lacks a PR or CI.
 allowed-tools:
   - Read
   - Write
@@ -30,18 +33,20 @@ allowed-tools:
 
 Get my open PR to the point where the only thing left is my merge. The head commit is green, every review finding has a fix or an answer, and the branch merges cleanly into its base. The run watches CI and the reviews, then fixes what the diff got wrong and answers each reviewer. The merge button is mine.
 
+A branch with no PR, or a PR in a repo with no CI, has nothing on GitHub to wait for. The run brings the verdict and the reviewer itself, as "Local mode" says. Ready then means that the tests pass and a fresh reviewer found nothing left to fix. It doesn't mean that a person looked.
+
 ## Arguments
 
-- `/pr-babysit` (bare): the PR for the current branch.
-- `/pr-babysit <number | url | branch>`: that PR.
+- `/pr-babysit` (bare): the PR for the current branch, or the branch itself in local mode when it has no PR.
+- `/pr-babysit <number | url | branch>`: that PR, or that branch in local mode when it has no PR.
 - `/pr-babysit <PR> <PR>...`: several PRs in one run, as "Several PRs and stacks" says.
 - Steers in plain words:
-  - `--check` / "just check": one read-only status pass through Steps 0 to 2, with `watch-ci.sh --once` and a list of the open threads. The run reports and stops without changing the checkout or posting a comment.
+  - `--check` / "just check": one read-only status pass through Steps 0 to 2, with `watch-ci.sh --once` and a list of the open threads. In local mode, the pass runs the tests and one review round. The run reports and stops without changing the checkout or posting a comment.
   - `--threads` / "only the reviews": review threads only. Skip the CI wait and the CI triage.
 
 ## Cases for another skill
 
-- The branch has no PR yet → `/pr-open`, which offers to hand the new PR here.
+- Publishing the branch as a PR → `/pr-open`, which offers to hand the new PR here. A branch without a PR still gets local mode here.
 - A teammate's PR to review → `/pr-review`.
 - A fix to prove by running it, beyond the tests → `/test-prove`.
 - Which test a fix needs → `/test-design`.
@@ -60,7 +65,7 @@ End each comment with the signature line from `~/.claude/AGENTS.md`, on its own 
 
 ### Step 0: Match the PR to its checkout
 
-Read the PR with `gh pr view <arg> --json number,url,author,state,headRefName,headRefOid,baseRefName,headRepository,headRepositoryOwner`. When its author isn't me (`gh api user --jq .login`), stop and point to `/pr-review`.
+Read the PR with `gh pr view <arg> --json number,url,author,state,headRefName,headRefOid,baseRefName,headRepository,headRepositoryOwner`. When its author isn't me (`gh api user --jq .login`), stop and point to `/pr-review`. When the branch has no PR, go to "Local mode".
 
 The current directory proves nothing about which checkout holds the PR. Find it in `git worktree list --porcelain`. A checkout matches when all of these hold:
 
@@ -89,6 +94,8 @@ Read two lines of `~/.claude/context/<project>/stack.md`:
 - **Review bots**: which bots review PRs, and how each one signals that it has finished. A bot that signals with a check run becomes another `--expect`.
 
 A missing line takes its default. CI defaults to GitHub checks through `gh`, with the required list read from the base branch's protection and rulesets. Review bots default to advisory: the run waits for none of them, and still triages the findings they've already posted. Offer once to add the missing line to `stack.md`, in the format of `~/.claude/context.example/stack.md`. Read `escalation.md` from the same directory too.
+
+The repo has no CI when the **CI** line says `none`, or when there's no CI line and the base branch's head has no check runs and no statuses. Both `gh api repos/<owner>/<repo>/commits/<base>/check-runs --jq .total_count` and `gh api repos/<owner>/<repo>/commits/<base>/status --jq .total_count` print 0 then. The watcher would wait forever for checks that never start. The PR goes to "Local mode" instead.
 
 ### Step 2: Wait for a verdict on the current head
 
@@ -164,6 +171,15 @@ Work in this order, because each item changes what the next one sees.
 
 Repeat Steps 2 to 4 until the PR reaches an end state.
 
+### Local mode
+
+A branch with no PR, and a PR in a repo with no CI, run this loop in place of Steps 2 to 4. Without a PR, the checkout is the one that has the branch checked out in `git worktree list --porcelain`, and Step 0's rule about uncommitted changes applies with the branch's diff against its merge base as the PR's files.
+
+1. **The tests are the verdict.** Run the project's test commands from `stack.md`, then each executable in `~/.claude/context/<project>/checks/`. When `stack.md` doesn't list the test commands, ask me once and offer `/work-bootstrap`. A test that fails in the branch's own code is a Blocking finding.
+2. **A fresh reviewer reads the branch each round.** Follow `local-review.md` (next to this file). It sets the brief, the ruling on each severity, and the stop rule. On a PR in a repo whose `stack.md` names review bots, the bots review it instead, and Step 3 triages their threads.
+3. **Fix** as Step 4 says, with one commit per finding or per cluster, and verify locally. Skip Step 4's independent review, because the next round's reviewer reads the fix commits along with the rest of the branch.
+4. **On a PR**, its review threads still get Step 3's triage, and the push and the replies follow Step 4. Without a PR, nothing leaves the machine.
+
 ### Several PRs and stacks
 
 With several PRs, run Steps 0 and 1 for each. Keep one watcher per PR running in the background, and triage each PR when its watcher reports.
@@ -179,20 +195,22 @@ A PR whose base is another PR's head branch sits above that PR in a stack. Work 
 The run ends in one of these states:
 
 - **Ready**: the head is green and mergeable, and each finding has a fix or an answer. The merge is mine.
+- **Ready (local)**: the tests pass on the head, and the last review round found nothing new at Should fix or above. The report says that no person or outside bot has reviewed the branch. Without a PR, it offers `/pr-open`.
 - **Merged**: hand the checkout to `/code-worktree done`.
 - **Blocked**: the report gives the evidence and the exact action that would let the run continue. "Approve the push of 3 commits" is one such action.
 
 The report has these parts:
 
-- **Status**: a table of the PR's state with its evidence. Its rows cover CI on the head SHA and mergeability, plus one row per reviewer and one for unpushed commits. With several PRs, one table per PR.
+- **Status**: a table of the PR's state with its evidence. Its rows cover CI on the head SHA and mergeability, plus one row per reviewer and one for unpushed commits. With several PRs, one table per PR. In local mode, the rows cover the tests on the head and each review round's findings by severity.
 - **Merge order**: with a stack, the part "Several PRs and stacks" asks for.
 - **Fixed**: each finding with the commit that fixed it.
 - **Dismissed**: each finding with its disproof.
+- **Suggestions**: in local mode, one line for each Suggestion that the loop left alone. A repeat from a later round merges into its line.
 - **Reviewed**: the independent review's part, as `~/.claude/skills/pr-review/independent-review.md` sets it.
 - **Pending**: checks still running, and reviewers who haven't finished.
 - **Needs you**: the push to approve and my questions, asked together at the end. The review's Ask findings are among the questions.
 - **Check**: the weakest dismissal, and what evidence would flip it.
-- **Undo**: `git revert <shas>` (with `-m 1` for a merge of the base) and a push, which is ask-first. Before the push, `git reset --keep <head before the run>` drops the local commits.
+- **Undo**: `git revert <shas>` (with `-m 1` for a merge of the base) and a push, which is ask-first. Before the push, and in local mode without a PR, `git reset --keep <head before the run>` drops the local commits.
 
 ## Key Rules
 
@@ -205,3 +223,4 @@ The report has these parts:
 7. **Push before replying.** The reply cites the pushed commit, and a thread that commit fixed gets resolved.
 8. **Merges and force pushes wait for me.** So a conflict or a stack gets a merge, never a rebase. Pushing is ask-first unless a steer or `escalation.md` widens it.
 9. **A reader that didn't write the fix checks it before each push.**
+10. **Local mode fixes only Blocking and Should fix findings.** It stops at the first round with nothing new at that level, or after five rounds in a row on its own commits. Suggestions never run out.

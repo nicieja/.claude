@@ -4,7 +4,8 @@
 - **Code host & PR flow:** <gh, stacked PRs?, merge queue?, draft-first? A stacking tool
   is used only when it's installed>
 - **CI:** <where checks run, and where the required ones are set, e.g. GitHub Actions
-  with branch protection or rulesets>
+  with branch protection or rulesets. "none" when nothing runs, which sends /pr-babysit
+  to its local mode>
 - **Review bots:** <the bots that review PRs, and how each one signals it has finished:
   a review on the head commit, a status, a check run, or a reaction>
 - **Commit conventions:** <path to .gitmessage or doc, or "none">
