@@ -31,7 +31,7 @@ Files:
 - `stack.md`: tracker, code host, error tracking, console access, schema locations,
   test commands, conventions. The file skills consult before touching the project.
 - `resolutions.md`: remembered answers to project-skill conflicts. Written by skills.
-  `bin/hooks/compose_notes.py` hands its compose notes to the repo's own skills.
+  `bin/hooks/compose_notes.py` hands each of its notes to the skill it names.
 - `decisions.md`: the non-obvious calls in force, one entry per decision under a topic, each
   with why it was made and who made it. Other files cite an entry by its heading.
 - `routines/`: scheduled prompts and restartable `/loop` routines, with each loop's lock,

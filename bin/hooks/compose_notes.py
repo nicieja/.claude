@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Hook that hands a repo's own skill the compose notes recorded for it.
+"""Hook that hands a skill the notes recorded for it in a project.
 
-A compose note in ~/.claude/context/<project>/resolutions.md is the user's
-standing instruction for one of the repo's skills:
+A note in ~/.claude/context/<project>/resolutions.md is the user's standing
+instruction for one skill. A compose note is for one of the repo's skills, and
+a personal note is for one of the user's own:
 
   - <skill or skill.stage> → compose: project:<name>; <note> (<YYYY-MM-DD>)
+  - <skill or skill.stage> → personal; <note> (<YYYY-MM-DD>)
 
 - SessionStart lists every note for the project, and the lines that don't
   parse. It runs again after /compact, so the notes outlive a long session and
@@ -27,6 +29,7 @@ from pathlib import Path
 CONTEXT = Path.home() / ".claude/context"
 LINE = re.compile(r"- ([a-z0-9-]+(?:\.[a-z0-9-]+)?) → (.+) \((\d{4}-\d{2}-\d{2})\)")
 COMPOSE = re.compile(r"compose: project:([a-z0-9-]+); (\S.*)")
+PERSONAL = re.compile(r"personal; (\S.*)")
 ASK = "Where the skill waits for the user to ask, the note is that ask."
 
 
@@ -37,13 +40,17 @@ def project(cwd):
 
 
 def parse(text):
-    """Return (notes, malformed). A note is (project skill, resolution key, note)."""
+    """Return (notes, malformed). A note is (skill it's for, resolution key, note)."""
     notes, malformed = [], []
     for n, line in enumerate(text.splitlines(), 1):
         if not line.startswith("- "):
             continue
         m = LINE.fullmatch(line.strip())
         choice = m.group(2) if m else ""
+        personal = PERSONAL.fullmatch(choice)
+        if personal:
+            notes.append((m.group(1).partition(".")[0], m.group(1), personal.group(1)))
+            continue
         if choice.startswith(("project:", "personal")):
             continue
         compose = COMPOSE.fullmatch(choice)
@@ -57,8 +64,8 @@ def parse(text):
 def session_text(path, notes, malformed):
     parts = []
     if notes:
-        parts.append(f"Compose notes from {path}. Each one is the user's standing instruction "
-                     "for one of this repo's skills. Apply it whenever that skill runs, however "
+        parts.append(f"Notes from {path}. Each one is the user's standing instruction "
+                     "for one skill, the repo's or the user's own. Apply it whenever that skill runs, however "
                      "it starts: typed, loaded with the Skill tool, read from its file, or run "
                      f"as a step of another skill. {ASK}\n"
                      + "\n".join(f"- `{skill}` (resolution `{key}`): {note}"
@@ -74,7 +81,7 @@ def session_text(path, notes, malformed):
 def load_text(path, skill, notes):
     if not notes:
         return ""
-    return (f"`{skill}` runs with a compose note from {path}, the user's standing instruction "
+    return (f"`{skill}` runs with a note from {path}, the user's standing instruction "
             f"for it. Apply it on this run. {ASK}\n"
             + "\n".join(f"- resolution `{key}`: {note}" for _, key, note in notes))
 

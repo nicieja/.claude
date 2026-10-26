@@ -60,6 +60,7 @@ RESOLUTIONS = """\
 - pr-babysit → compose: project:ci-loop; reply to each thread you fixed. (2026-01-02)
 - test-prove → compose: project verify runs the checks (2026-01-03)
 - pr-open → project:pr
+- spec.plan → personal; write the plan in Plan mode. (2026-01-04)
 """
 
 failures = []
@@ -108,7 +109,8 @@ def expect(got, wanted, case):
 
 def check_compose():
     notes, malformed = compose_notes.parse(RESOLUTIONS)
-    expect(notes, [("ci-loop", "pr-babysit", "reply to each thread you fixed.")], "parsed notes")
+    expect(notes, [("ci-loop", "pr-babysit", "reply to each thread you fixed."),
+                   ("spec", "spec.plan", "write the plan in Plan mode.")], "parsed notes")
     expect([n for n, _ in malformed], [6, 7], "malformed line numbers")
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -127,6 +129,7 @@ def check_compose():
 
         start = run_hook(home, {"hook_event_name": "SessionStart", "cwd": str(worktree)})
         for text in ("`ci-loop` (resolution `pr-babysit`): reply to each thread you fixed.",
+                     "`spec` (resolution `spec.plan`): write the plan in Plan mode.",
                      "line 6:", "line 7:"):
             if text not in start:
                 fail("bin/hooks/compose_notes.py", f"SessionStart leaves out {text!r}",
@@ -136,6 +139,11 @@ def check_compose():
         if "reply to each thread you fixed." not in loaded:
             fail("bin/hooks/compose_notes.py", "PostToolUse on Skill(ci-loop) leaves out its note",
                  "match the note on tool_input['skill']")
+        typed = run_hook(home, {"hook_event_name": "UserPromptExpansion", "cwd": str(repo),
+                                "command_name": "spec"})
+        if "write the plan in Plan mode." not in typed:
+            fail("bin/hooks/compose_notes.py", "a typed /spec leaves out its personal note",
+                 "key a personal note on the skill in its resolution key, without the stage")
         expect(run_hook(home, {"hook_event_name": "UserPromptExpansion", "cwd": str(repo),
                                "command_name": "deploy"}), "", "a skill with no note")
         expect(run_hook(home, {"hook_event_name": "SessionStart", "cwd": str(outside)}), "",

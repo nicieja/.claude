@@ -25,7 +25,7 @@ impossible. Add a row here when a rule gets its mechanism.
 | A comment or message posted under my account ends with the signature line | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py`, a pre-tool hook in Claude Code and Codex |
 | Merges, stacked merges included, approving or change-requesting reviews, and force pushes wait for my OK | `AGENTS.md`, "When to act and when to confirm" | `bin/hooks/outward_guard.py` |
 | Each hook does what its docstring says, on the cases in its test table | This file | `bin/hooks/test_hooks.py`, which `bin/check` runs |
-| A compose note in `context/<project>/resolutions.md` applies whenever its project skill runs | `AGENTS.md`, "Project skills take precedence" | `bin/hooks/compose_notes.py`, which adds the notes at session start, after `/compact`, and when the skill loads |
+| A compose note in `context/<project>/resolutions.md` applies whenever its project skill runs, and a personal note whenever my skill runs | `AGENTS.md`, "Project skills take precedence" | `bin/hooks/compose_notes.py`, which adds the notes at session start, after `/compact`, and when the skill loads |
 | In conversation mode, every reply is short | `commands/conversation.md` | `bin/hooks/conversation_mode.py`, which repeats the rules on every prompt while the mode is on |
 | A project's `decisions.md` states the calls in force, one entry under a topic for each, and other files cite an entry by its heading | `context.example/decisions.md` | `bin/check --context`, which the context repo's pre-commit hook runs. Plain `bin/check` lints the template |
 
